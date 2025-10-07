@@ -58,7 +58,7 @@ class Synaplan_WP_Widget {
             'config' => $config,
             'user_id' => $user_id,
             'widget_id' => 1, // Default widget ID
-            'api_url' => 'https://api.synaplan.com', // Update with actual API URL
+            'api_url' => 'https://app.synaplan.com', // Correct API URL
             'strings' => array(
                 'loading' => __('Loading...', 'synaplan-wp-ai'),
                 'error' => __('An error occurred. Please try again.', 'synaplan-wp-ai'),
@@ -146,7 +146,7 @@ class Synaplan_WP_Widget {
      * Get widget URL
      */
     private function get_widget_url($user_id, $widget_id, $mode = '') {
-        $base_url = 'https://widget.synaplan.com'; // Update with actual widget URL
+        $base_url = 'https://app.synaplan.com'; // Correct base URL
         $url = $base_url . '/widget.php?uid=' . $user_id . '&widgetid=' . $widget_id;
         
         if (!empty($mode)) {

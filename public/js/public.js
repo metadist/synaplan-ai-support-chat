@@ -64,7 +64,7 @@
         },
 
         buildWidgetUrl: function(config, userId, widgetId) {
-            var baseUrl = synaplan_wp_widget.api_url || 'https://widget.synaplan.com';
+            var baseUrl = synaplan_wp_widget.api_url || 'https://app.synaplan.com';
             var url = baseUrl + '/widget.php?uid=' + userId + '&widgetid=' + widgetId;
             
             // Add mode parameter for inline widgets

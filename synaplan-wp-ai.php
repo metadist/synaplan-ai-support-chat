@@ -3,7 +3,7 @@
  * Plugin Name: Synaplan WP AI
  * Plugin URI: https://github.com/synaplan/synaplan-wp-ai
  * Description: Integrate Synaplan AI chat widget into your WordPress site with a wizard-style setup procedure.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Synaplan
  * Author URI: https://synaplan.com
  * License: Apache-2.0
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('SYNAPLAN_WP_VERSION', '1.0.2');
+define('SYNAPLAN_WP_VERSION', '1.0.3');
 define('SYNAPLAN_WP_PLUGIN_FILE', __FILE__);
 define('SYNAPLAN_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SYNAPLAN_WP_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -70,5 +70,44 @@ register_activation_hook(__FILE__, 'synaplan_wp_activate');
 function synaplan_wp_deactivate() {
     // Flush rewrite rules
     flush_rewrite_rules();
+    
+    // Clean up transients and temporary data
+    delete_transient('synaplan_wp_api_status');
+    delete_transient('synaplan_wp_widget_preview');
+    
+    // Clean up user-specific transients
+    global $wpdb;
+    $users = $wpdb->get_col("SELECT ID FROM {$wpdb->users} LIMIT 100");
+    foreach ($users as $user_id) {
+        delete_transient('synaplan_wizard_data_' . $user_id);
+    }
 }
 register_deactivation_hook(__FILE__, 'synaplan_wp_deactivate');
+
+/**
+ * Manual cleanup function (can be called if uninstall fails)
+ */
+function synaplan_wp_manual_cleanup() {
+    // Remove all plugin options
+    delete_option('synaplan_wp_version');
+    delete_option('synaplan_wp_setup_completed');
+    delete_option('synaplan_wp_api_key');
+    delete_option('synaplan_wp_user_id');
+    delete_option('synaplan_wp_widget_config');
+    delete_option('synaplan_wp_wizard_data');
+    delete_option('synaplan_wp_db_version');
+    delete_option('synaplan_wp_verification_token');
+    
+    // Remove transients
+    delete_transient('synaplan_wp_api_status');
+    delete_transient('synaplan_wp_widget_preview');
+    
+    // Remove database table
+    global $wpdb;
+    $wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}synaplan_wizard_sessions");
+    
+    // Clear cache
+    wp_cache_flush();
+    
+    return true;
+}

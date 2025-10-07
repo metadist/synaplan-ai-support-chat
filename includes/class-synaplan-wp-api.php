@@ -413,4 +413,81 @@ class Synaplan_WP_API {
             'raw_body' => $response
         );
     }
+    
+    /**
+     * Complete WordPress wizard setup with files, prompt, and widget
+     * 
+     * This new endpoint handles all three missing pieces:
+     * 1. Upload files to RAG system
+     * 2. Enable file search on general prompt
+     * 3. Save widget configuration
+     *
+     * @param array $wizard_data Wizard configuration data
+     * @param array $uploaded_files Array of uploaded file paths
+     * @return array Result of the operation
+     */
+    public function complete_wizard_setup($wizard_data, $uploaded_files = array()) {
+        // Use cURL for file upload with multipart form data
+        $ch = curl_init();
+        
+        $post_data = array(
+            'action' => 'wpWizardComplete',
+            'widgetId' => $wizard_data['widget_id'] ?? 1,
+            'widgetColor' => $wizard_data['widget_color'] ?? '#007bff',
+            'widgetIconColor' => $wizard_data['icon_color'] ?? '#ffffff',
+            'widgetPosition' => $wizard_data['widget_position'] ?? 'bottom-right',
+            'autoMessage' => $wizard_data['intro_message'] ?? 'Hello! How can I help you today?',
+            'widgetPrompt' => $wizard_data['prompt'] ?? 'general',
+            'autoOpen' => '0',
+            'integrationType' => 'floating-button'
+        );
+        
+        // Add files if any
+        if (!empty($uploaded_files)) {
+            foreach ($uploaded_files as $index => $file_data) {
+                if (isset($file_data['file_path']) && file_exists($file_data['file_path'])) {
+                    $post_data['files[' . $index . ']'] = new CURLFile(
+                        $file_data['file_path'],
+                        $file_data['type'],
+                        $file_data['name']
+                    );
+                }
+            }
+        }
+        
+        curl_setopt($ch, CURLOPT_URL, $this->api_base_url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 180); // 3 minutes for file processing
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $this->api_key
+        ));
+        
+        Synaplan_WP_Core::log("Completing wizard setup with " . count($uploaded_files) . " files");
+        
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        if ($error) {
+            Synaplan_WP_Core::log("Wizard completion cURL error: " . $error);
+            return array(
+                'success' => false,
+                'error' => $error
+            );
+        }
+        
+        $decoded_body = json_decode($response, true);
+        
+        Synaplan_WP_Core::log("Wizard completion response: " . $response);
+        
+        return array(
+            'success' => $http_code >= 200 && $http_code < 300,
+            'status_code' => $http_code,
+            'data' => $decoded_body,
+            'raw_body' => $response
+        );
+    }
 }

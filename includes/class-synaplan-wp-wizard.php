@@ -517,7 +517,10 @@ class Synaplan_WP_Wizard {
         Synaplan_WP_Core::set_api_key($register_result['data']['data']['api_key']);
         Synaplan_WP_Core::set_user_id($register_result['data']['data']['user_id']);
         
-        // Update widget configuration with user's settings
+        // Set API key for subsequent calls
+        $api->set_api_key($register_result['data']['data']['api_key']);
+        
+        // Update widget configuration with user's settings (local WordPress storage)
         $widget_config = array(
             'integration_type' => 'floating-button',
             'color' => $this->wizard_data['widget_color'],
@@ -530,37 +533,53 @@ class Synaplan_WP_Wizard {
             'language' => $this->wizard_data['language']
         );
         
-        Synaplan_WP_Core::log("Saving widget config: " . print_r($widget_config, true));
+        Synaplan_WP_Core::log("Saving widget config locally: " . print_r($widget_config, true));
         Synaplan_WP_Core::update_widget_config($widget_config);
         
-        // Also save widget configuration to Synaplan database
-        $numeric_user_id = $this->extract_numeric_user_id($register_result['data']['data']['user_id']);
-        $widget_config_for_api = array(
-            'widgetId' => 1, // Default widget ID
-            'userId' => $numeric_user_id,
-            'integrationType' => 'floating-button',
-            'color' => $this->wizard_data['widget_color'],
-            'iconColor' => '#ffffff',
-            'position' => $this->wizard_data['widget_position'],
-            'autoMessage' => $this->wizard_data['intro_message'],
-            'autoOpen' => '0',
+        // Prepare wizard data for complete setup API call
+        $wizard_setup_data = array(
+            'widget_id' => 1,
+            'widget_color' => $this->wizard_data['widget_color'],
+            'icon_color' => '#ffffff',
+            'widget_position' => $this->wizard_data['widget_position'],
+            'intro_message' => $this->wizard_data['intro_message'],
             'prompt' => $this->wizard_data['prompt']
         );
         
-        Synaplan_WP_Core::log("Saving widget to Synaplan database: " . print_r($widget_config_for_api, true));
-        $save_widget_result = $api->save_widget($widget_config_for_api);
-        
-        if (!$save_widget_result['success']) {
-            Synaplan_WP_Core::log("Failed to save widget to Synaplan database: " . ($save_widget_result['error'] ?? 'Unknown error'));
-            // Don't fail the entire process, just log the error
-        } else {
-            Synaplan_WP_Core::log("Widget successfully saved to Synaplan database");
+        // Prepare uploaded files array (if any)
+        $uploaded_files = array();
+        if (isset($this->wizard_data['uploaded_files']) && !empty($this->wizard_data['uploaded_files'])) {
+            $uploaded_files = $this->wizard_data['uploaded_files'];
+            Synaplan_WP_Core::log("Including " . count($uploaded_files) . " files for wizard completion");
         }
         
-        // Process uploaded files for vectorization (if any)
-        if (isset($this->wizard_data['uploaded_files']) && !empty($this->wizard_data['uploaded_files'])) {
-            Synaplan_WP_Core::log("Processing uploaded files for vectorization");
-            $this->process_uploaded_files_for_rag($register_result['data']['data']['user_id'], $register_result['data']['data']['api_key']);
+        // Call the new unified wizard completion endpoint
+        Synaplan_WP_Core::log("Calling wpWizardComplete endpoint");
+        $completion_result = $api->complete_wizard_setup($wizard_setup_data, $uploaded_files);
+        
+        Synaplan_WP_Core::log("Wizard completion result: " . print_r($completion_result, true));
+        
+        if (!$completion_result['success']) {
+            Synaplan_WP_Core::log("Wizard completion failed: " . ($completion_result['error'] ?? 'Unknown error'));
+            // Don't fail the entire process, just log the error
+            // The user is created and API key is saved, so they can configure manually
+        } else {
+            Synaplan_WP_Core::log("Wizard completion successful");
+        }
+        
+        // Clean up temporary files
+        if (!empty($uploaded_files)) {
+            foreach ($uploaded_files as $file_data) {
+                if (isset($file_data['file_path']) && file_exists($file_data['file_path'])) {
+                    unlink($file_data['file_path']);
+                }
+            }
+            
+            // Clean up temp directory if empty
+            $temp_dir = wp_upload_dir()['basedir'] . '/synaplan-temp/';
+            if (is_dir($temp_dir) && count(scandir($temp_dir)) <= 2) { // Only . and .. entries
+                rmdir($temp_dir);
+            }
         }
         
         // Mark setup as completed
@@ -573,50 +592,6 @@ class Synaplan_WP_Wizard {
         
         Synaplan_WP_Core::log("Step 4 completed successfully");
         return array('success' => true, 'completed' => true);
-    }
-    
-    /**
-     * Process uploaded files for RAG vectorization
-     */
-    private function process_uploaded_files_for_rag($user_id, $api_key) {
-        // Rate limiting: max 5 files per wizard session
-        $file_count = count($this->wizard_data['uploaded_files']);
-        if ($file_count > 5) {
-            Synaplan_WP_Core::log("Rate limit exceeded: Too many files uploaded ($file_count)");
-            return;
-        }
-        
-        $api = new Synaplan_WP_API();
-        
-        foreach ($this->wizard_data['uploaded_files'] as $file_data) {
-            Synaplan_WP_Core::log("Processing file for RAG: " . $file_data['name']);
-            
-            // Upload file to Synaplan for vectorization
-            $upload_result = $api->upload_file_for_rag(
-                $file_data['file_path'],
-                $file_data['name'],
-                $file_data['type'],
-                $user_id,
-                $api_key
-            );
-            
-            if ($upload_result['success']) {
-                Synaplan_WP_Core::log("File uploaded and vectorized successfully: " . $file_data['name']);
-            } else {
-                Synaplan_WP_Core::log("File upload failed: " . ($upload_result['error'] ?? 'Unknown error'));
-            }
-            
-            // Clean up temporary file
-            if (file_exists($file_data['file_path'])) {
-                unlink($file_data['file_path']);
-            }
-        }
-        
-        // Clean up temp directory if empty
-        $temp_dir = wp_upload_dir()['basedir'] . '/synaplan-temp/';
-        if (is_dir($temp_dir) && count(scandir($temp_dir)) <= 2) { // Only . and .. entries
-            rmdir($temp_dir);
-        }
     }
     
     /**

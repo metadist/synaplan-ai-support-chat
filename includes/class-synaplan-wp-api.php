@@ -337,4 +337,80 @@ class Synaplan_WP_API {
             );
         }
     }
+    
+    /**
+     * Upload file for RAG vectorization
+     */
+    public function upload_file_for_rag($file_path, $file_name, $file_type, $user_id, $api_key) {
+        // Security validation
+        if (!file_exists($file_path)) {
+            return array(
+                'success' => false,
+                'error' => 'File not found'
+            );
+        }
+        
+        // Validate file size (max 10MB for RAG)
+        $max_size = 10 * 1024 * 1024; // 10MB
+        if (filesize($file_path) > $max_size) {
+            return array(
+                'success' => false,
+                'error' => 'File size exceeds 10MB limit'
+            );
+        }
+        
+        // Validate file type
+        $allowed_types = array('application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        if (!in_array($file_type, $allowed_types)) {
+            return array(
+                'success' => false,
+                'error' => 'Only PDF and DOCX files are allowed for RAG'
+            );
+        }
+        
+        // Use cURL for file upload since wp_remote_request doesn't handle $_FILES properly
+        $ch = curl_init();
+        
+        $post_data = array(
+            'action' => 'ragUpload',
+            'user_id' => $user_id,
+            'groupKey' => 'WORDPRESS_WIZARD',
+            'files' => new CURLFile($file_path, $file_type, $file_name)
+        );
+        
+        curl_setopt($ch, CURLOPT_URL, $this->api_base_url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Authorization: Bearer ' . $api_key
+        ));
+        
+        Synaplan_WP_Core::log("Uploading file for RAG: " . $file_name);
+        
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        if ($error) {
+            Synaplan_WP_Core::log("RAG upload cURL error: " . $error);
+            return array(
+                'success' => false,
+                'error' => $error
+            );
+        }
+        
+        $decoded_body = json_decode($response, true);
+        
+        Synaplan_WP_Core::log("RAG upload response: " . $response);
+        
+        return array(
+            'success' => $http_code >= 200 && $http_code < 300,
+            'status_code' => $http_code,
+            'data' => $decoded_body,
+            'raw_body' => $response
+        );
+    }
 }

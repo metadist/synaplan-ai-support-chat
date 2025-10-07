@@ -154,7 +154,7 @@ class Synaplan_WP_Wizard {
      * Render step 1: Account creation
      */
     private function render_step_1() {
-        $email = $this->wizard_data['email'] ?? '';
+        $email = $this->wizard_data['email'] ?? get_option('admin_email');
         $password = $this->wizard_data['password'] ?? '';
         $language = $this->wizard_data['language'] ?? '';
         
@@ -424,8 +424,17 @@ class Synaplan_WP_Wizard {
      * Process step 3: File upload
      */
     private function process_step_3($data) {
-        // Handle file uploads if any
+        // Handle file uploads if any - store files temporarily for later RAG processing
         if (isset($_FILES['files']) && !empty($_FILES['files']['name'][0])) {
+            // Rate limiting: max 5 files per wizard session
+            $file_count = count($_FILES['files']['name']);
+            if ($file_count > 5) {
+                return array(
+                    'success' => false, 
+                    'error' => __('Maximum 5 files allowed per wizard session', 'synaplan-wp-ai')
+                );
+            }
+            
             $uploaded_files = array();
             
             for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
@@ -436,13 +445,34 @@ class Synaplan_WP_Wizard {
                     'size' => $_FILES['files']['size'][$i]
                 );
                 
+                // Validate file
                 $api = new Synaplan_WP_API();
-                $result = $api->process_file_upload($file);
+                $validation = $api->validate_file_upload($file);
                 
-                if ($result['success']) {
-                    $uploaded_files[] = array(
-                        'name' => $file['name'],
-                        'file_id' => $result['file_id']
+                if ($validation['valid']) {
+                    // Move file to WordPress uploads directory for temporary storage
+                    $upload_dir = wp_upload_dir();
+                    $temp_dir = $upload_dir['basedir'] . '/synaplan-temp/';
+                    
+                    if (!file_exists($temp_dir)) {
+                        wp_mkdir_p($temp_dir);
+                    }
+                    
+                    $temp_filename = 'temp_' . time() . '_' . sanitize_file_name($file['name']);
+                    $temp_path = $temp_dir . $temp_filename;
+                    
+                    if (move_uploaded_file($file['tmp_name'], $temp_path)) {
+                        $uploaded_files[] = array(
+                            'name' => $file['name'],
+                            'type' => $file['type'],
+                            'file_path' => $temp_path,
+                            'size' => $file['size']
+                        );
+                    }
+                } else {
+                    return array(
+                        'success' => false,
+                        'error' => $validation['error']
                     );
                 }
             }
@@ -500,6 +530,12 @@ class Synaplan_WP_Wizard {
         Synaplan_WP_Core::log("Saving widget config: " . print_r($widget_config, true));
         Synaplan_WP_Core::update_widget_config($widget_config);
         
+        // Process uploaded files for vectorization (if any)
+        if (isset($this->wizard_data['uploaded_files']) && !empty($this->wizard_data['uploaded_files'])) {
+            Synaplan_WP_Core::log("Processing uploaded files for vectorization");
+            $this->process_uploaded_files_for_rag($register_result['data']['user_id'], $register_result['data']['api_key']);
+        }
+        
         // Mark setup as completed
         Synaplan_WP_Core::log("Marking setup as completed");
         Synaplan_WP_Core::mark_setup_completed();
@@ -510,6 +546,50 @@ class Synaplan_WP_Wizard {
         
         Synaplan_WP_Core::log("Step 4 completed successfully");
         return array('success' => true, 'completed' => true);
+    }
+    
+    /**
+     * Process uploaded files for RAG vectorization
+     */
+    private function process_uploaded_files_for_rag($user_id, $api_key) {
+        // Rate limiting: max 5 files per wizard session
+        $file_count = count($this->wizard_data['uploaded_files']);
+        if ($file_count > 5) {
+            Synaplan_WP_Core::log("Rate limit exceeded: Too many files uploaded ($file_count)");
+            return;
+        }
+        
+        $api = new Synaplan_WP_API();
+        
+        foreach ($this->wizard_data['uploaded_files'] as $file_data) {
+            Synaplan_WP_Core::log("Processing file for RAG: " . $file_data['name']);
+            
+            // Upload file to Synaplan for vectorization
+            $upload_result = $api->upload_file_for_rag(
+                $file_data['file_path'],
+                $file_data['name'],
+                $file_data['type'],
+                $user_id,
+                $api_key
+            );
+            
+            if ($upload_result['success']) {
+                Synaplan_WP_Core::log("File uploaded and vectorized successfully: " . $file_data['name']);
+            } else {
+                Synaplan_WP_Core::log("File upload failed: " . ($upload_result['error'] ?? 'Unknown error'));
+            }
+            
+            // Clean up temporary file
+            if (file_exists($file_data['file_path'])) {
+                unlink($file_data['file_path']);
+            }
+        }
+        
+        // Clean up temp directory if empty
+        $temp_dir = wp_upload_dir()['basedir'] . '/synaplan-temp/';
+        if (is_dir($temp_dir) && count(scandir($temp_dir)) <= 2) { // Only . and .. entries
+            rmdir($temp_dir);
+        }
     }
     
     /**

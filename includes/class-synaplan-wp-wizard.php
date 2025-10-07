@@ -492,7 +492,9 @@ class Synaplan_WP_Wizard {
             'position' => $this->wizard_data['widget_position'],
             'auto_message' => $this->wizard_data['intro_message'],
             'auto_open' => false,
-            'prompt' => $this->wizard_data['prompt']
+            'prompt' => $this->wizard_data['prompt'],
+            'email' => $this->wizard_data['email'],
+            'language' => $this->wizard_data['language']
         );
         
         Synaplan_WP_Core::log("Saving widget config: " . print_r($widget_config, true));

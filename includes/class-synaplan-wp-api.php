@@ -30,7 +30,7 @@ class Synaplan_WP_API {
      * Constructor
      */
     public function __construct() {
-        $this->api_base_url = 'https://synaplan.com/api'; // Update with actual API URL
+        $this->api_base_url = 'https://app.synaplan.com/api.php'; // Correct API URL
         $this->api_key = Synaplan_WP_Core::get_api_key();
     }
     
@@ -44,20 +44,27 @@ class Synaplan_WP_API {
     /**
      * Make API request
      */
-    private function make_request($endpoint, $method = 'GET', $data = null) {
-        $url = $this->api_base_url . '/' . ltrim($endpoint, '/');
+    private function make_request($action, $method = 'POST', $data = null) {
+        $url = $this->api_base_url; // Always use api.php
         
         $args = array(
             'method' => $method,
-            'headers' => array(
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->api_key
-            ),
             'timeout' => 30
         );
         
+        // Add Authorization header only if API key is available
+        if (!empty($this->api_key)) {
+            $args['headers'] = array(
+                'Authorization' => 'Bearer ' . $this->api_key
+            );
+        }
+        
         if ($data && in_array($method, array('POST', 'PUT', 'PATCH'))) {
-            $args['body'] = json_encode($data);
+            // Add action parameter and merge with data
+            $post_data = array_merge(array('action' => $action), $data);
+            $args['body'] = $post_data;
+        } else {
+            $args['body'] = array('action' => $action);
         }
         
         $response = wp_remote_request($url, $args);

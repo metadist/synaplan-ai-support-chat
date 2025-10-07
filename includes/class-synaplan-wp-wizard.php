@@ -461,7 +461,7 @@ class Synaplan_WP_Wizard {
     private function process_step_4($data) {
         $api = new Synaplan_WP_API();
         
-        // Register user
+        // Register user (now includes API key and widget creation)
         $register_result = $api->register_user(
             $this->wizard_data['email'],
             $this->wizard_data['password'],
@@ -472,18 +472,11 @@ class Synaplan_WP_Wizard {
             return array('success' => false, 'error' => $register_result['data']['error'] ?? __('Registration failed.', 'synaplan-wp-ai'));
         }
         
-        // Create API key
-        $api_key_result = $api->create_api_key('WordPress Plugin');
-        
-        if (!$api_key_result['success']) {
-            return array('success' => false, 'error' => $api_key_result['data']['error'] ?? __('API key creation failed.', 'synaplan-wp-ai'));
-        }
-        
-        // Save API credentials
-        Synaplan_WP_Core::set_api_key($api_key_result['data']['key']);
+        // Save API credentials from registration response
+        Synaplan_WP_Core::set_api_key($register_result['data']['api_key']);
         Synaplan_WP_Core::set_user_id($register_result['data']['user_id']);
         
-        // Save widget configuration
+        // Update widget configuration with user's settings
         $widget_config = array(
             'integration_type' => 'floating-button',
             'color' => $this->wizard_data['widget_color'],
@@ -495,10 +488,6 @@ class Synaplan_WP_Wizard {
         );
         
         Synaplan_WP_Core::update_widget_config($widget_config);
-        
-        // Save widget to Synaplan
-        $api->set_api_key($api_key_result['data']['key']);
-        $save_widget_result = $api->save_widget($widget_config);
         
         // Mark setup as completed
         Synaplan_WP_Core::mark_setup_completed();

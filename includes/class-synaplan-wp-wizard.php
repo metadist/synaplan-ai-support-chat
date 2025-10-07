@@ -505,14 +505,17 @@ class Synaplan_WP_Wizard {
         Synaplan_WP_Core::log("Register result: " . print_r($register_result, true));
         
         if (!$register_result['success']) {
-            Synaplan_WP_Core::log("Registration failed: " . ($register_result['data']['error'] ?? 'Unknown error'));
-            return array('success' => false, 'error' => $register_result['data']['error'] ?? __('Registration failed.', 'synaplan-wp-ai'));
+            Synaplan_WP_Core::log("Registration failed: " . ($register_result['data']['data']['error'] ?? 'Unknown error'));
+            return array('success' => false, 'error' => $register_result['data']['data']['error'] ?? __('Registration failed.', 'synaplan-wp-ai'));
         }
         
         // Save API credentials from registration response
         Synaplan_WP_Core::log("Saving API credentials");
-        Synaplan_WP_Core::set_api_key($register_result['data']['api_key']);
-        Synaplan_WP_Core::set_user_id($register_result['data']['user_id']);
+        Synaplan_WP_Core::log("API key from response: " . ($register_result['data']['data']['api_key'] ?? 'NOT FOUND'));
+        Synaplan_WP_Core::log("User ID from response: " . ($register_result['data']['data']['user_id'] ?? 'NOT FOUND'));
+        
+        Synaplan_WP_Core::set_api_key($register_result['data']['data']['api_key']);
+        Synaplan_WP_Core::set_user_id($register_result['data']['data']['user_id']);
         
         // Update widget configuration with user's settings
         $widget_config = array(
@@ -533,7 +536,7 @@ class Synaplan_WP_Wizard {
         // Process uploaded files for vectorization (if any)
         if (isset($this->wizard_data['uploaded_files']) && !empty($this->wizard_data['uploaded_files'])) {
             Synaplan_WP_Core::log("Processing uploaded files for vectorization");
-            $this->process_uploaded_files_for_rag($register_result['data']['user_id'], $register_result['data']['api_key']);
+            $this->process_uploaded_files_for_rag($register_result['data']['data']['user_id'], $register_result['data']['data']['api_key']);
         }
         
         // Mark setup as completed

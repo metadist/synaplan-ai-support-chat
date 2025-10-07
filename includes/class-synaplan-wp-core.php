@@ -273,6 +273,57 @@ class Synaplan_WP_Core {
     }
     
     /**
+     * Generate verification token for API validation
+     */
+    public static function generate_verification_token() {
+        return wp_generate_password(64, false);
+    }
+    
+    /**
+     * Create verification token for WordPress site validation
+     */
+    public static function create_verification_token() {
+        $token = self::generate_verification_token();
+        $site_url = get_site_url();
+        $expires = time() + (15 * MINUTE_IN_SECONDS); // 15 minutes
+        
+        // Store token in database
+        update_option('synaplan_wp_verification_token', array(
+            'token' => $token,
+            'site_url' => $site_url,
+            'expires' => $expires,
+            'created' => time()
+        ));
+        
+        return $token;
+    }
+    
+    /**
+     * Validate verification token
+     */
+    public static function validate_verification_token($token) {
+        $stored_data = get_option('synaplan_wp_verification_token', false);
+        
+        if (!$stored_data || !is_array($stored_data)) {
+            return false;
+        }
+        
+        // Check if token matches and hasn't expired
+        if ($stored_data['token'] === $token && time() < $stored_data['expires']) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get verification endpoint URL
+     */
+    public static function get_verification_endpoint_url() {
+        return get_site_url() . '/wp-json/synaplan-wp/v1/verify';
+    }
+    
+    /**
      * Log debug information
      */
     public static function log($message, $level = 'info') {

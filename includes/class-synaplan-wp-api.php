@@ -30,7 +30,7 @@ class Synaplan_WP_API {
      * Constructor
      */
     public function __construct() {
-        $this->api_base_url = 'https://api.synaplan.com'; // Update with actual API URL
+        $this->api_base_url = 'https://synaplan.com/api'; // Update with actual API URL
         $this->api_key = Synaplan_WP_Core::get_api_key();
     }
     
@@ -85,11 +85,18 @@ class Synaplan_WP_API {
      * Register new user
      */
     public function register_user($email, $password, $language = 'en') {
+        // Create verification token for WordPress site validation
+        $verification_token = Synaplan_WP_Core::create_verification_token();
+        $verification_url = Synaplan_WP_Core::get_verification_endpoint_url();
+        
         $data = array(
             'email' => $email,
             'password' => $password,
             'language' => $language,
-            'source' => 'wordpress_plugin'
+            'source' => 'wordpress_plugin',
+            'verification_token' => $verification_token,
+            'verification_url' => $verification_url,
+            'site_url' => get_site_url()
         );
         
         return $this->make_request('userRegister', 'POST', $data);

@@ -34,6 +34,7 @@ require_once SYNAPLAN_WP_PLUGIN_DIR . 'includes/class-synaplan-wp-admin.php';
 require_once SYNAPLAN_WP_PLUGIN_DIR . 'includes/class-synaplan-wp-api.php';
 require_once SYNAPLAN_WP_PLUGIN_DIR . 'includes/class-synaplan-wp-wizard.php';
 require_once SYNAPLAN_WP_PLUGIN_DIR . 'includes/class-synaplan-wp-widget.php';
+require_once SYNAPLAN_WP_PLUGIN_DIR . 'includes/class-synaplan-wp-rest-api.php';
 
 /**
  * Initialize the plugin
@@ -41,6 +42,9 @@ require_once SYNAPLAN_WP_PLUGIN_DIR . 'includes/class-synaplan-wp-widget.php';
 function synaplan_wp_init() {
     $core = new Synaplan_WP_Core();
     $core->init();
+    
+    // Initialize REST API
+    new Synaplan_WP_REST_API();
 }
 add_action('plugins_loaded', 'synaplan_wp_init');
 

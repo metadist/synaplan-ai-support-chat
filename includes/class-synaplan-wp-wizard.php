@@ -533,6 +533,30 @@ class Synaplan_WP_Wizard {
         Synaplan_WP_Core::log("Saving widget config: " . print_r($widget_config, true));
         Synaplan_WP_Core::update_widget_config($widget_config);
         
+        // Also save widget configuration to Synaplan database
+        $numeric_user_id = $this->extract_numeric_user_id($register_result['data']['data']['user_id']);
+        $widget_config_for_api = array(
+            'widgetId' => 1, // Default widget ID
+            'userId' => $numeric_user_id,
+            'integrationType' => 'floating-button',
+            'color' => $this->wizard_data['widget_color'],
+            'iconColor' => '#ffffff',
+            'position' => $this->wizard_data['widget_position'],
+            'autoMessage' => $this->wizard_data['intro_message'],
+            'autoOpen' => '0',
+            'prompt' => $this->wizard_data['prompt']
+        );
+        
+        Synaplan_WP_Core::log("Saving widget to Synaplan database: " . print_r($widget_config_for_api, true));
+        $save_widget_result = $api->save_widget($widget_config_for_api);
+        
+        if (!$save_widget_result['success']) {
+            Synaplan_WP_Core::log("Failed to save widget to Synaplan database: " . ($save_widget_result['error'] ?? 'Unknown error'));
+            // Don't fail the entire process, just log the error
+        } else {
+            Synaplan_WP_Core::log("Widget successfully saved to Synaplan database");
+        }
+        
         // Process uploaded files for vectorization (if any)
         if (isset($this->wizard_data['uploaded_files']) && !empty($this->wizard_data['uploaded_files'])) {
             Synaplan_WP_Core::log("Processing uploaded files for vectorization");
@@ -601,5 +625,23 @@ class Synaplan_WP_Wizard {
     private function cleanup_wizard_data() {
         $user_id = get_current_user_id();
         delete_transient('synaplan_wizard_data_' . $user_id);
+    }
+    
+    /**
+     * Extract numeric user ID from wp_user_XXX format
+     */
+    private function extract_numeric_user_id($user_id) {
+        // If it's already numeric, return as is
+        if (is_numeric($user_id)) {
+            return $user_id;
+        }
+        
+        // Extract number from wp_user_XXX format
+        if (preg_match('/wp_user_(\d+)/', $user_id, $matches)) {
+            return $matches[1];
+        }
+        
+        // If no pattern matches, return the original value
+        return $user_id;
     }
 }

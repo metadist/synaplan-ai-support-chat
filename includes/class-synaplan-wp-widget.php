@@ -78,18 +78,10 @@ class Synaplan_WP_Widget {
             return;
         }
         
-        // Generate widget script URL
-        $widget_url = $this->get_widget_url($user_id, 1);
-        
+        // The widget is now loaded by the JavaScript in public.js
+        // No need to duplicate the script loading here
         ?>
-        <script>
-        (function() {
-            var script = document.createElement('script');
-            script.src = '<?php echo esc_url($widget_url); ?>';
-            script.async = true;
-            document.head.appendChild(script);
-        })();
-        </script>
+        <!-- Synaplan Widget will be loaded by JavaScript -->
         <?php
     }
     
@@ -112,20 +104,17 @@ class Synaplan_WP_Widget {
             return '<p>' . __('Synaplan widget is not configured.', 'synaplan-wp-ai') . '</p>';
         }
         
-        // Generate widget script URL with inline mode
-        $widget_url = $this->get_widget_url($user_id, 1, 'inline-box');
-        
+        // The shortcode widget is now loaded by the JavaScript in public.js
+        // Just create a container div with the appropriate data attributes
         ob_start();
         ?>
-        <div class="synaplan-widget-shortcode" data-type="<?php echo esc_attr($atts['type']); ?>">
-            <script>
-            (function() {
-                var script = document.createElement('script');
-                script.src = '<?php echo esc_url($widget_url); ?>';
-                script.async = true;
-                document.head.appendChild(script);
-            })();
-            </script>
+        <div class="synaplan-widget-shortcode" 
+             data-type="<?php echo esc_attr($atts['type']); ?>"
+             data-placeholder="<?php echo esc_attr($atts['placeholder']); ?>"
+             data-button-text="<?php echo esc_attr($atts['button_text']); ?>"
+             data-color="<?php echo esc_attr($atts['color']); ?>"
+             data-position="<?php echo esc_attr($atts['position']); ?>">
+            <!-- Shortcode widget will be loaded by JavaScript -->
         </div>
         <?php
         return ob_get_clean();
@@ -147,13 +136,35 @@ class Synaplan_WP_Widget {
      */
     private function get_widget_url($user_id, $widget_id, $mode = '') {
         $base_url = 'https://app.synaplan.com'; // Correct base URL
-        $url = $base_url . '/widget.php?uid=' . $user_id . '&widgetid=' . $widget_id;
+        
+        // Extract numeric user ID from wp_user_XXX format
+        $numeric_user_id = $this->extract_numeric_user_id($user_id);
+        
+        $url = $base_url . '/widget.php?uid=' . $numeric_user_id . '&widgetid=' . $widget_id;
         
         if (!empty($mode)) {
             $url .= '&mode=' . $mode;
         }
         
         return $url;
+    }
+    
+    /**
+     * Extract numeric user ID from wp_user_XXX format
+     */
+    private function extract_numeric_user_id($user_id) {
+        // If it's already numeric, return as is
+        if (is_numeric($user_id)) {
+            return $user_id;
+        }
+        
+        // Extract number from wp_user_XXX format
+        if (preg_match('/wp_user_(\d+)/', $user_id, $matches)) {
+            return $matches[1];
+        }
+        
+        // If no pattern matches, return the original value
+        return $user_id;
     }
     
     /**

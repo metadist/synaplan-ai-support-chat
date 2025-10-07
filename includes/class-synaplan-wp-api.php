@@ -67,9 +67,15 @@ class Synaplan_WP_API {
             $args['body'] = array('action' => $action);
         }
         
+        // Debug logging
+        Synaplan_WP_Core::log("Making API request to: $url");
+        Synaplan_WP_Core::log("Action: $action");
+        Synaplan_WP_Core::log("Data: " . print_r($args['body'], true));
+        
         $response = wp_remote_request($url, $args);
         
         if (is_wp_error($response)) {
+            Synaplan_WP_Core::log("API Error: " . $response->get_error_message());
             return array(
                 'success' => false,
                 'error' => $response->get_error_message()
@@ -79,6 +85,9 @@ class Synaplan_WP_API {
         $status_code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
         $decoded_body = json_decode($body, true);
+        
+        Synaplan_WP_Core::log("API Response Status: $status_code");
+        Synaplan_WP_Core::log("API Response Body: $body");
         
         return array(
             'success' => $status_code >= 200 && $status_code < 300,

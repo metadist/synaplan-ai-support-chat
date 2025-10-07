@@ -459,20 +459,28 @@ class Synaplan_WP_Wizard {
      * Process step 4: Complete setup
      */
     private function process_step_4($data) {
+        Synaplan_WP_Core::log("Starting step 4 - Complete setup");
+        
         $api = new Synaplan_WP_API();
         
         // Register user (now includes API key and widget creation)
+        Synaplan_WP_Core::log("Calling register_user with email: " . $this->wizard_data['email']);
+        
         $register_result = $api->register_user(
             $this->wizard_data['email'],
             $this->wizard_data['password'],
             $this->wizard_data['language']
         );
         
+        Synaplan_WP_Core::log("Register result: " . print_r($register_result, true));
+        
         if (!$register_result['success']) {
+            Synaplan_WP_Core::log("Registration failed: " . ($register_result['data']['error'] ?? 'Unknown error'));
             return array('success' => false, 'error' => $register_result['data']['error'] ?? __('Registration failed.', 'synaplan-wp-ai'));
         }
         
         // Save API credentials from registration response
+        Synaplan_WP_Core::log("Saving API credentials");
         Synaplan_WP_Core::set_api_key($register_result['data']['api_key']);
         Synaplan_WP_Core::set_user_id($register_result['data']['user_id']);
         
@@ -487,14 +495,18 @@ class Synaplan_WP_Wizard {
             'prompt' => $this->wizard_data['prompt']
         );
         
+        Synaplan_WP_Core::log("Saving widget config: " . print_r($widget_config, true));
         Synaplan_WP_Core::update_widget_config($widget_config);
         
         // Mark setup as completed
+        Synaplan_WP_Core::log("Marking setup as completed");
         Synaplan_WP_Core::mark_setup_completed();
         
         // Clean up wizard data
+        Synaplan_WP_Core::log("Cleaning up wizard data");
         $this->cleanup_wizard_data();
         
+        Synaplan_WP_Core::log("Step 4 completed successfully");
         return array('success' => true, 'completed' => true);
     }
     

@@ -42,6 +42,15 @@
             
             var form = $(this);
             var step = parseInt(form.find('input[name="step"]').val());
+            
+            // Validate terms checkbox for step 1
+            if (step === 1) {
+                if (!form.find('input[name="terms"]').is(':checked')) {
+                    SynaplanWizard.showError('Please accept the Terms of Service and Privacy Policy to continue.');
+                    return;
+                }
+            }
+            
             var formData = new FormData(this);
             
             // Add step to form data
@@ -51,21 +60,24 @@
             SynaplanWizard.showLoading();
             
             // Submit step data
+            formData.append('action', 'synaplan_wp_wizard_step');
+            formData.append('nonce', synaplan_wp_admin.nonce);
+            
             $.ajax({
-                url: ajaxurl,
+                url: synaplan_wp_admin.ajax_url,
                 type: 'POST',
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function(response) {
                     if (response.success) {
-                        if (response.data.next_step) {
-                            SynaplanWizard.goToStep(response.data.next_step);
-                        } else if (response.data.completed) {
+                        if (response.next_step) {
+                            SynaplanWizard.goToStep(response.next_step);
+                        } else if (response.completed) {
                             SynaplanWizard.showCompletion();
                         }
                     } else {
-                        SynaplanWizard.showError(response.data || 'An error occurred');
+                        SynaplanWizard.showError(response.error || 'An error occurred');
                     }
                 },
                 error: function() {
@@ -268,7 +280,7 @@
             
             button.prop('disabled', true).text(synaplan_wp_admin.strings.loading);
             
-            $.post(ajaxurl, {
+            $.post(synaplan_wp_admin.ajax_url, {
                 action: 'synaplan_wp_test_api',
                 nonce: synaplan_wp_admin.nonce
             }, function(response) {
@@ -317,7 +329,7 @@
             var form = $(this);
             var formData = form.serialize();
             
-            $.post(ajaxurl, {
+            $.post(synaplan_wp_admin.ajax_url, {
                 action: 'synaplan_wp_save_config',
                 nonce: synaplan_wp_admin.nonce,
                 config: formData
@@ -336,7 +348,7 @@
             
             button.prop('disabled', true).text(synaplan_wp_admin.strings.loading);
             
-            $.post(ajaxurl, {
+            $.post(synaplan_wp_admin.ajax_url, {
                 action: 'synaplan_wp_test_api',
                 nonce: synaplan_wp_admin.nonce
             }, function(response) {

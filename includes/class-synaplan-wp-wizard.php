@@ -42,20 +42,11 @@ class Synaplan_WP_Wizard {
      * Load wizard data from session
      */
     private function load_wizard_data() {
-        $session_id = $this->get_session_id();
+        $user_id = get_current_user_id();
+        $wizard_data = get_transient('synaplan_wizard_data_' . $user_id);
         
-        if ($session_id) {
-            global $wpdb;
-            $table_name = $wpdb->prefix . 'synaplan_wizard_sessions';
-            
-            $result = $wpdb->get_row($wpdb->prepare(
-                "SELECT step_data FROM $table_name WHERE session_id = %s",
-                $session_id
-            ));
-            
-            if ($result) {
-                $this->wizard_data = json_decode($result->step_data, true) ?: array();
-            }
+        if ($wizard_data) {
+            $this->wizard_data = $wizard_data;
         }
     }
     
@@ -63,46 +54,8 @@ class Synaplan_WP_Wizard {
      * Save wizard data to session
      */
     private function save_wizard_data() {
-        $session_id = $this->get_session_id();
-        
-        if (!$session_id) {
-            $session_id = Synaplan_WP_Core::generate_session_id();
-            $this->set_session_id($session_id);
-        }
-        
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'synaplan_wizard_sessions';
-        
-        $wpdb->replace(
-            $table_name,
-            array(
-                'session_id' => $session_id,
-                'step_data' => json_encode($this->wizard_data)
-            ),
-            array('%s', '%s')
-        );
-    }
-    
-    /**
-     * Get session ID
-     */
-    private function get_session_id() {
-        if (!session_id()) {
-            session_start();
-        }
-        
-        return $_SESSION['synaplan_wizard_session_id'] ?? null;
-    }
-    
-    /**
-     * Set session ID
-     */
-    private function set_session_id($session_id) {
-        if (!session_id()) {
-            session_start();
-        }
-        
-        $_SESSION['synaplan_wizard_session_id'] = $session_id;
+        $user_id = get_current_user_id();
+        set_transient('synaplan_wizard_data_' . $user_id, $this->wizard_data, HOUR_IN_SECONDS);
     }
     
     /**
@@ -422,6 +375,12 @@ class Synaplan_WP_Wizard {
         $email = sanitize_email($data['email']);
         $password = $data['password'];
         $language = sanitize_text_field($data['language']);
+        $terms = isset($data['terms']) ? $data['terms'] : false;
+        
+        // Validate terms acceptance
+        if (!$terms) {
+            return array('success' => false, 'error' => __('Please accept the Terms of Service and Privacy Policy to continue.', 'synaplan-wp-ai'));
+        }
         
         // Validate email
         if (!Synaplan_WP_Core::validate_email($email)) {
@@ -554,15 +513,7 @@ class Synaplan_WP_Wizard {
      * Clean up wizard data
      */
     private function cleanup_wizard_data() {
-        $session_id = $this->get_session_id();
-        
-        if ($session_id) {
-            global $wpdb;
-            $table_name = $wpdb->prefix . 'synaplan_wizard_sessions';
-            
-            $wpdb->delete($table_name, array('session_id' => $session_id), array('%s'));
-        }
-        
-        unset($_SESSION['synaplan_wizard_session_id']);
+        $user_id = get_current_user_id();
+        delete_transient('synaplan_wizard_data_' . $user_id);
     }
 }

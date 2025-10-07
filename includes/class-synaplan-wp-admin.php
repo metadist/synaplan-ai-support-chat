@@ -211,7 +211,7 @@ class Synaplan_WP_Admin {
         }
         
         $step = intval($_POST['step']);
-        $data = $_POST['data'];
+        $data = $_POST; // Get all POST data instead of just $_POST['data']
         
         $wizard = new Synaplan_WP_Wizard();
         $result = $wizard->process_step($step, $data);

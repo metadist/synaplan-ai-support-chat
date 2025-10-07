@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('SYNAPLAN_WP_VERSION', '1.0.0');
+define('SYNAPLAN_WP_VERSION', '1.0.1');
 define('SYNAPLAN_WP_PLUGIN_FILE', __FILE__);
 define('SYNAPLAN_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SYNAPLAN_WP_PLUGIN_URL', plugin_dir_url(__FILE__));

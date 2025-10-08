@@ -10,7 +10,7 @@ License URI: https://www.apache.org/licenses/LICENSE-2.0
 
 # Synaplan AI Support Chat
 
-A WordPress plugin that integrates Synaplan AI support chat widget into your WordPress site with a wizard-style setup procedure.
+A WordPress plugin that integrates Synaplan AI support chat widget into your WordPress site with a wizard-style setup.
 
 ## Description
 

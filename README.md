@@ -1,4 +1,4 @@
-=== Synaplan AI Support Chat ===
+# Synaplan AI Support Chat #
 Contributors: synaplan
 Tags: ai, chat, chatbot, support, customer-service
 Requires at least: 5.0

@@ -106,7 +106,7 @@ $embed_code = '<script>
             <div class="card-body">
                 <ul class="quick-links">
                     <li>
-                        <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai-settings'); ?>">
+                        <a href="<?php echo admin_url('admin.php?page=synaplan-ai-support-chat-settings'); ?>">
                             <span class="dashicons dashicons-admin-settings"></span>
                             <?php _e('Widget Settings', 'synaplan-ai-support-chat'); ?>
                         </a>
@@ -130,7 +130,7 @@ $embed_code = '<script>
                         </a>
                     </li>
                     <li>
-                        <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai-help'); ?>">
+                        <a href="<?php echo admin_url('admin.php?page=synaplan-ai-support-chat-help'); ?>">
                             <span class="dashicons dashicons-sos"></span>
                             <?php _e('Help & Support', 'synaplan-ai-support-chat'); ?>
                         </a>

@@ -12,7 +12,7 @@
 
 ```
 synaplan-wp/
-├── synaplan-wp-ai.php              # Main plugin file
+├── synaplan-ai-support-chat.php              # Main plugin file
 ├── README.md                       # Project documentation
 ├── LICENSE                         # Apache 2.0 license
 ├── uninstall.php                   # Cleanup on uninstall
@@ -45,7 +45,7 @@ synaplan-wp/
 │   │   └── wizard-icons/           # Wizard step icons
 │   └── fonts/                      # Custom fonts if needed
 ├── languages/                      # Translation files
-│   └── synaplan-wp-ai.pot          # Translation template
+│   └── synaplan-ai-support-chat.pot          # Translation template
 └── templates/                      # Frontend templates
     └── widget-integration.php       # Widget template
 ```
@@ -68,7 +68,7 @@ Based on the Synaplan documentation stylesheet:
 
 ### Phase 1: Core Plugin Structure (Week 1)
 
-#### 1.1 Main Plugin File (`synaplan-wp-ai.php`)
+#### 1.1 Main Plugin File (`synaplan-ai-support-chat.php`)
 - [x] Plugin header with metadata
 - [x] Security checks and constants
 - [x] File includes and initialization

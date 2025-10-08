@@ -109,14 +109,14 @@ All user inputs are sanitized using `db::EscString()`:
 ### Prerequisites
 1. WordPress installation (5.0+)
 2. PHP 8.0+
-3. Synaplan plugin uploaded to `/wp-content/plugins/synaplan-wp-ai/`
+3. Synaplan plugin uploaded to `/wp-content/plugins/synaplan-ai-support-chat/`
 
 ### Test Procedure
 
 #### 1. Plugin Activation
 ```bash
 # Activate plugin
-wp plugin activate synaplan-wp-ai
+wp plugin activate synaplan-ai-support-chat
 
 # Verify options created
 wp option get synaplan_wp_version

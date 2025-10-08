@@ -27,7 +27,7 @@ Synaplan WP AI provides an easy way to add intelligent chat functionality to you
 ### Manual Installation
 
 1. Download the plugin files
-2. Upload to `/wp-content/plugins/synaplan-wp-ai/`
+2. Upload to `/wp-content/plugins/synaplan-ai-support-chat/`
 3. Activate the plugin through the **Plugins** menu
 
 ## Quick Start
@@ -97,8 +97,8 @@ The plugin integrates with the Synaplan API to provide:
 
 ### Getting Help
 
-- **GitHub Issues**: [Report bugs or request features](https://github.com/synaplan/synaplan-wp-ai/issues)
-- **WordPress Support**: [Plugin support forum](https://wordpress.org/support/plugin/synaplan-wp-ai)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/synaplan/synaplan-ai-support-chat/issues)
+- **WordPress Support**: [Plugin support forum](https://wordpress.org/support/plugin/synaplan-ai-support-chat)
 - **Email Support**: support@synaplan.com
 
 ## Development
@@ -111,7 +111,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ```bash
 # Clone the repository
-git clone https://github.com/synaplan/synaplan-wp-ai.git
+git clone https://github.com/synaplan/synaplan-ai-support-chat.git
 
 # Install dependencies
 composer install

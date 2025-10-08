@@ -43,7 +43,7 @@ if (!defined('ABSPATH')) {
                 <p><?php _e('Use the', 'synaplan-ai-support-chat'); ?> <a href="https://app.synaplan.com/index.php/prompts" target="_blank"><?php _e('Prompts Manager', 'synaplan-ai-support-chat'); ?></a> <?php _e('to define how your AI responds to different types of questions.', 'synaplan-ai-support-chat'); ?></p>
                 
                 <h3><?php _e('Changing Widget Appearance', 'synaplan-ai-support-chat'); ?></h3>
-                <p><?php _e('Go to', 'synaplan-ai-support-chat'); ?> <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai-settings'); ?>"><?php _e('Settings', 'synaplan-ai-support-chat'); ?></a> <?php _e('to change colors, position, and welcome messages.', 'synaplan-ai-support-chat'); ?></p>
+                <p><?php _e('Go to', 'synaplan-ai-support-chat'); ?> <a href="<?php echo admin_url('admin.php?page=synaplan-ai-support-chat-settings'); ?>"><?php _e('Settings', 'synaplan-ai-support-chat'); ?></a> <?php _e('to change colors, position, and welcome messages.', 'synaplan-ai-support-chat'); ?></p>
             </div>
         </div>
         
@@ -53,7 +53,7 @@ if (!defined('ABSPATH')) {
             </div>
             <div class="card-body">
                 <h3><?php _e('Where is my API key?', 'synaplan-ai-support-chat'); ?></h3>
-                <p><?php _e('You can find your API key on the', 'synaplan-ai-support-chat'); ?> <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai'); ?>"><?php _e('Dashboard', 'synaplan-ai-support-chat'); ?></a>. <?php _e('Click "Show API Key" to reveal it.', 'synaplan-ai-support-chat'); ?></p>
+                <p><?php _e('You can find your API key on the', 'synaplan-ai-support-chat'); ?> <a href="<?php echo admin_url('admin.php?page=synaplan-ai-support-chat'); ?>"><?php _e('Dashboard', 'synaplan-ai-support-chat'); ?></a>. <?php _e('Click "Show API Key" to reveal it.', 'synaplan-ai-support-chat'); ?></p>
                 
                 <h3><?php _e('How do I add more documents to my knowledge base?', 'synaplan-ai-support-chat'); ?></h3>
                 <p><?php _e('Visit the', 'synaplan-ai-support-chat'); ?> <a href="https://app.synaplan.com/index.php/filemanager" target="_blank"><?php _e('Synaplan File Manager', 'synaplan-ai-support-chat'); ?></a> <?php _e('and upload your documents. They will automatically be processed and made available to your AI.', 'synaplan-ai-support-chat'); ?></p>

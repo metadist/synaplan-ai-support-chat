@@ -1,0 +1,356 @@
+<?php
+/**
+ * Core plugin class for Synaplan WP AI
+ *
+ * @package Synaplan_WP_AI
+ * @since 1.0.0
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Main plugin class
+ */
+class Synaplan_WP_Core {
+    
+    /**
+     * Plugin version
+     */
+    const VERSION = '1.0.0';
+    
+    /**
+     * Plugin instance
+     */
+    private static $instance = null;
+    
+    /**
+     * Get plugin instance
+     */
+    public static function get_instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    /**
+     * Initialize the plugin
+     */
+    public function init() {
+        // Initialize admin interface
+        if (is_admin()) {
+            new Synaplan_WP_Admin();
+        }
+        
+        // Initialize widget integration
+        new Synaplan_WP_Widget();
+        
+        // Initialize API client
+        new Synaplan_WP_API();
+        
+        // Add activation hooks
+        register_activation_hook(SYNAPLAN_WP_PLUGIN_FILE, array($this, 'activate'));
+        register_deactivation_hook(SYNAPLAN_WP_PLUGIN_FILE, array($this, 'deactivate'));
+    }
+    
+    /**
+     * Plugin activation
+     */
+    public function activate() {
+        // Create database tables
+        $this->create_tables();
+        
+        // Set default options
+        $this->set_default_options();
+        
+        // Flush rewrite rules
+        flush_rewrite_rules();
+    }
+    
+    /**
+     * Plugin deactivation
+     */
+    public function deactivate() {
+        // Flush rewrite rules
+        flush_rewrite_rules();
+    }
+    
+    /**
+     * Create database tables
+     */
+    public static function create_tables() {
+        global $wpdb;
+        
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        // Create wizard sessions table
+        $table_name = $wpdb->prefix . 'synaplan_wizard_sessions';
+        
+        $sql = "CREATE TABLE $table_name (
+            id mediumint(9) NOT NULL AUTO_INCREMENT,
+            session_id varchar(255) NOT NULL,
+            step_data longtext NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY session_id (session_id)
+        ) $charset_collate;";
+        
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+        
+        // Update database version
+        update_option('synaplan_wp_db_version', '1.0');
+    }
+    
+    /**
+     * Drop database tables
+     */
+    public static function drop_tables() {
+        global $wpdb;
+        
+        $table_name = $wpdb->prefix . 'synaplan_wizard_sessions';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema change during uninstallation, table name is prefixed
+        $wpdb->query("DROP TABLE IF EXISTS {$table_name}");
+        
+        delete_option('synaplan_wp_db_version');
+    }
+    
+    /**
+     * Set default plugin options
+     */
+    private function set_default_options() {
+        // Plugin version
+        if (!get_option('synaplan_wp_version')) {
+            add_option('synaplan_wp_version', self::VERSION);
+        }
+        
+        // Setup completion status
+        if (!get_option('synaplan_wp_setup_completed')) {
+            add_option('synaplan_wp_setup_completed', false);
+        }
+        
+        // Default widget configuration
+        if (!get_option('synaplan_wp_widget_config')) {
+            $default_config = array(
+                'integration_type' => 'floating-button',
+                'color' => '#007bff',
+                'icon_color' => '#ffffff',
+                'position' => 'bottom-right',
+                'auto_message' => 'Hello! How can I help you today?',
+                'auto_open' => false,
+                'prompt' => 'general'
+            );
+            add_option('synaplan_wp_widget_config', $default_config);
+        }
+    }
+    
+    /**
+     * Get plugin option with default value
+     */
+    public static function get_option($option_name, $default = false) {
+        return get_option('synaplan_wp_' . $option_name, $default);
+    }
+    
+    /**
+     * Update plugin option
+     */
+    public static function update_option($option_name, $value) {
+        return update_option('synaplan_wp_' . $option_name, $value);
+    }
+    
+    /**
+     * Delete plugin option
+     */
+    public static function delete_option($option_name) {
+        return delete_option('synaplan_wp_' . $option_name);
+    }
+    
+    /**
+     * Check if setup is completed
+     */
+    public static function is_setup_completed() {
+        return (bool) self::get_option('setup_completed', false);
+    }
+    
+    /**
+     * Mark setup as completed
+     */
+    public static function mark_setup_completed() {
+        self::update_option('setup_completed', true);
+    }
+    
+    /**
+     * Get API key
+     */
+    public static function get_api_key() {
+        $api_key = self::get_option('api_key', '');
+        Synaplan_WP_Core::log("Retrieved API key: " . ($api_key ? 'FOUND (' . substr($api_key, 0, 10) . '...)' : 'NOT FOUND'));
+        return $api_key;
+    }
+    
+    /**
+     * Set API key
+     */
+    public static function set_api_key($api_key) {
+        Synaplan_WP_Core::log("Setting API key: " . $api_key);
+        $result = self::update_option('api_key', $api_key);
+        Synaplan_WP_Core::log("API key save result: " . ($result ? 'SUCCESS' : 'FAILED'));
+        
+        // Debug: Check what's actually stored
+        $stored_value = get_option('synaplan_wp_api_key', 'NOT_FOUND');
+        Synaplan_WP_Core::log("Stored value in DB: " . ($stored_value ? 'FOUND (' . substr($stored_value, 0, 10) . '...)' : 'NOT FOUND'));
+        
+        return $result;
+    }
+    
+    /**
+     * Get user ID
+     */
+    public static function get_user_id() {
+        $user_id = self::get_option('user_id', '');
+        Synaplan_WP_Core::log("Retrieved user ID: " . ($user_id ? 'FOUND (' . $user_id . ')' : 'NOT FOUND'));
+        return $user_id;
+    }
+    
+    /**
+     * Set user ID
+     */
+    public static function set_user_id($user_id) {
+        Synaplan_WP_Core::log("Setting user ID: " . $user_id);
+        $result = self::update_option('user_id', $user_id);
+        Synaplan_WP_Core::log("User ID save result: " . ($result ? 'SUCCESS' : 'FAILED'));
+        
+        // Debug: Check what's actually stored
+        $stored_value = get_option('synaplan_wp_user_id', 'NOT_FOUND');
+        Synaplan_WP_Core::log("Stored user ID in DB: " . ($stored_value ? 'FOUND (' . $stored_value . ')' : 'NOT FOUND'));
+        
+        return $result;
+    }
+    
+    /**
+     * Get widget configuration
+     */
+    public static function get_widget_config() {
+        return self::get_option('widget_config', array());
+    }
+    
+    /**
+     * Update widget configuration
+     */
+    public static function update_widget_config($config) {
+        return self::update_option('widget_config', $config);
+    }
+    
+    /**
+     * Validate email address
+     */
+    public static function validate_email($email) {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+    
+    /**
+     * Validate password strength
+     */
+    public static function validate_password($password) {
+        // Minimum 6 characters, must contain numbers and special characters
+        if (strlen($password) < 6) {
+            return false;
+        }
+        
+        if (!preg_match('/[0-9]/', $password)) {
+            return false;
+        }
+        
+        if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Generate random session ID
+     */
+    public static function generate_session_id() {
+        return wp_generate_password(32, false);
+    }
+    
+    /**
+     * Generate verification token for API validation
+     */
+    public static function generate_verification_token() {
+        return wp_generate_password(64, false);
+    }
+    
+    /**
+     * Create verification token for WordPress site validation
+     */
+    public static function create_verification_token() {
+        $token = self::generate_verification_token();
+        $site_url = get_site_url();
+        $expires = time() + (15 * MINUTE_IN_SECONDS); // 15 minutes
+        
+        // Store token in database
+        update_option('synaplan_wp_verification_token', array(
+            'token' => $token,
+            'site_url' => $site_url,
+            'expires' => $expires,
+            'created' => time()
+        ));
+        
+        return $token;
+    }
+    
+    /**
+     * Validate verification token
+     */
+    public static function validate_verification_token($token) {
+        $stored_data = get_option('synaplan_wp_verification_token', false);
+        
+        if (!$stored_data || !is_array($stored_data)) {
+            return false;
+        }
+        
+        // Check if token matches and hasn't expired
+        if ($stored_data['token'] === $token && time() < $stored_data['expires']) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get verification endpoint URL
+     */
+    public static function get_verification_endpoint_url() {
+        return get_site_url() . '/wp-json/synaplan-wp/v1/verify';
+    }
+    
+    /**
+     * Log debug information
+     */
+    public static function log($message, $level = 'info') {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+            error_log('[Synaplan AI Support Chat] ' . $level . ': ' . $message);
+        }
+    }
+    
+    /**
+     * Get plugin URL
+     */
+    public static function get_plugin_url($path = '') {
+        return SYNAPLAN_WP_PLUGIN_URL . $path;
+    }
+    
+    /**
+     * Get plugin path
+     */
+    public static function get_plugin_path($path = '') {
+        return SYNAPLAN_WP_PLUGIN_DIR . $path;
+    }
+}

@@ -292,13 +292,18 @@ class Synaplan_WP_API {
      * Validate file upload
      */
     public function validate_file_upload($file) {
-        $allowed_types = array('application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        $allowed_types = array(
+            'application/pdf',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+            'application/msword', // DOC
+            'text/plain' // TXT
+        );
         $max_size = 10 * 1024 * 1024; // 10MB
         
         if (!in_array($file['type'], $allowed_types)) {
             return array(
                 'valid' => false,
-                'error' => __('Only PDF and DOCX files are allowed', 'synaplan-ai-support-chat')
+                'error' => __('Only PDF, DOC, DOCX, and TXT files are allowed', 'synaplan-ai-support-chat')
             );
         }
         

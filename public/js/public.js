@@ -27,11 +27,8 @@
         },
 
         initializeWidget: function() {
-            console.log('[Synaplan Widget] Initializing widget...');
-            
             // Check if widget configuration is available
             if (typeof synaplan_wp_widget === 'undefined') {
-                console.error('[Synaplan Widget] Widget configuration not found');
                 SynaplanWidget.showError('Widget configuration not found');
                 return;
             }
@@ -40,12 +37,7 @@
             var userId = synaplan_wp_widget.user_id;
             var widgetId = synaplan_wp_widget.widget_id;
 
-            console.log('[Synaplan Widget] Config:', config);
-            console.log('[Synaplan Widget] User ID:', userId);
-            console.log('[Synaplan Widget] Widget ID:', widgetId);
-
             if (!userId || !widgetId) {
-                console.error('[Synaplan Widget] Widget not properly configured');
                 SynaplanWidget.showError('Widget not properly configured');
                 return;
             }
@@ -57,18 +49,14 @@
         loadWidget: function(config, userId, widgetId) {
             var widgetUrl = SynaplanWidget.buildWidgetUrl(config, userId, widgetId);
             
-            console.log('[Synaplan Widget] Loading widget from URL:', widgetUrl);
-            
             // Create and load widget script
             var script = document.createElement('script');
             script.src = widgetUrl;
             script.async = true;
             script.onload = function() {
-                console.log('[Synaplan Widget] Widget script loaded successfully');
                 SynaplanWidget.onWidgetLoaded();
             };
             script.onerror = function() {
-                console.error('[Synaplan Widget] Failed to load widget script from:', widgetUrl);
                 SynaplanWidget.showError('Failed to load widget script');
             };
             
@@ -77,11 +65,7 @@
 
         buildWidgetUrl: function(config, userId, widgetId) {
             var baseUrl = synaplan_wp_widget.api_url || 'https://app.synaplan.com';
-            
-            // Extract numeric user ID from wp_user_XXX format
-            var numericUserId = SynaplanWidget.extractNumericUserId(userId);
-            
-            var url = baseUrl + '/widget.php?uid=' + numericUserId + '&widgetid=' + widgetId;
+            var url = baseUrl + '/widget.php?uid=' + userId + '&widgetid=' + widgetId;
             
             // Add mode parameter for inline widgets
             if (config.integration_type === 'inline-box') {
@@ -89,22 +73,6 @@
             }
             
             return url;
-        },
-        
-        extractNumericUserId: function(userId) {
-            // If it's already numeric, return as is
-            if (!isNaN(userId)) {
-                return userId;
-            }
-            
-            // Extract number from wp_user_XXX format
-            var match = userId.match(/wp_user_(\d+)/);
-            if (match) {
-                return match[1];
-            }
-            
-            // If no pattern matches, return the original value
-            return userId;
         },
 
         onWidgetLoaded: function() {
@@ -174,20 +142,11 @@
             var container = $(this);
             var type = container.data('type') || 'inline-box';
             
-            // Get shortcode-specific configuration
-            var shortcodeConfig = {
-                integration_type: type,
-                placeholder: container.data('placeholder') || 'Ask me anything...',
-                button_text: container.data('button-text') || 'Ask',
-                color: container.data('color') || '#007bff',
-                position: container.data('position') || 'center'
-            };
-            
             // Initialize shortcode widget
-            SynaplanShortcode.loadShortcodeWidget(container, shortcodeConfig);
+            SynaplanShortcode.loadShortcodeWidget(container, type);
         },
 
-        loadShortcodeWidget: function(container, shortcodeConfig) {
+        loadShortcodeWidget: function(container, type) {
             // Check if widget configuration is available
             if (typeof synaplan_wp_widget === 'undefined') {
                 SynaplanShortcode.showError(container, 'Widget configuration not found');
@@ -203,11 +162,8 @@
                 return;
             }
 
-            // Merge shortcode config with main config
-            var mergedConfig = $.extend({}, config, shortcodeConfig);
-
-            // Build widget URL for shortcode with inline-box mode
-            var widgetUrl = SynaplanWidget.buildWidgetUrl(mergedConfig, userId, widgetId);
+            // Build widget URL for shortcode
+            var widgetUrl = SynaplanWidget.buildWidgetUrl(config, userId, widgetId);
             
             // Create and load widget script
             var script = document.createElement('script');

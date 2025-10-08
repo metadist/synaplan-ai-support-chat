@@ -1,6 +1,6 @@
 <?php
 /**
- * Help page view
+ * Help view for Synaplan WP AI
  *
  * @package Synaplan_WP_AI
  * @since 1.0.0
@@ -12,94 +12,79 @@ if (!defined('ABSPATH')) {
 }
 ?>
 
-<div class="wrap">
-    <h1><?php _e('Synaplan AI - Help & Support', 'synaplan-wp-ai'); ?></h1>
+<div class="wrap synaplan-help">
+    <h1><?php _e('Synaplan AI Help & Support', 'synaplan-wp-ai'); ?></h1>
     
-    <div class="synaplan-help-container">
-        <div class="synaplan-help-main">
-            <h2><?php _e('Getting Started', 'synaplan-wp-ai'); ?></h2>
-            <p><?php _e('Welcome to Synaplan AI! Follow these steps to get your AI chat widget up and running:', 'synaplan-wp-ai'); ?></p>
-            
-            <ol>
-                <li><strong><?php _e('Complete the Setup Wizard', 'synaplan-wp-ai'); ?></strong> - Go to the Dashboard and follow the 4-step setup process</li>
-                <li><strong><?php _e('Configure Your Widget', 'synaplan-wp-ai'); ?></strong> - Customize colors, position, and messages in Settings</li>
-                <li><strong><?php _e('Test Your Widget', 'synaplan-wp-ai'); ?></strong> - Visit your website to see the chat widget in action</li>
-            </ol>
-            
-            <h2><?php _e('Widget Configuration', 'synaplan-wp-ai'); ?></h2>
-            <p><?php _e('Customize your chat widget to match your website\'s design:', 'synaplan-wp-ai'); ?></p>
-            
-            <ul>
-                <li><strong><?php _e('Integration Type', 'synaplan-wp-ai'); ?></strong> - Choose between floating button or inline widget</li>
-                <li><strong><?php _e('Colors', 'synaplan-wp-ai'); ?></strong> - Set widget and icon colors to match your brand</li>
-                <li><strong><?php _e('Position', 'synaplan-wp-ai'); ?></strong> - Place the widget in any corner of your site</li>
-                <li><strong><?php _e('Welcome Message', 'synaplan-wp-ai'); ?></strong> - Customize the initial message users see</li>
-                <li><strong><?php _e('Auto Open', 'synaplan-wp-ai'); ?></strong> - Optionally open the chat automatically</li>
-            </ul>
-            
-            <h2><?php _e('Troubleshooting', 'synaplan-wp-ai'); ?></h2>
-            
-            <h3><?php _e('Widget Not Appearing', 'synaplan-wp-ai'); ?></h3>
-            <ul>
-                <li><?php _e('Ensure the setup wizard is completed', 'synaplan-wp-ai'); ?></li>
-                <li><?php _e('Check that your API key is configured', 'synaplan-wp-ai'); ?></li>
-                <li><?php _e('Clear your browser cache', 'synaplan-wp-ai'); ?></li>
-                <li><?php _e('Check for JavaScript errors in browser console', 'synaplan-wp-ai'); ?></li>
-            </ul>
-            
-            <h3><?php _e('Setup Issues', 'synaplan-wp-ai'); ?></h3>
-            <ul>
-                <li><?php _e('Make sure you have a valid email address', 'synaplan-wp-ai'); ?></li>
-                <li><?php _e('Check your internet connection', 'synaplan-wp-ai'); ?></li>
-                <li><?php _e('Try refreshing the page and starting over', 'synaplan-wp-ai'); ?></li>
-            </ul>
-            
-            <h2><?php _e('API Information', 'synaplan-wp-ai'); ?></h2>
-            <p><?php _e('Your Synaplan AI integration uses the following information:', 'synaplan-wp-ai'); ?></p>
-            
-            <table class="widefat">
-                <tr>
-                    <td><strong><?php _e('API Endpoint', 'synaplan-wp-ai'); ?></strong></td>
-                    <td>https://app.synaplan.com/api.php</td>
-                </tr>
-                <tr>
-                    <td><strong><?php _e('User ID', 'synaplan-wp-ai'); ?></strong></td>
-                    <td><?php echo esc_html(Synaplan_WP_Core::get_user_id() ?: __('Not configured', 'synaplan-wp-ai')); ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php _e('API Key Status', 'synaplan-wp-ai'); ?></strong></td>
-                    <td><?php echo Synaplan_WP_Core::get_api_key() ? __('Configured', 'synaplan-wp-ai') : __('Not configured', 'synaplan-wp-ai'); ?></td>
-                </tr>
-                <tr>
-                    <td><strong><?php _e('Setup Status', 'synaplan-wp-ai'); ?></strong></td>
-                    <td><?php echo Synaplan_WP_Core::is_setup_completed() ? __('Completed', 'synaplan-wp-ai') : __('Not completed', 'synaplan-wp-ai'); ?></td>
-                </tr>
-            </table>
+    <div class="help-grid">
+        <div class="help-card">
+            <div class="card-header">
+                <h2><span class="dashicons dashicons-book"></span> <?php _e('Getting Started', 'synaplan-wp-ai'); ?></h2>
+            </div>
+            <div class="card-body">
+                <h3><?php _e('How to use your AI chat widget', 'synaplan-wp-ai'); ?></h3>
+                <ol>
+                    <li><?php _e('Your widget is automatically displayed on all pages of your website', 'synaplan-wp-ai'); ?></li>
+                    <li><?php _e('Visitors can click the chat button to start a conversation', 'synaplan-wp-ai'); ?></li>
+                    <li><?php _e('The AI will respond based on your knowledge base and configuration', 'synaplan-wp-ai'); ?></li>
+                    <li><?php _e('You can customize settings anytime from the Settings page', 'synaplan-wp-ai'); ?></li>
+                </ol>
+            </div>
         </div>
         
-        <div class="synaplan-help-sidebar">
-            <div class="synaplan-support-box">
-                <h3><?php _e('Need Help?', 'synaplan-wp-ai'); ?></h3>
-                <p><?php _e('If you\'re experiencing issues or need assistance:', 'synaplan-wp-ai'); ?></p>
-                <ul>
-                    <li><a href="https://synaplan.com/support" target="_blank"><?php _e('Visit our Support Center', 'synaplan-wp-ai'); ?></a></li>
-                    <li><a href="https://synaplan.com/contact" target="_blank"><?php _e('Contact Support', 'synaplan-wp-ai'); ?></a></li>
-                    <li><a href="https://github.com/synaplan/synaplan-wp-ai" target="_blank"><?php _e('View Documentation', 'synaplan-wp-ai'); ?></a></li>
-                </ul>
+        <div class="help-card">
+            <div class="card-header">
+                <h2><span class="dashicons dashicons-admin-generic"></span> <?php _e('Common Tasks', 'synaplan-wp-ai'); ?></h2>
             </div>
-            
-            <div class="synaplan-status-box">
-                <h3><?php _e('Current Status', 'synaplan-wp-ai'); ?></h3>
-                <p><strong><?php _e('Plugin Version:', 'synaplan-wp-ai'); ?></strong> <?php echo SYNAPLAN_WP_VERSION; ?></p>
-                <p><strong><?php _e('WordPress Version:', 'synaplan-wp-ai'); ?></strong> <?php echo get_bloginfo('version'); ?></p>
-                <p><strong><?php _e('PHP Version:', 'synaplan-wp-ai'); ?></strong> <?php echo PHP_VERSION; ?></p>
+            <div class="card-body">
+                <h3><?php _e('Managing Your Knowledge Base', 'synaplan-wp-ai'); ?></h3>
+                <p><?php _e('Visit the', 'synaplan-wp-ai'); ?> <a href="https://app.synaplan.com/index.php/filemanager" target="_blank"><?php _e('File Manager', 'synaplan-wp-ai'); ?></a> <?php _e('to upload documents, PDFs, or other files that your AI can reference when answering questions.', 'synaplan-wp-ai'); ?></p>
                 
-                <h4><?php _e('System Requirements', 'synaplan-wp-ai'); ?></h4>
-                <ul>
-                    <li><?php _e('WordPress 5.0+', 'synaplan-wp-ai'); ?> <?php echo version_compare(get_bloginfo('version'), '5.0', '>=') ? '✅' : '❌'; ?></li>
-                    <li><?php _e('PHP 8.0+', 'synaplan-wp-ai'); ?> <?php echo version_compare(PHP_VERSION, '8.0', '>=') ? '✅' : '❌'; ?></li>
-                    <li><?php _e('cURL Extension', 'synaplan-wp-ai'); ?> <?php echo extension_loaded('curl') ? '✅' : '❌'; ?></li>
-                    <li><?php _e('JSON Extension', 'synaplan-wp-ai'); ?> <?php echo extension_loaded('json') ? '✅' : '❌'; ?></li>
+                <h3><?php _e('Customizing AI Responses', 'synaplan-wp-ai'); ?></h3>
+                <p><?php _e('Use the', 'synaplan-wp-ai'); ?> <a href="https://app.synaplan.com/index.php/prompts" target="_blank"><?php _e('Prompts Manager', 'synaplan-wp-ai'); ?></a> <?php _e('to define how your AI responds to different types of questions.', 'synaplan-wp-ai'); ?></p>
+                
+                <h3><?php _e('Changing Widget Appearance', 'synaplan-wp-ai'); ?></h3>
+                <p><?php _e('Go to', 'synaplan-wp-ai'); ?> <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai-settings'); ?>"><?php _e('Settings', 'synaplan-wp-ai'); ?></a> <?php _e('to change colors, position, and welcome messages.', 'synaplan-wp-ai'); ?></p>
+            </div>
+        </div>
+        
+        <div class="help-card">
+            <div class="card-header">
+                <h2><span class="dashicons dashicons-editor-help"></span> <?php _e('Frequently Asked Questions', 'synaplan-wp-ai'); ?></h2>
+            </div>
+            <div class="card-body">
+                <h3><?php _e('Where is my API key?', 'synaplan-wp-ai'); ?></h3>
+                <p><?php _e('You can find your API key on the', 'synaplan-wp-ai'); ?> <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai'); ?>"><?php _e('Dashboard', 'synaplan-wp-ai'); ?></a>. <?php _e('Click "Show API Key" to reveal it.', 'synaplan-wp-ai'); ?></p>
+                
+                <h3><?php _e('How do I add more documents to my knowledge base?', 'synaplan-wp-ai'); ?></h3>
+                <p><?php _e('Visit the', 'synaplan-wp-ai'); ?> <a href="https://app.synaplan.com/index.php/filemanager" target="_blank"><?php _e('Synaplan File Manager', 'synaplan-wp-ai'); ?></a> <?php _e('and upload your documents. They will automatically be processed and made available to your AI.', 'synaplan-wp-ai'); ?></p>
+                
+                <h3><?php _e('Can I customize the AI\'s personality?', 'synaplan-wp-ai'); ?></h3>
+                <p><?php _e('Yes! Use the', 'synaplan-wp-ai'); ?> <a href="https://app.synaplan.com/index.php/prompts" target="_blank"><?php _e('Prompts Manager', 'synaplan-wp-ai'); ?></a> <?php _e('to define how your AI should respond, its tone, and behavior.', 'synaplan-wp-ai'); ?></p>
+                
+                <h3><?php _e('Is my data secure?', 'synaplan-wp-ai'); ?></h3>
+                <p><?php _e('Yes. All data is encrypted and transmitted over HTTPS. Your conversations and documents are private and secure.', 'synaplan-wp-ai'); ?></p>
+            </div>
+        </div>
+        
+        <div class="help-card">
+            <div class="card-header">
+                <h2><span class="dashicons dashicons-email"></span> <?php _e('Contact Support', 'synaplan-wp-ai'); ?></h2>
+            </div>
+            <div class="card-body">
+                <p><?php _e('Need more help? Contact our support team:', 'synaplan-wp-ai'); ?></p>
+                <ul class="contact-list">
+                    <li>
+                        <span class="dashicons dashicons-email"></span>
+                        <a href="mailto:support@synaplan.com">support@synaplan.com</a>
+                    </li>
+                    <li>
+                        <span class="dashicons dashicons-admin-site"></span>
+                        <a href="https://synaplan.com" target="_blank">synaplan.com</a>
+                    </li>
+                    <li>
+                        <span class="dashicons dashicons-admin-home"></span>
+                        <a href="https://app.synaplan.com/" target="_blank">Synaplan Dashboard</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -107,50 +92,81 @@ if (!defined('ABSPATH')) {
 </div>
 
 <style>
-.synaplan-help-container {
-    display: flex;
+.synaplan-help {
+    margin-top: 20px;
+}
+
+.help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
     gap: 20px;
     margin-top: 20px;
 }
 
-.synaplan-help-main {
-    flex: 2;
-}
-
-.synaplan-help-sidebar {
-    flex: 1;
-}
-
-.synaplan-support-box,
-.synaplan-status-box {
+.help-card {
     background: #fff;
-    border: 1px solid #ccd0d4;
-    padding: 15px;
-    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.synaplan-support-box h3,
-.synaplan-status-box h3 {
+.help-card .card-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.help-card .card-header h2 {
+    margin: 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.help-card .card-body {
+    padding: 20px;
+}
+
+.help-card h3 {
+    font-size: 14px;
+    margin-top: 15px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.help-card h3:first-child {
     margin-top: 0;
 }
 
-.synaplan-support-box ul {
-    margin: 10px 0;
+.help-card ol, .help-card ul {
+    margin-left: 20px;
 }
 
-.synaplan-support-box li {
-    margin: 5px 0;
+.help-card li {
+    margin-bottom: 8px;
 }
 
-.synaplan-status-box h4 {
+.contact-list {
+    list-style: none;
+    margin: 15px 0 0 0;
+    padding: 0;
+}
+
+.contact-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
     margin-bottom: 10px;
 }
 
-.synaplan-status-box ul {
-    margin: 10px 0;
-}
-
-.synaplan-status-box li {
-    margin: 5px 0;
+@media (max-width: 768px) {
+    .help-grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>

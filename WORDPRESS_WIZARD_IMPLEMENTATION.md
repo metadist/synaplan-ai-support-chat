@@ -1,346 +1,368 @@
-# WordPress Wizard Complete Integration - Implementation Summary
+# WordPress Wizard Implementation - Complete Flow
 
 ## Overview
+This implementation provides a secure, complete WordPress plugin setup flow that:
+1. Verifies WordPress site via callback
+2. Creates user with status 'NEW' (no email confirmation needed)
+3. Generates API key automatically
+4. Uploads files to RAG system
+5. Configures prompts with file search
+6. Saves widget configuration to BCONFIG table
 
-This document describes the complete implementation of the WordPress wizard integration with Synaplan, specifically addressing the three missing pieces that were previously incomplete:
+## Key Features
 
-1. **RAG File Upload** - Upload and vectorize files during wizard setup
-2. **Prompt Configuration** - Enable file search tool on general prompt with WORDPRESS_WIZARD filter
-3. **Widget Configuration** - Save widget settings to the Synaplan database
+### 1. Secure WordPress Verification
+- Plugin generates a random verification token on activation
+- Token is sent to app.synaplan.com during registration
+- App calls back to WordPress site's REST API to verify the token
+- Only verified WordPress sites can create users
 
-## Changes Made
+### 2. Automatic User Creation
+- User is created with `BUSERLEVEL = 'NEW'` (not `PIN:xxxx`)
+- No email confirmation required
+- User is immediately active and can use the platform
 
-### 1. Synaplan Backend (Main Application)
+### 3. API Key Management
+- API key is generated automatically during wizard completion
+- Stored securely in WordPress options
+- Shown in dashboard with "click to reveal" security feature
+- Can be copied with one click
 
-#### New API Endpoint: `wpWizardComplete`
+### 4. Complete Widget Configuration
+- Widget settings saved to BCONFIG table (not just WordPress options)
+- Uses same format as manual configuration via app.synaplan.com
+- All inputs sanitized with `db::EscString` for security
 
-**File**: `/wwwroot/synaplan/app/inc/integrations/wordpresswizard.php` (NEW)
+## Files Modified
 
-- Created new `WordPressWizard` class to handle wizard completion
-- Implements `completeWizardSetup()` method that:
-  - Processes uploaded RAG files with group key "WORDPRESS_WIZARD"
-  - Enables file search tool on the general prompt with group filter
-  - Saves widget configuration to database
-  - Handles errors gracefully without failing the entire process
+### Main Application (synaplan/)
+1. **app/inc/integrations/wordpresswizard.php** - Complete rewrite
+   - `completeWizardSetup()` - Main entry point
+   - `verifyWordPressSite()` - Secure callback verification
+   - `createWordPressUser()` - User creation with status 'NEW'
+   - `createUserApiKey()` - API key generation
+   - `saveWidgetConfiguration()` - Widget config to BCONFIG
+   - `processWizardRAGFiles()` - File uploads (unchanged)
+   - `enableFileSearchOnGeneralPrompt()` - Prompt config (unchanged)
 
-**Key Features**:
-- Rate limiting: Maximum 5 files per wizard session
-- File size limit: 10MB per file
-- Supported file types: PDF, DOCX, TXT, JPG, JPEG, PNG, MP3, MP4
-- Automatic cleanup of temporary files
-- Comprehensive logging for debugging
+2. **app/inc/api/_api-restcalls.php**
+   - Added `case 'wpWizardComplete'` route
 
-#### API Configuration Updates
+### WordPress Plugin (synaplan-wp/)
+1. **includes/class-synaplan-wp-api.php**
+   - Updated `complete_wizard_setup()` method
+   - Now sends verification token and complete user data
+   - Handles file uploads with multipart form data
 
-**File**: `/wwwroot/synaplan/app/inc/api/apiauthenticator.php`
-- Added `wpWizardComplete` to authenticated endpoints list
+2. **includes/class-synaplan-wp-wizard.php**
+   - Updated `process_step_4()` to use new unified flow
+   - Properly extracts API key and user ID from response
+   - Saves credentials to WordPress options
 
-**File**: `/wwwroot/synaplan/app/inc/api/_api-restcalls.php`
-- Added route handler for `wpWizardComplete` action
+3. **includes/class-synaplan-wp-rest-api.php**
+   - Unchanged - already has verification endpoint
 
-**File**: `/wwwroot/synaplan/app/inc/_coreincludes.php`
-- Included new WordPressWizard class in core includes
+4. **includes/class-synaplan-wp-core.php**
+   - Unchanged - already has token generation and validation
 
-### 2. WordPress Plugin Updates
+5. **admin/views/dashboard.php** - NEW
+   - Shows API key with click-to-reveal feature
+   - Copy buttons for API key and embed code
+   - Links to full Synaplan platform
 
-#### Enhanced API Client
+6. **admin/views/settings.php** - NEW
+   - Widget configuration interface
+   - Links to advanced settings on app.synaplan.com
 
-**File**: `/wwwroot/synaplan-wp/includes/class-synaplan-wp-api.php`
+7. **admin/views/help.php** - NEW
+   - Getting started guide
+   - FAQ section
+   - Support contact information
 
-Added new method `complete_wizard_setup()`:
-- Calls the new `wpWizardComplete` endpoint
-- Handles file uploads via cURL with multipart form data
-- Sends widget configuration parameters
-- Timeout: 180 seconds (3 minutes) for file processing
-- Returns structured response with success/error information
+## Security Features
 
-#### Updated Wizard Process
+### Input Sanitization
+All user inputs are sanitized using `db::EscString()`:
+- Email addresses
+- Passwords (hashed with MD5)
+- Widget colors (hex codes)
+- Text fields (messages, placeholders, etc.)
+- File paths and names
 
-**File**: `/wwwroot/synaplan-wp/includes/class-synaplan-wp-wizard.php`
-
-Modified `process_step_4()`:
-- Removed separate calls to `upload_file_for_rag()` and `save_widget()`
-- Now calls unified `complete_wizard_setup()` endpoint
-- Improved error handling and logging
-- Better cleanup of temporary files
-- Removed obsolete `process_uploaded_files_for_rag()` method
-
-## How It Works
-
-### Workflow Sequence
-
-1. **User Registration**
-   - WordPress plugin calls `userRegister` API
-   - Creates new user account
-   - Generates API key automatically
-   - Returns user ID and API key to plugin
-
-2. **Wizard Completion** (NEW UNIFIED ENDPOINT)
-   - Plugin calls `wpWizardComplete` with:
-     - Widget configuration (color, position, message, etc.)
-     - Uploaded files (if any)
-     - API key for authentication
-   
-3. **Backend Processing**
-   - **Step 1**: Process uploaded files
-     - Move files to user directory
-     - Create database entries in BMESSAGES table
-     - Process through RAG vectorization system
-     - Store with group key "WORDPRESS_WIZARD"
-   
-   - **Step 2**: Enable file search (if files uploaded)
-     - Get current general prompt configuration
-     - Enable `tool_files` setting
-     - Set `tool_files_keyword` to "WORDPRESS_WIZARD"
-     - Update prompt in database
-   
-   - **Step 3**: Save widget configuration
-     - Validate widget parameters
-     - Save to BCONFIG table with widget_1 group
-     - Store all widget settings (colors, position, messages, etc.)
-
-4. **Cleanup**
-   - Delete temporary files
-   - Clear wizard session data
-   - Mark setup as completed
-
-## API Endpoint Details
-
-### Request: `wpWizardComplete`
-
-**Method**: POST  
-**Authentication**: Bearer token (API key)  
-**Content-Type**: multipart/form-data
-
-**Parameters**:
-```php
-[
-    'action' => 'wpWizardComplete',
-    'widgetId' => 1,                    // Widget ID (1-9)
-    'widgetColor' => '#007bff',         // Widget button color
-    'widgetIconColor' => '#ffffff',     // Icon color
-    'widgetPosition' => 'bottom-right', // Position on page
-    'autoMessage' => 'Hello!...',       // Welcome message
-    'widgetPrompt' => 'general',        // Prompt type
-    'autoOpen' => '0',                  // Auto-open flag
-    'integrationType' => 'floating-button',
-    'files[]' => [file1, file2, ...]    // Optional uploaded files
-]
+### WordPress Verification Flow
+```
+1. Plugin activation → Generate random token → Store in wp_options
+2. User submits wizard → Token sent to app.synaplan.com
+3. App calls back to WordPress: POST /wp-json/synaplan-wp/v1/verify
+4. WordPress validates token (15-minute expiry)
+5. If valid, app creates user with status 'NEW'
+6. API key returned to WordPress plugin
 ```
 
-**Response**:
-```json
-{
-    "success": true,
-    "message": "WordPress wizard setup completed successfully",
-    "filesProcessed": 2,
-    "widget": {
-        "widgetId": 1,
-        "saved": true
-    }
-}
-```
+### API Key Storage
+- Stored in `wp_options` table as `synaplan_wp_api_key`
+- Not displayed by default - requires click to reveal
+- Can be copied but not modified through UI
 
-**Error Response**:
-```json
-{
-    "success": false,
-    "error": "Error message description"
-}
-```
-
-## Database Changes
-
-### Tables Modified
-
-1. **BMESSAGES**
-   - Stores uploaded file entries
-   - Links to RAG system via BRAG table
-
-2. **BRAG**
-   - Stores vectorized file content
-   - Uses group key "WORDPRESS_WIZARD" for filtering
-
-3. **BCONFIG**
-   - Stores widget configuration
-   - Group: `widget_1` (or widget_2, widget_3, etc.)
-   - Settings: color, iconColor, position, autoMessage, prompt, etc.
-
-4. **BPROMPTS** & **BPROMPTMETA**
-   - Updates general prompt configuration
-   - Enables file search tool
-   - Sets group filter for RAG searches
-
-## Testing Instructions
+## Testing Steps
 
 ### Prerequisites
-- WordPress site with Synaplan WP AI plugin installed
-- Access to Synaplan backend logs
-- Test files (PDF, DOCX) for upload testing
+1. WordPress installation (5.0+)
+2. PHP 8.0+
+3. Synaplan plugin uploaded to `/wp-content/plugins/synaplan-wp-ai/`
 
 ### Test Procedure
 
-1. **Start Wizard**
-   - Navigate to WordPress admin → Synaplan AI → Setup Wizard
-   - Verify wizard loads without errors
+#### 1. Plugin Activation
+```bash
+# Activate plugin
+wp plugin activate synaplan-wp-ai
 
-2. **Step 1: Account Creation**
-   - Enter email, password, and language
+# Verify options created
+wp option get synaplan_wp_version
+wp option get synaplan_wp_verification_token
+```
+
+#### 2. Run Wizard
+1. Go to WordPress Admin → Synaplan AI
+2. Fill in wizard step 1:
+   - Email: test@example.com
+   - Password: Test123!@#
+   - Language: English
    - Accept terms
-   - Click "Next"
-   - **Expected**: User created in BUSER table, API key generated in BAPIKEYS table
+3. Fill in wizard step 2:
+   - Welcome message: "Hello! How can I help?"
+   - AI type: General Support
+   - Color: #007bff
+   - Position: Bottom Right
+4. Fill in wizard step 3 (optional):
+   - Upload 1-5 PDF or DOCX files
+5. Review and complete step 4
 
-3. **Step 2: Widget Settings**
-   - Configure welcome message
-   - Choose AI assistant type (general)
-   - Select widget color and position
-   - Click "Next"
-   - **Expected**: Settings saved to wizard session
+#### 3. Verify User Creation
+```sql
+-- Check user was created with status 'NEW'
+SELECT BID, BMAIL, BUSERLEVEL, BUSERDETAILS 
+FROM BUSER 
+WHERE BMAIL = 'test@example.com';
 
-4. **Step 3: File Upload** (CRITICAL TEST)
-   - Upload 1-2 test files (PDF or DOCX)
-   - Verify file preview appears
-   - Click "Next"
-   - **Expected**: Files saved to temporary directory
+-- Should show:
+-- BUSERLEVEL = 'NEW'
+-- BUSERDETAILS contains emailConfirmed: true, wordpressVerified: true
+```
 
-5. **Step 4: Complete Setup**
-   - Review settings
-   - Click "Complete Setup"
-   - **Expected**: 
-     - Success message appears
-     - Redirected to widget management page
-     - Check backend logs for:
-       - "Calling wpWizardComplete endpoint"
-       - "Wizard completion successful"
-       - "Processing RAG files"
-       - File vectorization logs
+#### 4. Verify API Key
+```sql
+-- Check API key was created
+SELECT BOWNERID, BNAME, BKEY, BSTATUS 
+FROM BAPIKEYS 
+WHERE BNAME = 'WordPress Plugin' 
+ORDER BY BCREATED DESC LIMIT 1;
 
-### Verification Checklist
+-- Should show:
+-- BKEY starting with 'sk_live_'
+-- BSTATUS = 'active'
+```
 
-- [ ] User account created (check BUSER table)
-- [ ] API key generated (check BAPIKEYS table)
-- [ ] Files uploaded and processed (check BMESSAGES table, BDIRECT='IN', BFILE=1)
-- [ ] RAG entries created (check BRAG table, BGROUPKEY='WORDPRESS_WIZARD')
-- [ ] General prompt updated (check BPROMPTMETA for tool_files='1' and tool_files_keyword='WORDPRESS_WIZARD')
-- [ ] Widget configuration saved (check BCONFIG table, BGROUP='widget_1')
-- [ ] Widget displays on WordPress site
-- [ ] Chat widget works correctly
-- [ ] File search enabled in chat (test by asking about uploaded document content)
+#### 5. Verify Widget Configuration
+```sql
+-- Check widget config in BCONFIG
+SELECT BOWNERID, BGROUP, BSETTING, BVALUE 
+FROM BCONFIG 
+WHERE BGROUP = 'widget_1' 
+AND BOWNERID = [USER_ID_FROM_STEP_3];
 
-### Test Queries for File Search
+-- Should show multiple rows with settings:
+-- color, iconColor, position, autoMessage, prompt, etc.
+```
 
-After completing wizard with uploaded files, test the file search functionality:
+#### 6. Verify Files (if uploaded)
+```sql
+-- Check files were uploaded
+SELECT BID, BTEXT, BFILEPATH, BFILETYPE 
+FROM BMESSAGES 
+WHERE BUSERID = [USER_ID] 
+AND BMESSTYPE = 'RAG' 
+AND BFILE = 1;
 
-1. Open the chat widget on your WordPress site
-2. Ask questions related to uploaded file content
-3. The AI should reference the uploaded documents
-4. Check backend logs for RAG search queries with WORDPRESS_WIZARD filter
+-- Check RAG entries
+SELECT BMID, BGROUPKEY, BTEXT 
+FROM BRAG 
+WHERE BUID = [USER_ID] 
+AND BGROUPKEY = 'WORDPRESS_WIZARD';
+```
 
-Example queries:
-- "What information do you have about [topic in uploaded document]?"
-- "Can you summarize the document I uploaded?"
-- "Tell me about [specific section in uploaded file]"
+#### 7. Verify Prompt Configuration (if files uploaded)
+```sql
+-- Check file search tool is enabled on general prompt
+SELECT p.BTOPIC, ps.BTOKEN, ps.BVALUE 
+FROM BPROMPTS p
+JOIN BPROMPTSETTINGS ps ON ps.BPROMPTID = p.BID
+WHERE p.BTOPIC = 'general' 
+AND (ps.BTOKEN = 'tool_files' OR ps.BTOKEN = 'tool_files_keyword');
 
-## Troubleshooting
+-- Should show:
+-- tool_files = '1'
+-- tool_files_keyword = 'WORDPRESS_WIZARD'
+```
 
-### Common Issues
+#### 8. Test Dashboard
+1. Go to WordPress Admin → Synaplan AI → Dashboard
+2. Verify API key is hidden (shows dots)
+3. Click "Show API Key"
+4. Verify API key is revealed
+5. Click "Copy" button
+6. Verify API key was copied to clipboard
 
-1. **Files not uploading**
-   - Check file size (max 10MB)
-   - Verify file type is supported
-   - Check PHP upload limits in WordPress
-   - Review WordPress error logs
+#### 9. Test Widget on Frontend
+1. Visit any page on the WordPress site
+2. Verify chat widget button appears (bottom right by default)
+3. Click widget button
+4. Verify chat interface opens
+5. Send a test message
+6. Verify AI responds
 
-2. **Widget not appearing**
-   - Verify BCONFIG entries exist for widget_1
-   - Check widget embed code in WordPress theme
-   - Ensure user ID and widget ID are correct
+#### 10. Test Login to App
+1. Go to https://app.synaplan.com/
+2. Login with:
+   - Email: test@example.com
+   - Password: Test123!@#
+3. Verify login succeeds (no email confirmation needed)
+4. Navigate to File Manager
+5. Verify uploaded files appear (if any were uploaded)
+6. Navigate to Prompts
+7. Verify general prompt has file search enabled
 
-3. **File search not working**
-   - Verify BRAG entries exist with WORDPRESS_WIZARD group
-   - Check BPROMPTMETA for tool_files='1'
-   - Verify tool_files_keyword='WORDPRESS_WIZARD'
-   - Check if RAG vectorization completed successfully
+### Expected Results
 
-4. **API authentication errors**
-   - Verify API key is saved in WordPress options
-   - Check BAPIKEYS table for active key
-   - Ensure Bearer token is sent in request headers
+✅ User created with status 'NEW'
+✅ API key generated and stored
+✅ Widget configuration saved to BCONFIG
+✅ Files uploaded and vectorized (if provided)
+✅ Prompt configured with file search (if files uploaded)
+✅ Dashboard shows API key with click-to-reveal
+✅ Widget appears on frontend
+✅ User can login to app.synaplan.com without email confirmation
 
-### Debug Logging
+## Debugging
 
-Enable debug logging in WordPress:
+### Enable Debug Logging
 ```php
-// wp-config.php
+// In wp-config.php
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
 ```
 
-Check logs:
-- WordPress: `/wp-content/debug.log`
-- Synaplan: Check error_log() calls in WordPressWizard class
+### Check Logs
+```bash
+# WordPress logs
+tail -f /var/www/html/wp-content/debug.log
 
-## Security Considerations
+# App logs
+tail -f /var/wwwroot/synaplan/app/logs/error.log
+```
 
-1. **File Upload Security**
-   - File type validation (whitelist only)
-   - File size limits enforced
-   - Files stored in user-specific directories
-   - Filenames sanitized and made unique
+### Common Issues
 
-2. **Rate Limiting**
-   - Maximum 5 files per wizard session
-   - User registration rate limited (5 per hour per IP)
-   - API endpoints require authentication
+#### Issue: "WordPress site verification failed"
+- Check that REST API is accessible: `/wp-json/synaplan-wp/v1/verify`
+- Verify token hasn't expired (15-minute limit)
+- Check SSL certificate is valid
 
-3. **Data Validation**
-   - All input sanitized via db::EscString()
-   - Widget parameters validated
-   - Color codes validated with regex
-   - Position values whitelisted
+#### Issue: "Missing API key or user ID in response"
+- Check app logs for errors
+- Verify `wpWizardComplete` route is registered
+- Check response structure matches expected format
 
-4. **Authentication**
-   - API key required for all authenticated endpoints
-   - Session-based authentication for widget users
-   - Bearer token validation
+#### Issue: Widget not appearing
+- Clear browser cache
+- Check console for JavaScript errors
+- Verify user ID is correct in embed code
+
+## API Endpoint Details
+
+### POST /api.php?action=wpWizardComplete
+
+**Request Parameters:**
+```json
+{
+  "action": "wpWizardComplete",
+  "email": "user@example.com",
+  "password": "password123",
+  "language": "en",
+  "verification_token": "abc123...",
+  "verification_url": "https://site.com/wp-json/synaplan-wp/v1/verify",
+  "site_url": "https://site.com",
+  "widgetId": 1,
+  "widgetColor": "#007bff",
+  "widgetIconColor": "#ffffff",
+  "widgetPosition": "bottom-right",
+  "autoMessage": "Hello!",
+  "widgetPrompt": "general",
+  "files[]": [File objects]
+}
+```
+
+**Response (Success):**
+```json
+{
+    "success": true,
+    "message": "WordPress wizard setup completed successfully",
+  "data": {
+    "user_id": 123,
+    "email": "user@example.com",
+    "api_key": "sk_live_abc123...",
+    "filesProcessed": 2,
+    "widget_configured": true,
+    "site_verified": true
+    }
+}
+```
+
+**Response (Error):**
+```json
+{
+    "success": false,
+  "error": "Error message here"
+}
+```
+
+## Maintenance
+
+### Cleanup Old Verification Tokens
+Verification tokens expire after 15 minutes but remain in the database. Consider adding a cron job to clean up old tokens:
+
+```php
+// Add to WordPress cron
+wp_schedule_event(time(), 'daily', 'synaplan_cleanup_tokens');
+add_action('synaplan_cleanup_tokens', function() {
+    delete_option('synaplan_wp_verification_token');
+});
+```
+
+### Update API Key
+If the API key needs to be regenerated:
+1. Delete from WordPress: `wp option delete synaplan_wp_api_key`
+2. User must re-run wizard or manually create API key on app.synaplan.com
+3. Save new API key: `wp option set synaplan_wp_api_key "sk_live_new_key"`
 
 ## Future Enhancements
 
-Potential improvements for future releases:
+- [ ] Support for multiple widgets per site
+- [ ] Analytics dashboard in WordPress admin
+- [ ] Bulk file upload with progress indicator
+- [ ] Webhook integration for real-time updates
+- [ ] White-label customization options
 
-1. **Progress Indicator**
-   - Show real-time file upload progress
-   - Display vectorization status
-   - Provide estimated completion time
+## Support
 
-2. **File Management**
-   - Allow users to manage uploaded files
-   - Add file deletion capability
-   - Show file processing status
-
-3. **Advanced Configuration**
-   - Multiple widget support
-   - Custom RAG group names
-   - Per-widget file associations
-
-4. **Error Recovery**
-   - Retry failed file uploads
-   - Resume interrupted vectorization
-   - Better error messages for users
-
-## Conclusion
-
-The WordPress wizard integration is now complete with all three missing pieces implemented:
-
-✅ **RAG File Upload** - Files are uploaded, stored, and vectorized with proper group filtering  
-✅ **Prompt Configuration** - File search tool automatically enabled on general prompt  
-✅ **Widget Configuration** - Widget settings saved and persisted to database  
-
-The implementation uses a unified `wpWizardComplete` endpoint that handles all setup steps in a single, atomic operation, ensuring consistency and reliability.
+For issues or questions:
+- Email: support@synaplan.com
+- Website: https://synaplan.com
+- Dashboard: https://app.synaplan.com/
 
 ---
 
-**Implementation Date**: 2025-10-07  
-**Version**: 1.0.0  
-**Status**: ✅ Complete and Ready for Testing
-
+**Version:** 1.0.3
+**Last Updated:** 2025-10-08
+**Author:** Synaplan Development Team

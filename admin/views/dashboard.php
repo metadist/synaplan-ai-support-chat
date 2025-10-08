@@ -11,216 +11,330 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$widget = new Synaplan_WP_Widget();
-$widget_preview = $widget->get_widget_preview();
-$widget_stats = $widget->get_widget_stats();
+// Get widget embed code
+$user_id = Synaplan_WP_Core::get_user_id();
+$widget_url = 'https://app.synaplan.com/widget.php?uid=' . $user_id . '&widgetid=1';
+$embed_code = '<script>
+(function() {
+    var script = document.createElement(\'script\');
+    script.src = \'' . $widget_url . '\';
+    script.async = true;
+    document.head.appendChild(script);
+})();
+</script>';
 ?>
 
 <div class="wrap synaplan-dashboard">
-    <div class="synaplan-dashboard-header">
-        <div class="header-content">
-            <h1><?php _e('Synaplan AI Dashboard', 'synaplan-wp-ai'); ?></h1>
-            <p><?php _e('Manage your AI chat widget and monitor its performance.', 'synaplan-wp-ai'); ?></p>
+    <h1><?php _e('Synaplan AI Dashboard', 'synaplan-wp-ai'); ?></h1>
+    
+    <div class="synaplan-dashboard-grid">
+        <!-- Status Card -->
+        <div class="dashboard-card status-card">
+            <div class="card-header">
+                <h2><span class="dashicons dashicons-yes-alt"></span> <?php _e('Setup Status', 'synaplan-wp-ai'); ?></h2>
+            </div>
+            <div class="card-body">
+                <p class="status-message success">
+                    <span class="dashicons dashicons-yes"></span>
+                    <?php _e('Your Synaplan AI chat widget is active and ready!', 'synaplan-wp-ai'); ?>
+                </p>
+                <p class="help-text">
+                    <?php _e('The widget is now displaying on your website. Visitors can use it to chat with your AI assistant.', 'synaplan-wp-ai'); ?>
+                </p>
+            </div>
         </div>
-        <div class="header-actions">
-            <button type="button" class="button button-secondary" id="test-widget">
-                <?php _e('Test Widget', 'synaplan-wp-ai'); ?>
-            </button>
-            <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai-settings'); ?>" class="button button-primary">
-                <?php _e('Settings', 'synaplan-wp-ai'); ?>
-            </a>
+        
+        <!-- API Credentials Card -->
+        <div class="dashboard-card credentials-card">
+            <div class="card-header">
+                <h2><span class="dashicons dashicons-admin-network"></span> <?php _e('API Credentials', 'synaplan-wp-ai'); ?></h2>
+            </div>
+            <div class="card-body">
+                <div class="credential-row">
+                    <label><?php _e('User ID:', 'synaplan-wp-ai'); ?></label>
+                    <code class="credential-value"><?php echo esc_html($user_id); ?></code>
+                </div>
+                
+                <div class="credential-row">
+                    <label><?php _e('API Key:', 'synaplan-wp-ai'); ?></label>
+                    <div class="api-key-container">
+                        <code class="credential-value api-key-hidden" id="api-key-display">
+                            <?php echo str_repeat('•', 48); ?>
+                        </code>
+                        <code class="credential-value api-key-revealed" id="api-key-revealed" style="display: none;">
+                            <?php echo esc_html($api_key); ?>
+                        </code>
+                        <button type="button" class="button button-secondary" id="toggle-api-key">
+                            <span class="dashicons dashicons-visibility"></span>
+                            <span id="toggle-text"><?php _e('Show API Key', 'synaplan-wp-ai'); ?></span>
+                        </button>
+                        <button type="button" class="button button-secondary" id="copy-api-key" style="display: none;">
+                            <span class="dashicons dashicons-clipboard"></span>
+                            <?php _e('Copy', 'synaplan-wp-ai'); ?>
+                        </button>
+                    </div>
+                </div>
+                
+                <p class="help-text">
+                    <span class="dashicons dashicons-info"></span>
+                    <?php _e('Keep your API key secure. You can use it to access the full Synaplan platform at', 'synaplan-wp-ai'); ?>
+                    <a href="https://app.synaplan.com/" target="_blank">app.synaplan.com</a>
+                </p>
+            </div>
         </div>
-    </div>
-
-    <div class="synaplan-dashboard-content">
-        <div class="dashboard-grid">
-            <!-- Widget Preview -->
-            <div class="dashboard-card widget-preview">
-                <div class="card-header">
-                    <h2><?php _e('Widget Preview', 'synaplan-wp-ai'); ?></h2>
-                    <p><?php _e('See how your chat widget appears on your website.', 'synaplan-wp-ai'); ?></p>
-                </div>
-                <div class="card-content">
-                    <?php echo $widget_preview; ?>
-                </div>
+        
+        <!-- Widget Embed Code Card -->
+        <div class="dashboard-card embed-card">
+            <div class="card-header">
+                <h2><span class="dashicons dashicons-editor-code"></span> <?php _e('Widget Embed Code', 'synaplan-wp-ai'); ?></h2>
             </div>
-
-            <!-- Statistics -->
-            <div class="dashboard-card widget-stats">
-                <div class="card-header">
-                    <h2><?php _e('Statistics', 'synaplan-wp-ai'); ?></h2>
-                    <p><?php _e('Monitor your widget\'s performance.', 'synaplan-wp-ai'); ?></p>
-                </div>
-                <div class="card-content">
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-number"><?php echo number_format($widget_stats['total_conversations']); ?></div>
-                            <div class="stat-label"><?php _e('Total Conversations', 'synaplan-wp-ai'); ?></div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number"><?php echo number_format($widget_stats['total_messages']); ?></div>
-                            <div class="stat-label"><?php _e('Total Messages', 'synaplan-wp-ai'); ?></div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number"><?php echo number_format($widget_stats['avg_response_time']); ?>s</div>
-                            <div class="stat-label"><?php _e('Avg Response Time', 'synaplan-wp-ai'); ?></div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number"><?php echo number_format($widget_stats['satisfaction_score'], 1); ?>%</div>
-                            <div class="stat-label"><?php _e('Satisfaction Score', 'synaplan-wp-ai'); ?></div>
-                        </div>
-                    </div>
-                </div>
+            <div class="card-body">
+                <p><?php _e('Your widget is automatically embedded on all pages. Use this code if you need to manually embed it elsewhere:', 'synaplan-wp-ai'); ?></p>
+                <textarea readonly class="embed-code" id="embed-code"><?php echo esc_textarea($embed_code); ?></textarea>
+                <button type="button" class="button button-secondary" id="copy-embed-code">
+                    <span class="dashicons dashicons-clipboard"></span>
+                    <?php _e('Copy Code', 'synaplan-wp-ai'); ?>
+                </button>
             </div>
-
-            <!-- Quick Actions -->
-            <div class="dashboard-card quick-actions">
-                <div class="card-header">
-                    <h2><?php _e('Quick Actions', 'synaplan-wp-ai'); ?></h2>
-                    <p><?php _e('Common tasks and settings.', 'synaplan-wp-ai'); ?></p>
-                </div>
-                <div class="card-content">
-                    <div class="action-buttons">
-                        <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai-settings'); ?>" class="action-button">
-                            <div class="action-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </div>
-                            <div class="action-content">
-                                <h3><?php _e('Widget Settings', 'synaplan-wp-ai'); ?></h3>
-                                <p><?php _e('Customize appearance and behavior', 'synaplan-wp-ai'); ?></p>
-                            </div>
-                        </a>
-                        
-                        <a href="#" class="action-button" id="preview-widget">
-                            <div class="action-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
-                                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </div>
-                            <div class="action-content">
-                                <h3><?php _e('Preview Widget', 'synaplan-wp-ai'); ?></h3>
-                                <p><?php _e('See the widget in action', 'synaplan-wp-ai'); ?></p>
-                            </div>
-                        </a>
-                        
-                        <a href="#" class="action-button" id="view-analytics">
-                            <div class="action-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <div class="action-content">
-                                <h3><?php _e('View Analytics', 'synaplan-wp-ai'); ?></h3>
-                                <p><?php _e('Detailed performance metrics', 'synaplan-wp-ai'); ?></p>
-                            </div>
-                        </a>
-                        
-                        <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai-help'); ?>" class="action-button">
-                            <div class="action-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="2"/>
-                                    <line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </div>
-                            <div class="action-content">
-                                <h3><?php _e('Help & Support', 'synaplan-wp-ai'); ?></h3>
-                                <p><?php _e('Get help and documentation', 'synaplan-wp-ai'); ?></p>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+        </div>
+        
+        <!-- Quick Links Card -->
+        <div class="dashboard-card links-card">
+            <div class="card-header">
+                <h2><span class="dashicons dashicons-admin-links"></span> <?php _e('Quick Links', 'synaplan-wp-ai'); ?></h2>
             </div>
-
-            <!-- Recent Activity -->
-            <div class="dashboard-card recent-activity">
-                <div class="card-header">
-                    <h2><?php _e('Recent Activity', 'synaplan-wp-ai'); ?></h2>
-                    <p><?php _e('Latest conversations and interactions.', 'synaplan-wp-ai'); ?></p>
-                </div>
-                <div class="card-content">
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title"><?php _e('New conversation started', 'synaplan-wp-ai'); ?></div>
-                                <div class="activity-time"><?php _e('2 minutes ago', 'synaplan-wp-ai'); ?></div>
-                            </div>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"/>
-                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title"><?php _e('Widget configuration updated', 'synaplan-wp-ai'); ?></div>
-                                <div class="activity-time"><?php _e('1 hour ago', 'synaplan-wp-ai'); ?></div>
-                            </div>
-                        </div>
-                        
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2"/>
-                                    <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2"/>
-                                </svg>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title"><?php _e('Knowledge base updated', 'synaplan-wp-ai'); ?></div>
-                                <div class="activity-time"><?php _e('3 hours ago', 'synaplan-wp-ai'); ?></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="card-body">
+                <ul class="quick-links">
+                    <li>
+                        <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai-settings'); ?>">
+                            <span class="dashicons dashicons-admin-settings"></span>
+                            <?php _e('Widget Settings', 'synaplan-wp-ai'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://app.synaplan.com/" target="_blank">
+                            <span class="dashicons dashicons-external"></span>
+                            <?php _e('Synaplan Dashboard', 'synaplan-wp-ai'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://app.synaplan.com/index.php/filemanager" target="_blank">
+                            <span class="dashicons dashicons-media-document"></span>
+                            <?php _e('Manage Knowledge Base', 'synaplan-wp-ai'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://app.synaplan.com/index.php/prompts" target="_blank">
+                            <span class="dashicons dashicons-admin-generic"></span>
+                            <?php _e('Configure AI Prompts', 'synaplan-wp-ai'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?php echo admin_url('admin.php?page=synaplan-wp-ai-help'); ?>">
+                            <span class="dashicons dashicons-sos"></span>
+                            <?php _e('Help & Support', 'synaplan-wp-ai'); ?>
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+.synaplan-dashboard {
+    margin-top: 20px;
+}
+
+.synaplan-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.dashboard-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.dashboard-card .card-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.dashboard-card .card-header h2 {
+    margin: 0;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dashboard-card .card-body {
+    padding: 20px;
+}
+
+.status-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 0 0 15px 0;
+}
+
+.status-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.credential-row {
+    margin-bottom: 15px;
+}
+
+.credential-row label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.credential-value {
+    display: inline-block;
+    background: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 13px;
+    border: 1px solid #ddd;
+}
+
+.api-key-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.api-key-container .credential-value {
+    flex: 1;
+    min-width: 200px;
+}
+
+.embed-code {
+    width: 100%;
+    min-height: 120px;
+    font-family: monospace;
+    font-size: 12px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f5f5f5;
+    margin-bottom: 10px;
+}
+
+.help-text {
+    color: #666;
+    font-size: 13px;
+    margin: 10px 0 0 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.quick-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.quick-links li {
+    margin-bottom: 12px;
+}
+
+.quick-links a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.quick-links a:hover {
+    background: #f8f9fa;
+    border-color: #007cba;
+    color: #007cba;
+}
+
+@media (max-width: 768px) {
+    .synaplan-dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 <script>
 jQuery(document).ready(function($) {
-    // Test widget functionality
-    $('#test-widget').on('click', function() {
-        var button = $(this);
-        var originalText = button.text();
+    var apiKeyHidden = $('#api-key-display');
+    var apiKeyRevealed = $('#api-key-revealed');
+    var toggleBtn = $('#toggle-api-key');
+    var copyBtn = $('#copy-api-key');
+    var toggleText = $('#toggle-text');
+    var isRevealed = false;
+    
+    // Toggle API key visibility
+    toggleBtn.on('click', function() {
+        isRevealed = !isRevealed;
         
-        button.prop('disabled', true).text('<?php _e('Testing...', 'synaplan-wp-ai'); ?>');
-        
-        $.post(ajaxurl, {
-            action: 'synaplan_wp_test_api',
-            nonce: synaplan_wp_admin.nonce
-        }, function(response) {
-            if (response.success) {
-                alert('<?php _e('Widget test successful!', 'synaplan-wp-ai'); ?>');
-            } else {
-                alert('<?php _e('Widget test failed: ', 'synaplan-wp-ai'); ?>' + response.data);
-            }
-        }).always(function() {
-            button.prop('disabled', false).text(originalText);
+        if (isRevealed) {
+            apiKeyHidden.hide();
+            apiKeyRevealed.show();
+            copyBtn.show();
+            toggleBtn.find('.dashicons').removeClass('dashicons-visibility').addClass('dashicons-hidden');
+            toggleText.text('<?php _e('Hide API Key', 'synaplan-wp-ai'); ?>');
+        } else {
+            apiKeyHidden.show();
+            apiKeyRevealed.hide();
+            copyBtn.hide();
+            toggleBtn.find('.dashicons').removeClass('dashicons-hidden').addClass('dashicons-visibility');
+            toggleText.text('<?php _e('Show API Key', 'synaplan-wp-ai'); ?>');
+        }
+    });
+    
+    // Copy API key
+    copyBtn.on('click', function() {
+        var apiKey = apiKeyRevealed.text().trim();
+        navigator.clipboard.writeText(apiKey).then(function() {
+            var originalText = copyBtn.html();
+            copyBtn.html('<span class="dashicons dashicons-yes"></span> <?php _e('Copied!', 'synaplan-wp-ai'); ?>');
+            setTimeout(function() {
+                copyBtn.html(originalText);
+            }, 2000);
         });
     });
     
-    // Preview widget
-    $('#preview-widget').on('click', function(e) {
-        e.preventDefault();
-        window.open('<?php echo home_url(); ?>', '_blank');
-    });
-    
-    // View analytics
-    $('#view-analytics').on('click', function(e) {
-        e.preventDefault();
-        alert('<?php _e('Analytics feature coming soon!', 'synaplan-wp-ai'); ?>');
+    // Copy embed code
+    $('#copy-embed-code').on('click', function() {
+        var embedCode = $('#embed-code');
+        embedCode.select();
+        document.execCommand('copy');
+        
+        var btn = $(this);
+        var originalText = btn.html();
+        btn.html('<span class="dashicons dashicons-yes"></span> <?php _e('Copied!', 'synaplan-wp-ai'); ?>');
+        setTimeout(function() {
+            btn.html(originalText);
+        }, 2000);
     });
 });
 </script>

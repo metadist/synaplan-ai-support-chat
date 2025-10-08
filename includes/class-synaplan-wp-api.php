@@ -98,7 +98,8 @@ class Synaplan_WP_API {
     }
     
     /**
-     * Register new user
+     * Register new user - DEPRECATED: Use complete_wizard_setup instead
+     * This method is kept for backward compatibility
      */
     public function register_user($email, $password, $language = 'en') {
         // Create verification token for WordPress site validation
@@ -415,23 +416,39 @@ class Synaplan_WP_API {
     }
     
     /**
-     * Complete WordPress wizard setup with files, prompt, and widget
+     * Complete WordPress wizard setup with verification, user creation, API key, files, prompt, and widget
      * 
-     * This new endpoint handles all three missing pieces:
-     * 1. Upload files to RAG system
-     * 2. Enable file search on general prompt
-     * 3. Save widget configuration
+     * NEW: This endpoint handles the complete flow:
+     * 1. Verify WordPress site via callback
+     * 2. Create user with status 'NEW' (no email confirmation needed)
+     * 3. Create API key
+     * 4. Upload files to RAG system
+     * 5. Enable file search on general prompt
+     * 6. Save widget configuration
      *
-     * @param array $wizard_data Wizard configuration data
+     * @param array $wizard_data Wizard configuration data including email, password, and widget settings
      * @param array $uploaded_files Array of uploaded file paths
-     * @return array Result of the operation
+     * @return array Result of the operation with user_id and api_key
      */
     public function complete_wizard_setup($wizard_data, $uploaded_files = array()) {
+        // Create verification token for WordPress site validation
+        $verification_token = Synaplan_WP_Core::create_verification_token();
+        $verification_url = Synaplan_WP_Core::get_verification_endpoint_url();
+        
         // Use cURL for file upload with multipart form data
         $ch = curl_init();
         
         $post_data = array(
             'action' => 'wpWizardComplete',
+            // User registration data
+            'email' => $wizard_data['email'] ?? '',
+            'password' => $wizard_data['password'] ?? '',
+            'language' => $wizard_data['language'] ?? 'en',
+            // Verification data
+            'verification_token' => $verification_token,
+            'verification_url' => $verification_url,
+            'site_url' => get_site_url(),
+            // Widget configuration
             'widgetId' => $wizard_data['widget_id'] ?? 1,
             'widgetColor' => $wizard_data['widget_color'] ?? '#007bff',
             'widgetIconColor' => $wizard_data['icon_color'] ?? '#ffffff',
@@ -439,18 +456,26 @@ class Synaplan_WP_API {
             'autoMessage' => $wizard_data['intro_message'] ?? 'Hello! How can I help you today?',
             'widgetPrompt' => $wizard_data['prompt'] ?? 'general',
             'autoOpen' => '0',
-            'integrationType' => 'floating-button'
+            'integrationType' => 'floating-button',
+            'inlinePlaceholder' => 'Ask me anything...',
+            'inlineButtonText' => 'Ask',
+            'inlineFontSize' => '18',
+            'inlineTextColor' => '#212529',
+            'inlineBorderRadius' => '8'
         );
         
-        // Add files if any
+        // Add files if any (max 5 for wizard)
         if (!empty($uploaded_files)) {
+            $file_count = 0;
             foreach ($uploaded_files as $index => $file_data) {
+                if ($file_count >= 5) break; // Rate limit: max 5 files
                 if (isset($file_data['file_path']) && file_exists($file_data['file_path'])) {
                     $post_data['files[' . $index . ']'] = new CURLFile(
                         $file_data['file_path'],
                         $file_data['type'],
                         $file_data['name']
                     );
+                    $file_count++;
                 }
             }
         }
@@ -459,12 +484,11 @@ class Synaplan_WP_API {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 180); // 3 minutes for file processing
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization: Bearer ' . $this->api_key
-        ));
+        curl_setopt($ch, CURLOPT_TIMEOUT, 180); // 3 minutes for complete setup + file processing
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         
-        Synaplan_WP_Core::log("Completing wizard setup with " . count($uploaded_files) . " files");
+        Synaplan_WP_Core::log("Completing wizard setup with verification for: " . $wizard_data['email']);
+        Synaplan_WP_Core::log("Files to upload: " . count($uploaded_files));
         
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -479,12 +503,13 @@ class Synaplan_WP_API {
             );
         }
         
-        $decoded_body = json_decode($response, true);
-        
+        Synaplan_WP_Core::log("Wizard completion response code: " . $http_code);
         Synaplan_WP_Core::log("Wizard completion response: " . $response);
         
+        $decoded_body = json_decode($response, true);
+        
         return array(
-            'success' => $http_code >= 200 && $http_code < 300,
+            'success' => $http_code >= 200 && $http_code < 300 && isset($decoded_body['success']) && $decoded_body['success'],
             'status_code' => $http_code,
             'data' => $decoded_body,
             'raw_body' => $response

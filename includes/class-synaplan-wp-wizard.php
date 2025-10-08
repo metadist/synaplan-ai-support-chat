@@ -486,41 +486,68 @@ class Synaplan_WP_Wizard {
     }
     
     /**
-     * Process step 4: Complete setup
+     * Process step 4: Complete setup with new unified flow
      */
     private function process_step_4($data) {
-        Synaplan_WP_Core::log("Starting step 4 - Complete setup");
+        Synaplan_WP_Core::log("Starting step 4 - Complete setup (NEW unified flow)");
         
         $api = new Synaplan_WP_API();
         
-        // Register user (now includes API key and widget creation)
-        Synaplan_WP_Core::log("Calling register_user with email: " . $this->wizard_data['email']);
-        
-        $register_result = $api->register_user(
-            $this->wizard_data['email'],
-            $this->wizard_data['password'],
-            $this->wizard_data['language']
+        // Prepare wizard data for complete setup
+        $wizard_data = array(
+            'email' => $this->wizard_data['email'],
+            'password' => $this->wizard_data['password'],
+            'language' => $this->wizard_data['language'],
+            'widget_id' => 1,
+            'widget_color' => $this->wizard_data['widget_color'],
+            'icon_color' => '#ffffff',
+            'widget_position' => $this->wizard_data['widget_position'],
+            'intro_message' => $this->wizard_data['intro_message'],
+            'prompt' => $this->wizard_data['prompt']
         );
         
-        Synaplan_WP_Core::log("Register result: " . print_r($register_result, true));
+        // Get uploaded files if any
+        $uploaded_files = $this->wizard_data['uploaded_files'] ?? array();
         
-        if (!$register_result['success']) {
-            Synaplan_WP_Core::log("Registration failed: " . ($register_result['data']['data']['error'] ?? 'Unknown error'));
-            return array('success' => false, 'error' => $register_result['data']['data']['error'] ?? __('Registration failed.', 'synaplan-wp-ai'));
+        Synaplan_WP_Core::log("Calling complete_wizard_setup with email: " . $wizard_data['email']);
+        Synaplan_WP_Core::log("Files to process: " . count($uploaded_files));
+        
+        // Call the new unified endpoint
+        $result = $api->complete_wizard_setup($wizard_data, $uploaded_files);
+        
+        Synaplan_WP_Core::log("Complete wizard setup result: " . print_r($result, true));
+        
+        if (!$result['success']) {
+            $error_message = 'Setup failed';
+            if (isset($result['data']['error'])) {
+                $error_message = $result['data']['error'];
+            } elseif (isset($result['error'])) {
+                $error_message = $result['error'];
+            }
+            
+            Synaplan_WP_Core::log("Wizard setup failed: " . $error_message);
+            return array('success' => false, 'error' => $error_message);
         }
         
-        // Save API credentials from registration response
-        Synaplan_WP_Core::log("Saving API credentials");
-        Synaplan_WP_Core::log("API key from response: " . ($register_result['data']['data']['api_key'] ?? 'NOT FOUND'));
-        Synaplan_WP_Core::log("User ID from response: " . ($register_result['data']['data']['user_id'] ?? 'NOT FOUND'));
+        // Extract data from successful response
+        $response_data = $result['data']['data'] ?? $result['data'];
         
-        Synaplan_WP_Core::set_api_key($register_result['data']['data']['api_key']);
-        Synaplan_WP_Core::set_user_id($register_result['data']['data']['user_id']);
+        $api_key = $response_data['api_key'] ?? '';
+        $user_id = $response_data['user_id'] ?? '';
         
-        // Set API key for subsequent calls
-        $api->set_api_key($register_result['data']['data']['api_key']);
+        if (empty($api_key) || empty($user_id)) {
+            Synaplan_WP_Core::log("Missing API key or user ID in response");
+            return array('success' => false, 'error' => __('Setup succeeded but missing credentials', 'synaplan-wp-ai'));
+        }
         
-        // Update widget configuration with user's settings (local WordPress storage)
+        // Save API credentials
+        Synaplan_WP_Core::log("Saving API key: " . substr($api_key, 0, 15) . "...");
+        Synaplan_WP_Core::log("Saving user ID: " . $user_id);
+        
+        Synaplan_WP_Core::set_api_key($api_key);
+        Synaplan_WP_Core::set_user_id($user_id);
+        
+        // Update widget configuration with user's settings
         $widget_config = array(
             'integration_type' => 'floating-button',
             'color' => $this->wizard_data['widget_color'],
@@ -533,65 +560,67 @@ class Synaplan_WP_Wizard {
             'language' => $this->wizard_data['language']
         );
         
-        Synaplan_WP_Core::log("Saving widget config locally: " . print_r($widget_config, true));
+        Synaplan_WP_Core::log("Saving widget config: " . print_r($widget_config, true));
         Synaplan_WP_Core::update_widget_config($widget_config);
-        
-        // Prepare wizard data for complete setup API call
-        $wizard_setup_data = array(
-            'widget_id' => 1,
-            'widget_color' => $this->wizard_data['widget_color'],
-            'icon_color' => '#ffffff',
-            'widget_position' => $this->wizard_data['widget_position'],
-            'intro_message' => $this->wizard_data['intro_message'],
-            'prompt' => $this->wizard_data['prompt']
-        );
-        
-        // Prepare uploaded files array (if any)
-        $uploaded_files = array();
-        if (isset($this->wizard_data['uploaded_files']) && !empty($this->wizard_data['uploaded_files'])) {
-            $uploaded_files = $this->wizard_data['uploaded_files'];
-            Synaplan_WP_Core::log("Including " . count($uploaded_files) . " files for wizard completion");
-        }
-        
-        // Call the new unified wizard completion endpoint
-        Synaplan_WP_Core::log("Calling wpWizardComplete endpoint");
-        $completion_result = $api->complete_wizard_setup($wizard_setup_data, $uploaded_files);
-        
-        Synaplan_WP_Core::log("Wizard completion result: " . print_r($completion_result, true));
-        
-        if (!$completion_result['success']) {
-            Synaplan_WP_Core::log("Wizard completion failed: " . ($completion_result['error'] ?? 'Unknown error'));
-            // Don't fail the entire process, just log the error
-            // The user is created and API key is saved, so they can configure manually
-        } else {
-            Synaplan_WP_Core::log("Wizard completion successful");
-        }
-        
-        // Clean up temporary files
-        if (!empty($uploaded_files)) {
-            foreach ($uploaded_files as $file_data) {
-                if (isset($file_data['file_path']) && file_exists($file_data['file_path'])) {
-                    unlink($file_data['file_path']);
-                }
-            }
-            
-            // Clean up temp directory if empty
-            $temp_dir = wp_upload_dir()['basedir'] . '/synaplan-temp/';
-            if (is_dir($temp_dir) && count(scandir($temp_dir)) <= 2) { // Only . and .. entries
-                rmdir($temp_dir);
-            }
-        }
         
         // Mark setup as completed
         Synaplan_WP_Core::log("Marking setup as completed");
         Synaplan_WP_Core::mark_setup_completed();
         
-        // Clean up wizard data
+        // Clean up wizard data and temp files
         Synaplan_WP_Core::log("Cleaning up wizard data");
         $this->cleanup_wizard_data();
         
-        Synaplan_WP_Core::log("Step 4 completed successfully");
-        return array('success' => true, 'completed' => true);
+        Synaplan_WP_Core::log("Step 4 completed successfully - Files processed: " . ($response_data['filesProcessed'] ?? 0));
+        return array(
+            'success' => true,
+            'completed' => true,
+            'message' => 'Setup completed successfully'
+        );
+    }
+    
+    /**
+     * Process uploaded files for RAG vectorization
+     */
+    private function process_uploaded_files_for_rag($user_id, $api_key) {
+        // Rate limiting: max 5 files per wizard session
+        $file_count = count($this->wizard_data['uploaded_files']);
+        if ($file_count > 5) {
+            Synaplan_WP_Core::log("Rate limit exceeded: Too many files uploaded ($file_count)");
+            return;
+        }
+        
+        $api = new Synaplan_WP_API();
+        
+        foreach ($this->wizard_data['uploaded_files'] as $file_data) {
+            Synaplan_WP_Core::log("Processing file for RAG: " . $file_data['name']);
+            
+            // Upload file to Synaplan for vectorization
+            $upload_result = $api->upload_file_for_rag(
+                $file_data['file_path'],
+                $file_data['name'],
+                $file_data['type'],
+                $user_id,
+                $api_key
+            );
+            
+            if ($upload_result['success']) {
+                Synaplan_WP_Core::log("File uploaded and vectorized successfully: " . $file_data['name']);
+            } else {
+                Synaplan_WP_Core::log("File upload failed: " . ($upload_result['error'] ?? 'Unknown error'));
+            }
+            
+            // Clean up temporary file
+            if (file_exists($file_data['file_path'])) {
+                unlink($file_data['file_path']);
+            }
+        }
+        
+        // Clean up temp directory if empty
+        $temp_dir = wp_upload_dir()['basedir'] . '/synaplan-temp/';
+        if (is_dir($temp_dir) && count(scandir($temp_dir)) <= 2) { // Only . and .. entries
+            rmdir($temp_dir);
+        }
     }
     
     /**
@@ -600,23 +629,5 @@ class Synaplan_WP_Wizard {
     private function cleanup_wizard_data() {
         $user_id = get_current_user_id();
         delete_transient('synaplan_wizard_data_' . $user_id);
-    }
-    
-    /**
-     * Extract numeric user ID from wp_user_XXX format
-     */
-    private function extract_numeric_user_id($user_id) {
-        // If it's already numeric, return as is
-        if (is_numeric($user_id)) {
-            return $user_id;
-        }
-        
-        // Extract number from wp_user_XXX format
-        if (preg_match('/wp_user_(\d+)/', $user_id, $matches)) {
-            return $matches[1];
-        }
-        
-        // If no pattern matches, return the original value
-        return $user_id;
     }
 }

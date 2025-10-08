@@ -60,9 +60,9 @@ class Synaplan_WP_Widget {
             'widget_id' => 1, // Default widget ID
             'api_url' => 'https://app.synaplan.com', // Correct API URL
             'strings' => array(
-                'loading' => __('Loading...', 'synaplan-wp-ai'),
-                'error' => __('An error occurred. Please try again.', 'synaplan-wp-ai'),
-                'offline' => __('You appear to be offline. Please check your connection.', 'synaplan-wp-ai')
+                'loading' => __('Loading...', 'synaplan-ai-support-chat'),
+                'error' => __('An error occurred. Please try again.', 'synaplan-ai-support-chat'),
+                'offline' => __('You appear to be offline. Please check your connection.', 'synaplan-ai-support-chat')
             )
         ));
     }
@@ -109,7 +109,7 @@ class Synaplan_WP_Widget {
         $user_id = Synaplan_WP_Core::get_user_id();
         
         if (empty($user_id)) {
-            return '<p>' . __('Synaplan widget is not configured.', 'synaplan-wp-ai') . '</p>';
+            return '<p>' . __('Synaplan widget is not configured.', 'synaplan-ai-support-chat') . '</p>';
         }
         
         // Generate widget script URL with inline mode
@@ -200,15 +200,15 @@ class Synaplan_WP_Widget {
         $config = Synaplan_WP_Core::get_widget_config();
         
         if (empty($config)) {
-            return '<p>' . __('No widget configuration found.', 'synaplan-wp-ai') . '</p>';
+            return '<p>' . __('No widget configuration found.', 'synaplan-ai-support-chat') . '</p>';
         }
         
         ob_start();
         ?>
         <div class="synaplan-widget-preview">
             <div class="preview-header">
-                <h3><?php _e('Widget Preview', 'synaplan-wp-ai'); ?></h3>
-                <p><?php _e('This is how your chat widget will appear on your website.', 'synaplan-wp-ai'); ?></p>
+                <h3><?php _e('Widget Preview', 'synaplan-ai-support-chat'); ?></h3>
+                <p><?php _e('This is how your chat widget will appear on your website.', 'synaplan-ai-support-chat'); ?></p>
             </div>
             
             <div class="preview-container">
@@ -218,25 +218,25 @@ class Synaplan_WP_Widget {
                             <path d="M4 4.75C4 3.7835 4.7835 3 5.75 3H18.25C19.2165 3 20 3.7835 20 4.75V14.25C20 15.2165 19.2165 16 18.25 16H8.41421L5.70711 18.7071C5.07714 19.3371 4 18.8898 4 17.9929V4.75Z" fill="white"/>
                         </svg>
                     </div>
-                    <div class="widget-label"><?php _e('Chat', 'synaplan-wp-ai'); ?></div>
+                    <div class="widget-label"><?php _e('Chat', 'synaplan-ai-support-chat'); ?></div>
                 </div>
                 
                 <div class="preview-info">
                     <div class="info-item">
-                        <strong><?php _e('Type:', 'synaplan-wp-ai'); ?></strong>
-                        <span><?php echo esc_html($config['integration_type'] === 'inline-box' ? __('Inline Box', 'synaplan-wp-ai') : __('Floating Button', 'synaplan-wp-ai')); ?></span>
+                        <strong><?php _e('Type:', 'synaplan-ai-support-chat'); ?></strong>
+                        <span><?php echo esc_html($config['integration_type'] === 'inline-box' ? __('Inline Box', 'synaplan-ai-support-chat') : __('Floating Button', 'synaplan-ai-support-chat')); ?></span>
                     </div>
                     <div class="info-item">
-                        <strong><?php _e('Position:', 'synaplan-wp-ai'); ?></strong>
+                        <strong><?php _e('Position:', 'synaplan-ai-support-chat'); ?></strong>
                         <span><?php echo esc_html(ucfirst(str_replace('-', ' ', $config['position']))); ?></span>
                     </div>
                     <div class="info-item">
-                        <strong><?php _e('Color:', 'synaplan-wp-ai'); ?></strong>
+                        <strong><?php _e('Color:', 'synaplan-ai-support-chat'); ?></strong>
                         <span style="color: <?php echo esc_attr($config['color']); ?>;"><?php echo esc_html($config['color']); ?></span>
                     </div>
                     <div class="info-item">
-                        <strong><?php _e('Auto-open:', 'synaplan-wp-ai'); ?></strong>
-                        <span><?php echo $config['auto_open'] ? __('Yes', 'synaplan-wp-ai') : __('No', 'synaplan-wp-ai'); ?></span>
+                        <strong><?php _e('Auto-open:', 'synaplan-ai-support-chat'); ?></strong>
+                        <span><?php echo $config['auto_open'] ? __('Yes', 'synaplan-ai-support-chat') : __('No', 'synaplan-ai-support-chat'); ?></span>
                     </div>
                 </div>
             </div>
@@ -269,11 +269,11 @@ class Synaplan_WP_Widget {
         $user_id = Synaplan_WP_Core::get_user_id();
         
         if (empty($user_id)) {
-            return array('success' => false, 'error' => __('No user ID configured.', 'synaplan-wp-ai'));
+            return array('success' => false, 'error' => __('No user ID configured.', 'synaplan-ai-support-chat'));
         }
         
         if (empty($config)) {
-            return array('success' => false, 'error' => __('No widget configuration found.', 'synaplan-wp-ai'));
+            return array('success' => false, 'error' => __('No widget configuration found.', 'synaplan-ai-support-chat'));
         }
         
         // Test API connection
@@ -284,6 +284,6 @@ class Synaplan_WP_Widget {
             return $test_result;
         }
         
-        return array('success' => true, 'message' => __('Widget test successful.', 'synaplan-wp-ai'));
+        return array('success' => true, 'message' => __('Widget test successful.', 'synaplan-ai-support-chat'));
     }
 }

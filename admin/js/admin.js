@@ -90,7 +90,7 @@
         },
 
         goToStep: function(step) {
-            window.location.href = 'admin.php?page=synaplan-wp-ai&step=' + step;
+            window.location.href = 'admin.php?page=synaplan-ai-support-chat&step=' + step;
         },
 
         goToPreviousStep: function() {
@@ -128,7 +128,7 @@
 
         showCompletion: function() {
             // Redirect to dashboard
-            window.location.href = 'admin.php?page=synaplan-wp-ai';
+            window.location.href = 'admin.php?page=synaplan-ai-support-chat';
         },
 
         initPasswordStrength: function() {

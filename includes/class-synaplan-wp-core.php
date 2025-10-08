@@ -64,7 +64,7 @@ class Synaplan_WP_Core {
      */
     public function load_textdomain() {
         load_plugin_textdomain(
-            'synaplan-wp-ai',
+            'synaplan-ai-support-chat',
             false,
             dirname(plugin_basename(SYNAPLAN_WP_PLUGIN_FILE)) . '/languages'
         );

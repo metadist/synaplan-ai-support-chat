@@ -33,10 +33,10 @@ class Synaplan_WP_Admin {
     public function add_admin_menu() {
         // Main menu page
         add_menu_page(
-            __('Synaplan AI', 'synaplan-wp-ai'),
-            __('Synaplan AI', 'synaplan-wp-ai'),
+            __('Synaplan AI Support Chat', 'synaplan-ai-support-chat'),
+            __('Synaplan AI Support Chat', 'synaplan-ai-support-chat'),
             'manage_options',
-            'synaplan-wp-ai',
+            'synaplan-ai-support-chat',
             array($this, 'admin_page'),
             'data:image/svg+xml;base64,' . base64_encode($this->get_menu_icon()),
             30
@@ -44,31 +44,31 @@ class Synaplan_WP_Admin {
         
         // Dashboard submenu
         add_submenu_page(
-            'synaplan-wp-ai',
-            __('Dashboard', 'synaplan-wp-ai'),
-            __('Dashboard', 'synaplan-wp-ai'),
+            'synaplan-ai-support-chat',
+            __('Dashboard', 'synaplan-ai-support-chat'),
+            __('Dashboard', 'synaplan-ai-support-chat'),
             'manage_options',
-            'synaplan-wp-ai',
+            'synaplan-ai-support-chat',
             array($this, 'admin_page')
         );
         
         // Settings submenu
         add_submenu_page(
-            'synaplan-wp-ai',
-            __('Settings', 'synaplan-wp-ai'),
-            __('Settings', 'synaplan-wp-ai'),
+            'synaplan-ai-support-chat',
+            __('Settings', 'synaplan-ai-support-chat'),
+            __('Settings', 'synaplan-ai-support-chat'),
             'manage_options',
-            'synaplan-wp-ai-settings',
+            'synaplan-ai-support-chat-settings',
             array($this, 'settings_page')
         );
         
         // Help submenu
         add_submenu_page(
-            'synaplan-wp-ai',
-            __('Help & Support', 'synaplan-wp-ai'),
-            __('Help & Support', 'synaplan-wp-ai'),
+            'synaplan-ai-support-chat',
+            __('Help & Support', 'synaplan-ai-support-chat'),
+            __('Help & Support', 'synaplan-ai-support-chat'),
             'manage_options',
-            'synaplan-wp-ai-help',
+            'synaplan-ai-support-chat-help',
             array($this, 'help_page')
         );
     }
@@ -78,7 +78,7 @@ class Synaplan_WP_Admin {
      */
     public function enqueue_admin_scripts($hook) {
         // Only load on our admin pages
-        if (strpos($hook, 'synaplan-wp-ai') === false) {
+        if (strpos($hook, 'synaplan-ai-support-chat') === false) {
             return;
         }
         
@@ -102,10 +102,10 @@ class Synaplan_WP_Admin {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('synaplan_wp_admin_nonce'),
             'strings' => array(
-                'loading' => __('Loading...', 'synaplan-wp-ai'),
-                'error' => __('An error occurred. Please try again.', 'synaplan-wp-ai'),
-                'success' => __('Success!', 'synaplan-wp-ai'),
-                'confirm' => __('Are you sure?', 'synaplan-wp-ai')
+                'loading' => __('Loading...', 'synaplan-ai-support-chat'),
+                'error' => __('An error occurred. Please try again.', 'synaplan-ai-support-chat'),
+                'success' => __('Success!', 'synaplan-ai-support-chat'),
+                'confirm' => __('Are you sure?', 'synaplan-ai-support-chat')
             )
         ));
     }
@@ -195,7 +195,7 @@ class Synaplan_WP_Admin {
         add_settings_error(
             'synaplan_wp_settings',
             'settings_saved',
-            __('Settings saved successfully!', 'synaplan-wp-ai'),
+            __('Settings saved successfully!', 'synaplan-ai-support-chat'),
             'updated'
         );
     }
@@ -207,7 +207,7 @@ class Synaplan_WP_Admin {
         check_ajax_referer('synaplan_wp_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions.', 'synaplan-wp-ai'));
+            wp_die(__('Insufficient permissions.', 'synaplan-ai-support-chat'));
         }
         
         $step = intval($_POST['step']);
@@ -226,7 +226,7 @@ class Synaplan_WP_Admin {
         check_ajax_referer('synaplan_wp_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions.', 'synaplan-wp-ai'));
+            wp_die(__('Insufficient permissions.', 'synaplan-ai-support-chat'));
         }
         
         $config = $_POST['config'];
@@ -244,7 +244,7 @@ class Synaplan_WP_Admin {
         
         Synaplan_WP_Core::update_widget_config($sanitized_config);
         
-        wp_send_json_success(__('Configuration saved successfully!', 'synaplan-wp-ai'));
+        wp_send_json_success(__('Configuration saved successfully!', 'synaplan-ai-support-chat'));
     }
     
     /**
@@ -254,7 +254,7 @@ class Synaplan_WP_Admin {
         check_ajax_referer('synaplan_wp_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions.', 'synaplan-wp-ai'));
+            wp_die(__('Insufficient permissions.', 'synaplan-ai-support-chat'));
         }
         
         $api = new Synaplan_WP_API();

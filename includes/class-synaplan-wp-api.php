@@ -70,7 +70,7 @@ class Synaplan_WP_API {
         // Debug logging
         Synaplan_WP_Core::log("Making API request to: $url");
         Synaplan_WP_Core::log("Action: $action");
-        Synaplan_WP_Core::log("Data: " . print_r($args['body'], true));
+        Synaplan_WP_Core::log("Data: " . wp_json_encode($args['body']));
         
         $response = wp_remote_request($url, $args);
         
@@ -202,7 +202,7 @@ class Synaplan_WP_API {
         if (empty($this->api_key)) {
             return array(
                 'success' => false,
-                'error' => __('No API key configured', 'synaplan-wp-ai')
+                'error' => __('No API key configured', 'synaplan-ai-support-chat')
             );
         }
         
@@ -211,12 +211,12 @@ class Synaplan_WP_API {
         if ($result['success']) {
             return array(
                 'success' => true,
-                'message' => __('API connection successful', 'synaplan-wp-ai')
+                'message' => __('API connection successful', 'synaplan-ai-support-chat')
             );
         } else {
             return array(
                 'success' => false,
-                'error' => $result['data']['error'] ?? __('API connection failed', 'synaplan-wp-ai')
+                'error' => $result['data']['error'] ?? __('API connection failed', 'synaplan-ai-support-chat')
             );
         }
     }
@@ -281,10 +281,10 @@ class Synaplan_WP_API {
      */
     public function get_default_prompts() {
         return array(
-            'general' => __('General Support', 'synaplan-wp-ai'),
-            'sales' => __('Sales Assistant', 'synaplan-wp-ai'),
-            'technical' => __('Technical Support', 'synaplan-wp-ai'),
-            'customer_service' => __('Customer Service', 'synaplan-wp-ai')
+            'general' => __('General Support', 'synaplan-ai-support-chat'),
+            'sales' => __('Sales Assistant', 'synaplan-ai-support-chat'),
+            'technical' => __('Technical Support', 'synaplan-ai-support-chat'),
+            'customer_service' => __('Customer Service', 'synaplan-ai-support-chat')
         );
     }
     
@@ -298,14 +298,14 @@ class Synaplan_WP_API {
         if (!in_array($file['type'], $allowed_types)) {
             return array(
                 'valid' => false,
-                'error' => __('Only PDF and DOCX files are allowed', 'synaplan-wp-ai')
+                'error' => __('Only PDF and DOCX files are allowed', 'synaplan-ai-support-chat')
             );
         }
         
         if ($file['size'] > $max_size) {
             return array(
                 'valid' => false,
-                'error' => __('File size must be less than 10MB', 'synaplan-wp-ai')
+                'error' => __('File size must be less than 10MB', 'synaplan-ai-support-chat')
             );
         }
         
@@ -329,12 +329,12 @@ class Synaplan_WP_API {
             return array(
                 'success' => true,
                 'file_id' => $result['data']['file_id'] ?? null,
-                'message' => __('File uploaded successfully', 'synaplan-wp-ai')
+                'message' => __('File uploaded successfully', 'synaplan-ai-support-chat')
             );
         } else {
             return array(
                 'success' => false,
-                'error' => $result['data']['error'] ?? __('File upload failed', 'synaplan-wp-ai')
+                'error' => $result['data']['error'] ?? __('File upload failed', 'synaplan-ai-support-chat')
             );
         }
     }

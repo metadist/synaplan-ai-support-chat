@@ -24,7 +24,9 @@ delete_transient('synaplan_wp_widget_preview');
 
 // Remove database table
 global $wpdb;
-$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}synaplan_wizard_sessions");
+$table_name = $wpdb->prefix . 'synaplan_wizard_sessions';
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Schema change required during uninstallation
+$wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %i", $table_name));
 
 // Clear cache
 wp_cache_flush();

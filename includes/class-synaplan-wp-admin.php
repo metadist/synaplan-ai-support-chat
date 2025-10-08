@@ -162,7 +162,7 @@ class Synaplan_WP_Admin {
     private function render_settings() {
         $widget_config = Synaplan_WP_Core::get_widget_config();
         
-        if (isset($_POST['submit']) && wp_verify_nonce($_POST['_wpnonce'], 'synaplan_wp_settings')) {
+        if (isset($_POST['submit']) && isset($_POST['_wpnonce']) && wp_verify_nonce(wp_unslash($_POST['_wpnonce']), 'synaplan_wp_settings')) {
             $this->save_settings();
         }
         
@@ -180,15 +180,17 @@ class Synaplan_WP_Admin {
      * Save settings
      */
     private function save_settings() {
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in render_settings()
         $config = array(
-            'integration_type' => sanitize_text_field($_POST['integration_type']),
-            'color' => sanitize_hex_color($_POST['color']),
-            'icon_color' => sanitize_hex_color($_POST['icon_color']),
-            'position' => sanitize_text_field($_POST['position']),
-            'auto_message' => sanitize_textarea_field($_POST['auto_message']),
+            'integration_type' => isset($_POST['integration_type']) ? sanitize_text_field(wp_unslash($_POST['integration_type'])) : 'floating-button',
+            'color' => isset($_POST['color']) ? sanitize_hex_color(wp_unslash($_POST['color'])) : '#007bff',
+            'icon_color' => isset($_POST['icon_color']) ? sanitize_hex_color(wp_unslash($_POST['icon_color'])) : '#ffffff',
+            'position' => isset($_POST['position']) ? sanitize_text_field(wp_unslash($_POST['position'])) : 'bottom-right',
+            'auto_message' => isset($_POST['auto_message']) ? sanitize_textarea_field(wp_unslash($_POST['auto_message'])) : '',
             'auto_open' => isset($_POST['auto_open']) ? true : false,
-            'prompt' => sanitize_text_field($_POST['prompt'])
+            'prompt' => isset($_POST['prompt']) ? sanitize_text_field(wp_unslash($_POST['prompt'])) : 'general'
         );
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
         
         Synaplan_WP_Core::update_widget_config($config);
         
@@ -210,7 +212,7 @@ class Synaplan_WP_Admin {
             wp_die(esc_html__('Insufficient permissions.', 'synaplan-ai-support-chat'));
         }
         
-        $step = intval($_POST['step']);
+        $step = isset($_POST['step']) ? intval($_POST['step']) : 1;
         $data = $_POST; // Get all POST data instead of just $_POST['data']
         
         $wizard = new Synaplan_WP_Wizard();
@@ -229,17 +231,17 @@ class Synaplan_WP_Admin {
             wp_die(esc_html__('Insufficient permissions.', 'synaplan-ai-support-chat'));
         }
         
-        $config = $_POST['config'];
+        $config = isset($_POST['config']) ? wp_unslash($_POST['config']) : array();
         
         // Sanitize config data
         $sanitized_config = array(
-            'integration_type' => sanitize_text_field($config['integration_type']),
-            'color' => sanitize_hex_color($config['color']),
-            'icon_color' => sanitize_hex_color($config['icon_color']),
-            'position' => sanitize_text_field($config['position']),
-            'auto_message' => sanitize_textarea_field($config['auto_message']),
+            'integration_type' => isset($config['integration_type']) ? sanitize_text_field($config['integration_type']) : 'floating-button',
+            'color' => isset($config['color']) ? sanitize_hex_color($config['color']) : '#007bff',
+            'icon_color' => isset($config['icon_color']) ? sanitize_hex_color($config['icon_color']) : '#ffffff',
+            'position' => isset($config['position']) ? sanitize_text_field($config['position']) : 'bottom-right',
+            'auto_message' => isset($config['auto_message']) ? sanitize_textarea_field($config['auto_message']) : '',
             'auto_open' => isset($config['auto_open']) ? true : false,
-            'prompt' => sanitize_text_field($config['prompt'])
+            'prompt' => isset($config['prompt']) ? sanitize_text_field($config['prompt']) : 'general'
         );
         
         Synaplan_WP_Core::update_widget_config($sanitized_config);

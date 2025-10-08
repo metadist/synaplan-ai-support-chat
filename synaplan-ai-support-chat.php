@@ -75,6 +75,7 @@ function synaplan_wp_deactivate() {
     
     // Clean up user-specific transients
     global $wpdb;
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Cleanup operation for transients
     $users = $wpdb->get_col("SELECT ID FROM {$wpdb->users} LIMIT 100");
     foreach ($users as $user_id) {
         delete_transient('synaplan_wizard_data_' . $user_id);
@@ -102,7 +103,9 @@ function synaplan_wp_manual_cleanup() {
     
     // Remove database table
     global $wpdb;
-    $wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}synaplan_wizard_sessions");
+    $table_name = $wpdb->prefix . 'synaplan_wizard_sessions';
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Schema change required for cleanup
+    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %i", $table_name));
     
     // Clear cache
     wp_cache_flush();

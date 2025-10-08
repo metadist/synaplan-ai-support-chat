@@ -62,6 +62,7 @@ class Synaplan_WP_Wizard {
      * Render wizard
      */
     public function render() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Step navigation via GET parameter
         $this->current_step = isset($_GET['step']) ? intval($_GET['step']) : 1;
         
         if ($this->current_step < 1 || $this->current_step > $this->total_steps) {
@@ -425,8 +426,10 @@ class Synaplan_WP_Wizard {
      */
     private function process_step_3($data) {
         // Handle file uploads if any - store files temporarily for later RAG processing
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_wizard_step()
         if (isset($_FILES['files']) && !empty($_FILES['files']['name'][0])) {
             // Rate limiting: max 5 files per wizard session
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated via count() for rate limiting
             $file_count = count($_FILES['files']['name']);
             if ($file_count > 5) {
                 return array(
@@ -438,12 +441,14 @@ class Synaplan_WP_Wizard {
             $uploaded_files = array();
             
             for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
+                // phpcs:disable WordPress.Security.ValidatedSanitizedInput -- Files validated by validate_file_upload()
                 $file = array(
-                    'name' => $_FILES['files']['name'][$i],
-                    'type' => $_FILES['files']['type'][$i],
-                    'tmp_name' => $_FILES['files']['tmp_name'][$i],
-                    'size' => $_FILES['files']['size'][$i]
+                    'name' => isset($_FILES['files']['name'][$i]) ? $_FILES['files']['name'][$i] : '',
+                    'type' => isset($_FILES['files']['type'][$i]) ? $_FILES['files']['type'][$i] : '',
+                    'tmp_name' => isset($_FILES['files']['tmp_name'][$i]) ? $_FILES['files']['tmp_name'][$i] : '',
+                    'size' => isset($_FILES['files']['size'][$i]) ? intval($_FILES['files']['size'][$i]) : 0
                 );
+                // phpcs:enable WordPress.Security.ValidatedSanitizedInput
                 
                 // Validate file
                 $api = new Synaplan_WP_API();
@@ -461,6 +466,7 @@ class Synaplan_WP_Wizard {
                     $temp_filename = 'temp_' . time() . '_' . sanitize_file_name($file['name']);
                     $temp_path = $temp_dir . $temp_filename;
                     
+                    // phpcs:ignore WordPress.PHP.ForbiddenFunctions.Found -- Required for external API file transfer
                     if (move_uploaded_file($file['tmp_name'], $temp_path)) {
                         $uploaded_files[] = array(
                             'name' => $file['name'],
@@ -612,13 +618,14 @@ class Synaplan_WP_Wizard {
             
             // Clean up temporary file
             if (file_exists($file_data['file_path'])) {
-                unlink($file_data['file_path']);
+                wp_delete_file($file_data['file_path']);
             }
         }
         
         // Clean up temp directory if empty
         $temp_dir = wp_upload_dir()['basedir'] . '/synaplan-temp/';
         if (is_dir($temp_dir) && count(scandir($temp_dir)) <= 2) { // Only . and .. entries
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Temporary directory cleanup
             rmdir($temp_dir);
         }
     }

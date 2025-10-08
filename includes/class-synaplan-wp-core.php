@@ -40,9 +40,6 @@ class Synaplan_WP_Core {
      * Initialize the plugin
      */
     public function init() {
-        // Load text domain
-        add_action('init', array($this, 'load_textdomain'));
-        
         // Initialize admin interface
         if (is_admin()) {
             new Synaplan_WP_Admin();
@@ -57,17 +54,6 @@ class Synaplan_WP_Core {
         // Add activation hooks
         register_activation_hook(SYNAPLAN_WP_PLUGIN_FILE, array($this, 'activate'));
         register_deactivation_hook(SYNAPLAN_WP_PLUGIN_FILE, array($this, 'deactivate'));
-    }
-    
-    /**
-     * Load plugin text domain
-     */
-    public function load_textdomain() {
-        load_plugin_textdomain(
-            'synaplan-ai-support-chat',
-            false,
-            dirname(plugin_basename(SYNAPLAN_WP_PLUGIN_FILE)) . '/languages'
-        );
     }
     
     /**
@@ -127,7 +113,8 @@ class Synaplan_WP_Core {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'synaplan_wizard_sessions';
-        $wpdb->query("DROP TABLE IF EXISTS $table_name");
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Schema change required for uninstallation
+        $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %i", $table_name));
         
         delete_option('synaplan_wp_db_version');
     }
@@ -348,7 +335,8 @@ class Synaplan_WP_Core {
      */
     public static function log($message, $level = 'info') {
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[Synaplan WP AI] ' . $level . ': ' . $message);
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only when WP_DEBUG is enabled
+            error_log('[Synaplan AI Support Chat] ' . $level . ': ' . $message);
         }
     }
     

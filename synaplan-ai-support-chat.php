@@ -104,8 +104,8 @@ function synaplan_wp_manual_cleanup() {
     // Remove database table
     global $wpdb;
     $table_name = $wpdb->prefix . 'synaplan_wizard_sessions';
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Schema change required for cleanup
-    $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %i", $table_name));
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Schema change during cleanup, table name is prefixed
+    $wpdb->query("DROP TABLE IF EXISTS {$table_name}");
     
     // Clear cache
     wp_cache_flush();

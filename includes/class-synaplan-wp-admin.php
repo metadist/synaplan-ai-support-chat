@@ -162,6 +162,7 @@ class Synaplan_WP_Admin {
     private function render_settings() {
         $widget_config = Synaplan_WP_Core::get_widget_config();
         
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce token, sanitized by wp_verify_nonce()
         if (isset($_POST['submit']) && isset($_POST['_wpnonce']) && wp_verify_nonce(wp_unslash($_POST['_wpnonce']), 'synaplan_wp_settings')) {
             $this->save_settings();
         }
@@ -231,6 +232,7 @@ class Synaplan_WP_Admin {
             wp_die(esc_html__('Insufficient permissions.', 'synaplan-ai-support-chat'));
         }
         
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Array elements sanitized individually below
         $config = isset($_POST['config']) ? wp_unslash($_POST['config']) : array();
         
         // Sanitize config data

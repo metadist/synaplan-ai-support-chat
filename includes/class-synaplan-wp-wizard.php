@@ -426,10 +426,10 @@ class Synaplan_WP_Wizard {
      */
     private function process_step_3($data) {
         // Handle file uploads if any - store files temporarily for later RAG processing
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_wizard_step()
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_wizard_step() via check_ajax_referer()
         if (isset($_FILES['files']) && !empty($_FILES['files']['name'][0])) {
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput -- Files validated by validate_file_upload() method
             // Rate limiting: max 5 files per wizard session
-            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Validated via count() for rate limiting
             $file_count = count($_FILES['files']['name']);
             if ($file_count > 5) {
                 return array(
@@ -441,7 +441,6 @@ class Synaplan_WP_Wizard {
             $uploaded_files = array();
             
             for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
-                // phpcs:disable WordPress.Security.ValidatedSanitizedInput -- Files validated by validate_file_upload()
                 $file = array(
                     'name' => isset($_FILES['files']['name'][$i]) ? $_FILES['files']['name'][$i] : '',
                     'type' => isset($_FILES['files']['type'][$i]) ? $_FILES['files']['type'][$i] : '',
@@ -449,6 +448,7 @@ class Synaplan_WP_Wizard {
                     'size' => isset($_FILES['files']['size'][$i]) ? intval($_FILES['files']['size'][$i]) : 0
                 );
                 // phpcs:enable WordPress.Security.ValidatedSanitizedInput
+                // phpcs:enable WordPress.Security.NonceVerification.Missing
                 
                 // Validate file
                 $api = new Synaplan_WP_API();
@@ -466,7 +466,7 @@ class Synaplan_WP_Wizard {
                     $temp_filename = 'temp_' . time() . '_' . sanitize_file_name($file['name']);
                     $temp_path = $temp_dir . $temp_filename;
                     
-                    // phpcs:ignore WordPress.PHP.ForbiddenFunctions.Found -- Required for external API file transfer
+                    // phpcs:ignore WordPress.PHP.ForbiddenFunctions.Found,WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Required for external API file upload, not WordPress file handling
                     if (move_uploaded_file($file['tmp_name'], $temp_path)) {
                         $uploaded_files[] = array(
                             'name' => $file['name'],

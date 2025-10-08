@@ -1,10 +1,20 @@
-# Synaplan WP AI
+=== Synaplan AI Support Chat ===
+Contributors: synaplan
+Tags: ai, chat, chatbot, support, customer-service
+Requires at least: 5.0
+Tested up to: 6.4
+Requires PHP: 8.0
+Stable tag: 1.0.3
+License: Apache-2.0
+License URI: https://www.apache.org/licenses/LICENSE-2.0
 
-A WordPress plugin that integrates Synaplan AI chat widget into your WordPress site with a wizard-style setup procedure.
+# Synaplan AI Support Chat
+
+A WordPress plugin that integrates Synaplan AI support chat widget into your WordPress site with a wizard-style setup procedure.
 
 ## Description
 
-Synaplan WP AI provides an easy way to add intelligent chat functionality to your WordPress website. The plugin features a step-by-step wizard that guides you through the setup process, including user registration, configuration, and widget integration.
+Synaplan AI Support Chat provides an easy way to add intelligent chat functionality to your WordPress website. The plugin features a step-by-step wizard that guides you through the setup process, including user registration, configuration, and widget integration.
 
 ## Features
 

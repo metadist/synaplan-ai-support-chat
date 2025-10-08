@@ -277,8 +277,8 @@ class Synaplan_WP_Wizard {
                     </svg>
                 </div>
                 <h3><?php esc_html_e('Drop files here or click to upload', 'synaplan-ai-support-chat'); ?></h3>
-                <p><?php esc_html_e('Supported formats: PDF, DOCX (Max 10MB each)', 'synaplan-ai-support-chat'); ?></p>
-                <input type="file" id="file-input" name="files[]" multiple accept=".pdf,.docx" style="display: none;" />
+                <p><?php esc_html_e('Supported formats: PDF, DOC, DOCX, TXT (Max 10MB each)', 'synaplan-ai-support-chat'); ?></p>
+                <input type="file" id="file-input" name="files[]" multiple accept=".pdf,.doc,.docx,.txt" style="display: none;" />
                 <button type="button" class="button button-secondary" id="select-files">
                     <?php esc_html_e('Select Files', 'synaplan-ai-support-chat'); ?>
                 </button>
@@ -422,13 +422,13 @@ class Synaplan_WP_Wizard {
     }
     
     /**
-     * Process step 3: File upload
+     * Process step 3: File upload using WordPress media library
      */
     private function process_step_3($data) {
-        // Handle file uploads if any - store files temporarily for later RAG processing
+        // Handle file uploads if any - use WordPress media library
         // phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verified in handle_wizard_step() via check_ajax_referer()
         if (isset($_FILES['files']) && !empty($_FILES['files']['name'][0])) {
-            // phpcs:disable WordPress.Security.ValidatedSanitizedInput -- Files validated by validate_file_upload() method
+            // phpcs:disable WordPress.Security.ValidatedSanitizedInput -- Files handled by WordPress wp_handle_upload()
             // Rate limiting: max 5 files per wizard session
             $file_count = count($_FILES['files']['name']);
             if ($file_count > 5) {
@@ -440,46 +440,85 @@ class Synaplan_WP_Wizard {
             
             $uploaded_files = array();
             
+            // WordPress requires this for wp_handle_upload()
+            if (!function_exists('wp_handle_upload')) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+            }
+            
+            // Process each file
             for ($i = 0; $i < count($_FILES['files']['name']); $i++) {
+                // Skip if no file
+                if (empty($_FILES['files']['tmp_name'][$i])) {
+                    continue;
+                }
+                
+                // Create a temporary $_FILES array for this single file (wp_handle_upload expects single file format)
                 $file = array(
                     'name' => isset($_FILES['files']['name'][$i]) ? $_FILES['files']['name'][$i] : '',
                     'type' => isset($_FILES['files']['type'][$i]) ? $_FILES['files']['type'][$i] : '',
                     'tmp_name' => isset($_FILES['files']['tmp_name'][$i]) ? $_FILES['files']['tmp_name'][$i] : '',
+                    'error' => isset($_FILES['files']['error'][$i]) ? $_FILES['files']['error'][$i] : UPLOAD_ERR_NO_FILE,
                     'size' => isset($_FILES['files']['size'][$i]) ? intval($_FILES['files']['size'][$i]) : 0
                 );
                 // phpcs:enable WordPress.Security.ValidatedSanitizedInput
                 // phpcs:enable WordPress.Security.NonceVerification.Missing
                 
-                // Validate file
+                // Skip if upload error
+                if ($file['error'] !== UPLOAD_ERR_OK) {
+                    continue;
+                }
+                
+                // Validate file before uploading
                 $api = new Synaplan_WP_API();
                 $validation = $api->validate_file_upload($file);
                 
-                if ($validation['valid']) {
-                    // Move file to WordPress uploads directory for temporary storage
-                    $upload_dir = wp_upload_dir();
-                    $temp_dir = $upload_dir['basedir'] . '/synaplan-temp/';
-                    
-                    if (!file_exists($temp_dir)) {
-                        wp_mkdir_p($temp_dir);
-                    }
-                    
-                    $temp_filename = 'temp_' . time() . '_' . sanitize_file_name($file['name']);
-                    $temp_path = $temp_dir . $temp_filename;
-                    
-                    // phpcs:ignore WordPress.PHP.ForbiddenFunctions.Found,WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Required for external API file upload, not WordPress file handling
-                    if (move_uploaded_file($file['tmp_name'], $temp_path)) {
-                        $uploaded_files[] = array(
-                            'name' => $file['name'],
-                            'type' => $file['type'],
-                            'file_path' => $temp_path,
-                            'size' => $file['size']
-                        );
-                    }
-                } else {
+                if (!$validation['valid']) {
                     return array(
                         'success' => false,
                         'error' => $validation['error']
                     );
+                }
+                
+                // Use WordPress's built-in file upload handler
+                $upload_overrides = array(
+                    'test_form' => false,
+                    'mimes' => array(
+                        'pdf' => 'application/pdf',
+                        'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'txt' => 'text/plain'
+                    )
+                );
+                
+                $uploaded_file = wp_handle_upload($file, $upload_overrides);
+                
+                if (isset($uploaded_file['error'])) {
+                    return array(
+                        'success' => false,
+                        'error' => $uploaded_file['error']
+                    );
+                }
+                
+                if (isset($uploaded_file['file'])) {
+                    // Create attachment post in media library
+                    $attachment = array(
+                        'post_mime_type' => $uploaded_file['type'],
+                        'post_title' => sanitize_file_name(pathinfo($file['name'], PATHINFO_FILENAME)),
+                        'post_content' => '',
+                        'post_status' => 'inherit'
+                    );
+                    
+                    $attachment_id = wp_insert_attachment($attachment, $uploaded_file['file']);
+                    
+                    if (!is_wp_error($attachment_id) && $attachment_id > 0) {
+                        $uploaded_files[] = array(
+                            'name' => $file['name'],
+                            'type' => $file['type'],
+                            'file_path' => $uploaded_file['file'],
+                            'size' => $file['size'],
+                            'attachment_id' => $attachment_id,
+                            'url' => $uploaded_file['url']
+                        );
+                    }
                 }
             }
             
@@ -616,17 +655,11 @@ class Synaplan_WP_Wizard {
                 Synaplan_WP_Core::log("File upload failed: " . ($upload_result['error'] ?? 'Unknown error'));
             }
             
-            // Clean up temporary file
-            if (file_exists($file_data['file_path'])) {
-                wp_delete_file($file_data['file_path']);
+            // Clean up file from media library after successful API upload
+            if (isset($file_data['attachment_id']) && $file_data['attachment_id'] > 0) {
+                wp_delete_attachment($file_data['attachment_id'], true);
+                Synaplan_WP_Core::log("Cleaned up media library attachment: " . $file_data['attachment_id']);
             }
-        }
-        
-        // Clean up temp directory if empty
-        $temp_dir = wp_upload_dir()['basedir'] . '/synaplan-temp/';
-        if (is_dir($temp_dir) && count(scandir($temp_dir)) <= 2) { // Only . and .. entries
-            // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- Temporary directory cleanup
-            rmdir($temp_dir);
         }
     }
     

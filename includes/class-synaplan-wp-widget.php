@@ -207,8 +207,8 @@ class Synaplan_WP_Widget {
         ?>
         <div class="synaplan-widget-preview">
             <div class="preview-header">
-                <h3><?php _e('Widget Preview', 'synaplan-ai-support-chat'); ?></h3>
-                <p><?php _e('This is how your chat widget will appear on your website.', 'synaplan-ai-support-chat'); ?></p>
+                <h3><?php esc_html_e('Widget Preview', 'synaplan-ai-support-chat'); ?></h3>
+                <p><?php esc_html_e('This is how your chat widget will appear on your website.', 'synaplan-ai-support-chat'); ?></p>
             </div>
             
             <div class="preview-container">
@@ -218,25 +218,25 @@ class Synaplan_WP_Widget {
                             <path d="M4 4.75C4 3.7835 4.7835 3 5.75 3H18.25C19.2165 3 20 3.7835 20 4.75V14.25C20 15.2165 19.2165 16 18.25 16H8.41421L5.70711 18.7071C5.07714 19.3371 4 18.8898 4 17.9929V4.75Z" fill="white"/>
                         </svg>
                     </div>
-                    <div class="widget-label"><?php _e('Chat', 'synaplan-ai-support-chat'); ?></div>
+                    <div class="widget-label"><?php esc_html_e('Chat', 'synaplan-ai-support-chat'); ?></div>
                 </div>
                 
                 <div class="preview-info">
                     <div class="info-item">
-                        <strong><?php _e('Type:', 'synaplan-ai-support-chat'); ?></strong>
-                        <span><?php echo esc_html($config['integration_type'] === 'inline-box' ? __('Inline Box', 'synaplan-ai-support-chat') : __('Floating Button', 'synaplan-ai-support-chat')); ?></span>
+                        <strong><?php esc_html_e('Type:', 'synaplan-ai-support-chat'); ?></strong>
+                        <span><?php echo esc_html($config['integration_type'] === 'inline-box' ? esc_html__('Inline Box', 'synaplan-ai-support-chat') : esc_html__('Floating Button', 'synaplan-ai-support-chat')); ?></span>
                     </div>
                     <div class="info-item">
-                        <strong><?php _e('Position:', 'synaplan-ai-support-chat'); ?></strong>
+                        <strong><?php esc_html_e('Position:', 'synaplan-ai-support-chat'); ?></strong>
                         <span><?php echo esc_html(ucfirst(str_replace('-', ' ', $config['position']))); ?></span>
                     </div>
                     <div class="info-item">
-                        <strong><?php _e('Color:', 'synaplan-ai-support-chat'); ?></strong>
+                        <strong><?php esc_html_e('Color:', 'synaplan-ai-support-chat'); ?></strong>
                         <span style="color: <?php echo esc_attr($config['color']); ?>;"><?php echo esc_html($config['color']); ?></span>
                     </div>
                     <div class="info-item">
-                        <strong><?php _e('Auto-open:', 'synaplan-ai-support-chat'); ?></strong>
-                        <span><?php echo $config['auto_open'] ? __('Yes', 'synaplan-ai-support-chat') : __('No', 'synaplan-ai-support-chat'); ?></span>
+                        <strong><?php esc_html_e('Auto-open:', 'synaplan-ai-support-chat'); ?></strong>
+                        <span><?php echo $config['auto_open'] ? esc_html__('Yes', 'synaplan-ai-support-chat') : esc_html__('No', 'synaplan-ai-support-chat'); ?></span>
                     </div>
                 </div>
             </div>

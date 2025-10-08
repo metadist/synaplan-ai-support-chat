@@ -25,21 +25,21 @@ $embed_code = '<script>
 ?>
 
 <div class="wrap synaplan-dashboard">
-    <h1><?php _e('Synaplan AI Dashboard', 'synaplan-ai-support-chat'); ?></h1>
+    <h1><?php esc_html_e('Synaplan AI Dashboard', 'synaplan-ai-support-chat'); ?></h1>
     
     <div class="synaplan-dashboard-grid">
         <!-- Status Card -->
         <div class="dashboard-card status-card">
             <div class="card-header">
-                <h2><span class="dashicons dashicons-yes-alt"></span> <?php _e('Setup Status', 'synaplan-ai-support-chat'); ?></h2>
+                <h2><span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e('Setup Status', 'synaplan-ai-support-chat'); ?></h2>
             </div>
             <div class="card-body">
                 <p class="status-message success">
                     <span class="dashicons dashicons-yes"></span>
-                    <?php _e('Your Synaplan AI chat widget is active and ready!', 'synaplan-ai-support-chat'); ?>
+                    <?php esc_html_e('Your Synaplan AI chat widget is active and ready!', 'synaplan-ai-support-chat'); ?>
                 </p>
                 <p class="help-text">
-                    <?php _e('The widget is now displaying on your website. Visitors can use it to chat with your AI assistant.', 'synaplan-ai-support-chat'); ?>
+                    <?php esc_html_e('The widget is now displaying on your website. Visitors can use it to chat with your AI assistant.', 'synaplan-ai-support-chat'); ?>
                 </p>
             </div>
         </div>
@@ -47,37 +47,37 @@ $embed_code = '<script>
         <!-- API Credentials Card -->
         <div class="dashboard-card credentials-card">
             <div class="card-header">
-                <h2><span class="dashicons dashicons-admin-network"></span> <?php _e('API Credentials', 'synaplan-ai-support-chat'); ?></h2>
+                <h2><span class="dashicons dashicons-admin-network"></span> <?php esc_html_e('API Credentials', 'synaplan-ai-support-chat'); ?></h2>
             </div>
             <div class="card-body">
                 <div class="credential-row">
-                    <label><?php _e('User ID:', 'synaplan-ai-support-chat'); ?></label>
+                    <label><?php esc_html_e('User ID:', 'synaplan-ai-support-chat'); ?></label>
                     <code class="credential-value"><?php echo esc_html($user_id); ?></code>
                 </div>
                 
                 <div class="credential-row">
-                    <label><?php _e('API Key:', 'synaplan-ai-support-chat'); ?></label>
+                    <label><?php esc_html_e('API Key:', 'synaplan-ai-support-chat'); ?></label>
                     <div class="api-key-container">
                         <code class="credential-value api-key-hidden" id="api-key-display">
-                            <?php echo str_repeat('•', 48); ?>
+                            <?php echo esc_html(str_repeat('•', 48)); ?>
                         </code>
                         <code class="credential-value api-key-revealed" id="api-key-revealed" style="display: none;">
                             <?php echo esc_html($api_key); ?>
                         </code>
                         <button type="button" class="button button-secondary" id="toggle-api-key">
                             <span class="dashicons dashicons-visibility"></span>
-                            <span id="toggle-text"><?php _e('Show API Key', 'synaplan-ai-support-chat'); ?></span>
+                            <span id="toggle-text"><?php esc_html_e('Show API Key', 'synaplan-ai-support-chat'); ?></span>
                         </button>
                         <button type="button" class="button button-secondary" id="copy-api-key" style="display: none;">
                             <span class="dashicons dashicons-clipboard"></span>
-                            <?php _e('Copy', 'synaplan-ai-support-chat'); ?>
+                            <?php esc_html_e('Copy', 'synaplan-ai-support-chat'); ?>
                         </button>
                     </div>
                 </div>
                 
                 <p class="help-text">
                     <span class="dashicons dashicons-info"></span>
-                    <?php _e('Keep your API key secure. You can use it to access the full Synaplan platform at', 'synaplan-ai-support-chat'); ?>
+                    <?php esc_html_e('Keep your API key secure. You can use it to access the full Synaplan platform at', 'synaplan-ai-support-chat'); ?>
                     <a href="https://app.synaplan.com/" target="_blank">app.synaplan.com</a>
                 </p>
             </div>
@@ -86,14 +86,14 @@ $embed_code = '<script>
         <!-- Widget Embed Code Card -->
         <div class="dashboard-card embed-card">
             <div class="card-header">
-                <h2><span class="dashicons dashicons-editor-code"></span> <?php _e('Widget Embed Code', 'synaplan-ai-support-chat'); ?></h2>
+                <h2><span class="dashicons dashicons-editor-code"></span> <?php esc_html_e('Widget Embed Code', 'synaplan-ai-support-chat'); ?></h2>
             </div>
             <div class="card-body">
-                <p><?php _e('Your widget is automatically embedded on all pages. Use this code if you need to manually embed it elsewhere:', 'synaplan-ai-support-chat'); ?></p>
+                <p><?php esc_html_e('Your widget is automatically embedded on all pages. Use this code if you need to manually embed it elsewhere:', 'synaplan-ai-support-chat'); ?></p>
                 <textarea readonly class="embed-code" id="embed-code"><?php echo esc_textarea($embed_code); ?></textarea>
                 <button type="button" class="button button-secondary" id="copy-embed-code">
                     <span class="dashicons dashicons-clipboard"></span>
-                    <?php _e('Copy Code', 'synaplan-ai-support-chat'); ?>
+                    <?php esc_html_e('Copy Code', 'synaplan-ai-support-chat'); ?>
                 </button>
             </div>
         </div>
@@ -101,38 +101,38 @@ $embed_code = '<script>
         <!-- Quick Links Card -->
         <div class="dashboard-card links-card">
             <div class="card-header">
-                <h2><span class="dashicons dashicons-admin-links"></span> <?php _e('Quick Links', 'synaplan-ai-support-chat'); ?></h2>
+                <h2><span class="dashicons dashicons-admin-links"></span> <?php esc_html_e('Quick Links', 'synaplan-ai-support-chat'); ?></h2>
             </div>
             <div class="card-body">
                 <ul class="quick-links">
                     <li>
-                        <a href="<?php echo admin_url('admin.php?page=synaplan-ai-support-chat-settings'); ?>">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=synaplan-ai-support-chat-settings')); ?>">
                             <span class="dashicons dashicons-admin-settings"></span>
-                            <?php _e('Widget Settings', 'synaplan-ai-support-chat'); ?>
+                            <?php esc_html_e('Widget Settings', 'synaplan-ai-support-chat'); ?>
                         </a>
                     </li>
                     <li>
                         <a href="https://app.synaplan.com/" target="_blank">
                             <span class="dashicons dashicons-external"></span>
-                            <?php _e('Synaplan Dashboard', 'synaplan-ai-support-chat'); ?>
+                            <?php esc_html_e('Synaplan Dashboard', 'synaplan-ai-support-chat'); ?>
                         </a>
                     </li>
                     <li>
                         <a href="https://app.synaplan.com/index.php/filemanager" target="_blank">
                             <span class="dashicons dashicons-media-document"></span>
-                            <?php _e('Manage Knowledge Base', 'synaplan-ai-support-chat'); ?>
+                            <?php esc_html_e('Manage Knowledge Base', 'synaplan-ai-support-chat'); ?>
                         </a>
                     </li>
                     <li>
                         <a href="https://app.synaplan.com/index.php/prompts" target="_blank">
                             <span class="dashicons dashicons-admin-generic"></span>
-                            <?php _e('Configure AI Prompts', 'synaplan-ai-support-chat'); ?>
+                            <?php esc_html_e('Configure AI Prompts', 'synaplan-ai-support-chat'); ?>
                         </a>
                     </li>
                     <li>
-                        <a href="<?php echo admin_url('admin.php?page=synaplan-ai-support-chat-help'); ?>">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=synaplan-ai-support-chat-help')); ?>">
                             <span class="dashicons dashicons-sos"></span>
-                            <?php _e('Help & Support', 'synaplan-ai-support-chat'); ?>
+                            <?php esc_html_e('Help & Support', 'synaplan-ai-support-chat'); ?>
                         </a>
                     </li>
                 </ul>
@@ -301,13 +301,13 @@ jQuery(document).ready(function($) {
             apiKeyRevealed.show();
             copyBtn.show();
             toggleBtn.find('.dashicons').removeClass('dashicons-visibility').addClass('dashicons-hidden');
-            toggleText.text('<?php _e('Hide API Key', 'synaplan-ai-support-chat'); ?>');
+            toggleText.text('<?php echo esc_js(__('Hide API Key', 'synaplan-ai-support-chat')); ?>');
         } else {
             apiKeyHidden.show();
             apiKeyRevealed.hide();
             copyBtn.hide();
             toggleBtn.find('.dashicons').removeClass('dashicons-hidden').addClass('dashicons-visibility');
-            toggleText.text('<?php _e('Show API Key', 'synaplan-ai-support-chat'); ?>');
+            toggleText.text('<?php echo esc_js(__('Show API Key', 'synaplan-ai-support-chat')); ?>');
         }
     });
     
@@ -316,7 +316,7 @@ jQuery(document).ready(function($) {
         var apiKey = apiKeyRevealed.text().trim();
         navigator.clipboard.writeText(apiKey).then(function() {
             var originalText = copyBtn.html();
-            copyBtn.html('<span class="dashicons dashicons-yes"></span> <?php _e('Copied!', 'synaplan-ai-support-chat'); ?>');
+            copyBtn.html('<span class="dashicons dashicons-yes"></span> <?php echo esc_js(__('Copied!', 'synaplan-ai-support-chat')); ?>');
             setTimeout(function() {
                 copyBtn.html(originalText);
             }, 2000);
@@ -331,7 +331,7 @@ jQuery(document).ready(function($) {
         
         var btn = $(this);
         var originalText = btn.html();
-        btn.html('<span class="dashicons dashicons-yes"></span> <?php _e('Copied!', 'synaplan-ai-support-chat'); ?>');
+        btn.html('<span class="dashicons dashicons-yes"></span> <?php echo esc_js(__('Copied!', 'synaplan-ai-support-chat')); ?>');
         setTimeout(function() {
             btn.html(originalText);
         }, 2000);

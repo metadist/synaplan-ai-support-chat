@@ -72,21 +72,21 @@ class Synaplan_WP_Wizard {
         <div class="wrap synaplan-wizard">
             <div class="synaplan-wizard-header">
                 <div class="synaplan-wizard-logo">
-                    <img src="<?php echo Synaplan_WP_Core::get_plugin_url('assets/images/logo.svg'); ?>" alt="Synaplan" />
+                    <img src="<?php echo esc_url(Synaplan_WP_Core::get_plugin_url('assets/images/logo.svg')); ?>" alt="Synaplan" />
                 </div>
-                <h1><?php _e('Welcome to Synaplan AI', 'synaplan-ai-support-chat'); ?></h1>
-                <p><?php _e('Let\'s set up your AI chat widget in just a few steps.', 'synaplan-ai-support-chat'); ?></p>
+                <h1><?php esc_html_e('Welcome to Synaplan AI', 'synaplan-ai-support-chat'); ?></h1>
+                <p><?php esc_html_e('Let\'s set up your AI chat widget in just a few steps.', 'synaplan-ai-support-chat'); ?></p>
             </div>
             
             <div class="synaplan-wizard-progress">
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: <?php echo ($this->current_step / $this->total_steps) * 100; ?>%"></div>
+                    <div class="progress-fill" style="width: <?php echo esc_attr(($this->current_step / $this->total_steps) * 100); ?>%"></div>
                 </div>
                 <div class="progress-steps">
                     <?php for ($i = 1; $i <= $this->total_steps; $i++): ?>
-                        <div class="step <?php echo $i <= $this->current_step ? 'active' : ''; ?>">
-                            <span class="step-number"><?php echo $i; ?></span>
-                            <span class="step-label"><?php echo $this->get_step_label($i); ?></span>
+                        <div class="step <?php echo absint($i) <= absint($this->current_step) ? 'active' : ''; ?>">
+                            <span class="step-number"><?php echo absint($i); ?></span>
+                            <span class="step-label"><?php echo esc_html($this->get_step_label($i)); ?></span>
                         </div>
                     <?php endfor; ?>
                 </div>
@@ -95,19 +95,19 @@ class Synaplan_WP_Wizard {
             <div class="synaplan-wizard-content">
                 <form id="synaplan-wizard-form" method="post">
                     <?php wp_nonce_field('synaplan_wizard', 'wizard_nonce'); ?>
-                    <input type="hidden" name="step" value="<?php echo $this->current_step; ?>" />
+                    <input type="hidden" name="step" value="<?php echo absint($this->current_step); ?>" />
                     
                     <?php $this->render_step($this->current_step); ?>
                     
                     <div class="wizard-actions">
                         <?php if ($this->current_step > 1): ?>
                             <button type="button" class="button button-secondary" id="prev-step">
-                                <?php _e('Previous', 'synaplan-ai-support-chat'); ?>
+                                <?php esc_html_e('Previous', 'synaplan-ai-support-chat'); ?>
                             </button>
                         <?php endif; ?>
                         
                         <button type="submit" class="button button-primary" id="next-step">
-                            <?php echo $this->current_step === $this->total_steps ? __('Complete Setup', 'synaplan-ai-support-chat') : __('Next', 'synaplan-ai-support-chat'); ?>
+                            <?php echo absint($this->current_step) === absint($this->total_steps) ? esc_html__('Complete Setup', 'synaplan-ai-support-chat') : esc_html__('Next', 'synaplan-ai-support-chat'); ?>
                         </button>
                     </div>
                 </form>
@@ -160,24 +160,24 @@ class Synaplan_WP_Wizard {
         
         ?>
         <div class="wizard-step step-1">
-            <h2><?php _e('Create Your Account', 'synaplan-ai-support-chat'); ?></h2>
-            <p><?php _e('Enter your email and password to create your Synaplan account.', 'synaplan-ai-support-chat'); ?></p>
+            <h2><?php esc_html_e('Create Your Account', 'synaplan-ai-support-chat'); ?></h2>
+            <p><?php esc_html_e('Enter your email and password to create your Synaplan account.', 'synaplan-ai-support-chat'); ?></p>
             
             <div class="form-group">
-                <label for="email"><?php _e('Email Address', 'synaplan-ai-support-chat'); ?> <span class="required">*</span></label>
+                <label for="email"><?php esc_html_e('Email Address', 'synaplan-ai-support-chat'); ?> <span class="required">*</span></label>
                 <input type="email" id="email" name="email" value="<?php echo esc_attr($email); ?>" required />
-                <small class="form-help"><?php _e('We\'ll use this to send you confirmation and updates.', 'synaplan-ai-support-chat'); ?></small>
+                <small class="form-help"><?php esc_html_e('We\'ll use this to send you confirmation and updates.', 'synaplan-ai-support-chat'); ?></small>
             </div>
             
             <div class="form-group">
-                <label for="password"><?php _e('Password', 'synaplan-ai-support-chat'); ?> <span class="required">*</span></label>
+                <label for="password"><?php esc_html_e('Password', 'synaplan-ai-support-chat'); ?> <span class="required">*</span></label>
                 <input type="password" id="password" name="password" value="<?php echo esc_attr($password); ?>" required />
-                <small class="form-help"><?php _e('Minimum 6 characters with numbers and special characters.', 'synaplan-ai-support-chat'); ?></small>
+                <small class="form-help"><?php esc_html_e('Minimum 6 characters with numbers and special characters.', 'synaplan-ai-support-chat'); ?></small>
                 <div class="password-strength" id="password-strength"></div>
             </div>
             
             <div class="form-group">
-                <label for="language"><?php _e('Website Language', 'synaplan-ai-support-chat'); ?></label>
+                <label for="language"><?php esc_html_e('Website Language', 'synaplan-ai-support-chat'); ?></label>
                 <select id="language" name="language">
                     <?php
                     $api = new Synaplan_WP_API();
@@ -186,17 +186,17 @@ class Synaplan_WP_Wizard {
                     
                     foreach ($languages as $code => $name) {
                         $selected = ($code === $language) || ($code === $detected_language && empty($language)) ? 'selected' : '';
-                        echo "<option value=\"$code\" $selected>$name</option>";
+                        echo '<option value="' . esc_attr($code) . '" ' . esc_attr($selected) . '>' . esc_html($name) . '</option>';
                     }
                     ?>
                 </select>
-                <small class="form-help"><?php _e('This will be used for the AI responses.', 'synaplan-ai-support-chat'); ?></small>
+                <small class="form-help"><?php esc_html_e('This will be used for the AI responses.', 'synaplan-ai-support-chat'); ?></small>
             </div>
             
             <div class="form-group">
                 <label class="checkbox-label">
                     <input type="checkbox" name="terms" required />
-                    <?php _e('I agree to the', 'synaplan-ai-support-chat'); ?> <a href="#" target="_blank"><?php _e('Terms of Service', 'synaplan-ai-support-chat'); ?></a> <?php _e('and', 'synaplan-ai-support-chat'); ?> <a href="#" target="_blank"><?php _e('Privacy Policy', 'synaplan-ai-support-chat'); ?></a>
+                    <?php esc_html_e('I agree to the', 'synaplan-ai-support-chat'); ?> <a href="#" target="_blank"><?php esc_html_e('Terms of Service', 'synaplan-ai-support-chat'); ?></a> <?php esc_html_e('and', 'synaplan-ai-support-chat'); ?> <a href="#" target="_blank"><?php esc_html_e('Privacy Policy', 'synaplan-ai-support-chat'); ?></a>
                 </label>
             </div>
         </div>
@@ -212,17 +212,17 @@ class Synaplan_WP_Wizard {
         
         ?>
         <div class="wizard-step step-2">
-            <h2><?php _e('Configure Your Chat Widget', 'synaplan-ai-support-chat'); ?></h2>
-            <p><?php _e('Set up how your AI assistant will interact with visitors.', 'synaplan-ai-support-chat'); ?></p>
+            <h2><?php esc_html_e('Configure Your Chat Widget', 'synaplan-ai-support-chat'); ?></h2>
+            <p><?php esc_html_e('Set up how your AI assistant will interact with visitors.', 'synaplan-ai-support-chat'); ?></p>
             
             <div class="form-group">
-                <label for="intro_message"><?php _e('Welcome Message', 'synaplan-ai-support-chat'); ?></label>
+                <label for="intro_message"><?php esc_html_e('Welcome Message', 'synaplan-ai-support-chat'); ?></label>
                 <textarea id="intro_message" name="intro_message" rows="3"><?php echo esc_textarea($intro_message); ?></textarea>
-                <small class="form-help"><?php _e('This message will be shown to visitors when they first open the chat.', 'synaplan-ai-support-chat'); ?></small>
+                <small class="form-help"><?php esc_html_e('This message will be shown to visitors when they first open the chat.', 'synaplan-ai-support-chat'); ?></small>
             </div>
             
             <div class="form-group">
-                <label for="prompt"><?php _e('AI Assistant Type', 'synaplan-ai-support-chat'); ?></label>
+                <label for="prompt"><?php esc_html_e('AI Assistant Type', 'synaplan-ai-support-chat'); ?></label>
                 <select id="prompt" name="prompt">
                     <?php
                     $api = new Synaplan_WP_API();
@@ -230,27 +230,27 @@ class Synaplan_WP_Wizard {
                     
                     foreach ($prompts as $key => $name) {
                         $selected = $key === $prompt ? 'selected' : '';
-                        echo "<option value=\"$key\" $selected>$name</option>";
+                        echo '<option value="' . esc_attr($key) . '" ' . esc_attr($selected) . '>' . esc_html($name) . '</option>';
                     }
                     ?>
                 </select>
-                <small class="form-help"><?php _e('Choose the type of assistant that best fits your needs.', 'synaplan-ai-support-chat'); ?></small>
+                <small class="form-help"><?php esc_html_e('Choose the type of assistant that best fits your needs.', 'synaplan-ai-support-chat'); ?></small>
             </div>
             
             <div class="form-group">
-                <label for="widget_color"><?php _e('Widget Color', 'synaplan-ai-support-chat'); ?></label>
+                <label for="widget_color"><?php esc_html_e('Widget Color', 'synaplan-ai-support-chat'); ?></label>
                 <input type="color" id="widget_color" name="widget_color" value="#007bff" />
-                <small class="form-help"><?php _e('Choose a color that matches your website design.', 'synaplan-ai-support-chat'); ?></small>
+                <small class="form-help"><?php esc_html_e('Choose a color that matches your website design.', 'synaplan-ai-support-chat'); ?></small>
             </div>
             
             <div class="form-group">
-                <label for="widget_position"><?php _e('Widget Position', 'synaplan-ai-support-chat'); ?></label>
+                <label for="widget_position"><?php esc_html_e('Widget Position', 'synaplan-ai-support-chat'); ?></label>
                 <select id="widget_position" name="widget_position">
-                    <option value="bottom-right"><?php _e('Bottom Right', 'synaplan-ai-support-chat'); ?></option>
-                    <option value="bottom-left"><?php _e('Bottom Left', 'synaplan-ai-support-chat'); ?></option>
-                    <option value="bottom-center"><?php _e('Bottom Center', 'synaplan-ai-support-chat'); ?></option>
+                    <option value="bottom-right"><?php esc_html_e('Bottom Right', 'synaplan-ai-support-chat'); ?></option>
+                    <option value="bottom-left"><?php esc_html_e('Bottom Left', 'synaplan-ai-support-chat'); ?></option>
+                    <option value="bottom-center"><?php esc_html_e('Bottom Center', 'synaplan-ai-support-chat'); ?></option>
                 </select>
-                <small class="form-help"><?php _e('Choose where the chat button will appear on your site.', 'synaplan-ai-support-chat'); ?></small>
+                <small class="form-help"><?php esc_html_e('Choose where the chat button will appear on your site.', 'synaplan-ai-support-chat'); ?></small>
             </div>
         </div>
         <?php
@@ -262,8 +262,8 @@ class Synaplan_WP_Wizard {
     private function render_step_3() {
         ?>
         <div class="wizard-step step-3">
-            <h2><?php _e('Add Knowledge Base (Optional)', 'synaplan-ai-support-chat'); ?></h2>
-            <p><?php _e('Upload documents to help your AI assistant answer questions about your business.', 'synaplan-ai-support-chat'); ?></p>
+            <h2><?php esc_html_e('Add Knowledge Base (Optional)', 'synaplan-ai-support-chat'); ?></h2>
+            <p><?php esc_html_e('Upload documents to help your AI assistant answer questions about your business.', 'synaplan-ai-support-chat'); ?></p>
             
             <div class="file-upload-area" id="file-upload-area">
                 <div class="upload-icon">
@@ -275,23 +275,23 @@ class Synaplan_WP_Wizard {
                         <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
-                <h3><?php _e('Drop files here or click to upload', 'synaplan-ai-support-chat'); ?></h3>
-                <p><?php _e('Supported formats: PDF, DOCX (Max 10MB each)', 'synaplan-ai-support-chat'); ?></p>
+                <h3><?php esc_html_e('Drop files here or click to upload', 'synaplan-ai-support-chat'); ?></h3>
+                <p><?php esc_html_e('Supported formats: PDF, DOCX (Max 10MB each)', 'synaplan-ai-support-chat'); ?></p>
                 <input type="file" id="file-input" name="files[]" multiple accept=".pdf,.docx" style="display: none;" />
                 <button type="button" class="button button-secondary" id="select-files">
-                    <?php _e('Select Files', 'synaplan-ai-support-chat'); ?>
+                    <?php esc_html_e('Select Files', 'synaplan-ai-support-chat'); ?>
                 </button>
             </div>
             
             <div class="uploaded-files" id="uploaded-files" style="display: none;">
-                <h4><?php _e('Uploaded Files', 'synaplan-ai-support-chat'); ?></h4>
+                <h4><?php esc_html_e('Uploaded Files', 'synaplan-ai-support-chat'); ?></h4>
                 <ul id="file-list"></ul>
             </div>
             
             <div class="form-group">
                 <label class="checkbox-label">
                     <input type="checkbox" name="skip_files" />
-                    <?php _e('Skip this step - I\'ll add files later', 'synaplan-ai-support-chat'); ?>
+                    <?php esc_html_e('Skip this step - I\'ll add files later', 'synaplan-ai-support-chat'); ?>
                 </label>
             </div>
         </div>
@@ -304,32 +304,32 @@ class Synaplan_WP_Wizard {
     private function render_step_4() {
         ?>
         <div class="wizard-step step-4">
-            <h2><?php _e('Review Your Settings', 'synaplan-ai-support-chat'); ?></h2>
-            <p><?php _e('Please review your configuration before completing the setup.', 'synaplan-ai-support-chat'); ?></p>
+            <h2><?php esc_html_e('Review Your Settings', 'synaplan-ai-support-chat'); ?></h2>
+            <p><?php esc_html_e('Please review your configuration before completing the setup.', 'synaplan-ai-support-chat'); ?></p>
             
             <div class="review-summary">
                 <div class="summary-item">
-                    <strong><?php _e('Email:', 'synaplan-ai-support-chat'); ?></strong>
+                    <strong><?php esc_html_e('Email:', 'synaplan-ai-support-chat'); ?></strong>
                     <span id="review-email"><?php echo esc_html($this->wizard_data['email'] ?? ''); ?></span>
                 </div>
                 <div class="summary-item">
-                    <strong><?php _e('Language:', 'synaplan-ai-support-chat'); ?></strong>
+                    <strong><?php esc_html_e('Language:', 'synaplan-ai-support-chat'); ?></strong>
                     <span id="review-language"><?php echo esc_html($this->wizard_data['language'] ?? ''); ?></span>
                 </div>
                 <div class="summary-item">
-                    <strong><?php _e('Welcome Message:', 'synaplan-ai-support-chat'); ?></strong>
+                    <strong><?php esc_html_e('Welcome Message:', 'synaplan-ai-support-chat'); ?></strong>
                     <span id="review-intro"><?php echo esc_html($this->wizard_data['intro_message'] ?? ''); ?></span>
                 </div>
                 <div class="summary-item">
-                    <strong><?php _e('AI Type:', 'synaplan-ai-support-chat'); ?></strong>
+                    <strong><?php esc_html_e('AI Type:', 'synaplan-ai-support-chat'); ?></strong>
                     <span id="review-prompt"><?php echo esc_html($this->wizard_data['prompt'] ?? ''); ?></span>
                 </div>
                 <div class="summary-item">
-                    <strong><?php _e('Widget Color:', 'synaplan-ai-support-chat'); ?></strong>
+                    <strong><?php esc_html_e('Widget Color:', 'synaplan-ai-support-chat'); ?></strong>
                     <span id="review-color"><?php echo esc_html($this->wizard_data['widget_color'] ?? '#007bff'); ?></span>
                 </div>
                 <div class="summary-item">
-                    <strong><?php _e('Position:', 'synaplan-ai-support-chat'); ?></strong>
+                    <strong><?php esc_html_e('Position:', 'synaplan-ai-support-chat'); ?></strong>
                     <span id="review-position"><?php echo esc_html($this->wizard_data['widget_position'] ?? 'bottom-right'); ?></span>
                 </div>
             </div>
@@ -342,8 +342,8 @@ class Synaplan_WP_Wizard {
                     </svg>
                 </div>
                 <div class="notice-content">
-                    <h4><?php _e('Almost Done!', 'synaplan-ai-support-chat'); ?></h4>
-                    <p><?php _e('After clicking "Complete Setup", we\'ll create your account and send you a confirmation email.', 'synaplan-ai-support-chat'); ?></p>
+                    <h4><?php esc_html_e('Almost Done!', 'synaplan-ai-support-chat'); ?></h4>
+                    <p><?php esc_html_e('After clicking "Complete Setup", we\'ll create your account and send you a confirmation email.', 'synaplan-ai-support-chat'); ?></p>
                 </div>
             </div>
         </div>
@@ -515,7 +515,7 @@ class Synaplan_WP_Wizard {
         // Call the new unified endpoint
         $result = $api->complete_wizard_setup($wizard_data, $uploaded_files);
         
-        Synaplan_WP_Core::log("Complete wizard setup result: " . print_r($result, true));
+        Synaplan_WP_Core::log("Complete wizard setup result: " . wp_json_encode($result));
         
         if (!$result['success']) {
             $error_message = 'Setup failed';
@@ -560,7 +560,7 @@ class Synaplan_WP_Wizard {
             'language' => $this->wizard_data['language']
         );
         
-        Synaplan_WP_Core::log("Saving widget config: " . print_r($widget_config, true));
+        Synaplan_WP_Core::log("Saving widget config: " . wp_json_encode($widget_config));
         Synaplan_WP_Core::update_widget_config($widget_config);
         
         // Mark setup as completed

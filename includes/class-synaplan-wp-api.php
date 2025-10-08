@@ -70,7 +70,7 @@ class Synaplan_WP_API {
         // Debug logging
         Synaplan_WP_Core::log("Making API request to: $url");
         Synaplan_WP_Core::log("Action: $action");
-        Synaplan_WP_Core::log("Data: " . print_r($args['body'], true));
+        Synaplan_WP_Core::log("Data: " . wp_json_encode($args['body']));
         
         $response = wp_remote_request($url, $args);
         
@@ -369,49 +369,63 @@ class Synaplan_WP_API {
             );
         }
         
-        // Use cURL for file upload since wp_remote_request doesn't handle $_FILES properly
-        $ch = curl_init();
+        // Build multipart form data for file upload using WordPress HTTP API
+        $boundary = wp_generate_password(24, false);
+        $file_content = file_get_contents($file_path);
         
-        $post_data = array(
+        $body = '';
+        
+        // Add regular form fields
+        $fields = array(
             'action' => 'ragUpload',
             'user_id' => $user_id,
-            'groupKey' => 'WORDPRESS_WIZARD',
-            'files' => new CURLFile($file_path, $file_type, $file_name)
+            'groupKey' => 'WORDPRESS_WIZARD'
         );
         
-        curl_setopt($ch, CURLOPT_URL, $this->api_base_url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Authorization: Bearer ' . $api_key
-        ));
+        foreach ($fields as $name => $value) {
+            $body .= "--{$boundary}\r\n";
+            $body .= "Content-Disposition: form-data; name=\"{$name}\"\r\n\r\n";
+            $body .= "{$value}\r\n";
+        }
+        
+        // Add file
+        $body .= "--{$boundary}\r\n";
+        $body .= "Content-Disposition: form-data; name=\"files[]\"; filename=\"{$file_name}\"\r\n";
+        $body .= "Content-Type: {$file_type}\r\n\r\n";
+        $body .= $file_content . "\r\n";
+        $body .= "--{$boundary}--\r\n";
         
         Synaplan_WP_Core::log("Uploading file for RAG: " . $file_name);
         
-        $response = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
+        $response = wp_remote_post($this->api_base_url, array(
+            'headers' => array(
+                'Authorization' => 'Bearer ' . $api_key,
+                'Content-Type' => 'multipart/form-data; boundary=' . $boundary
+            ),
+            'body' => $body,
+            'timeout' => 120,
+            'sslverify' => true
+        ));
         
-        if ($error) {
-            Synaplan_WP_Core::log("RAG upload cURL error: " . $error);
+        if (is_wp_error($response)) {
+            Synaplan_WP_Core::log("RAG upload error: " . $response->get_error_message());
             return array(
                 'success' => false,
-                'error' => $error
+                'error' => $response->get_error_message()
             );
         }
         
-        $decoded_body = json_decode($response, true);
+        $http_code = wp_remote_retrieve_response_code($response);
+        $body_response = wp_remote_retrieve_body($response);
+        $decoded_body = json_decode($body_response, true);
         
-        Synaplan_WP_Core::log("RAG upload response: " . $response);
+        Synaplan_WP_Core::log("RAG upload response: " . $body_response);
         
         return array(
             'success' => $http_code >= 200 && $http_code < 300,
             'status_code' => $http_code,
             'data' => $decoded_body,
-            'raw_body' => $response
+            'raw_body' => $body_response
         );
     }
     
@@ -435,20 +449,19 @@ class Synaplan_WP_API {
         $verification_token = Synaplan_WP_Core::create_verification_token();
         $verification_url = Synaplan_WP_Core::get_verification_endpoint_url();
         
-        // Use cURL for file upload with multipart form data
-        $ch = curl_init();
+        // Build multipart form data using WordPress HTTP API
+        $boundary = wp_generate_password(24, false);
+        $body = '';
         
-        $post_data = array(
+        // Add regular form fields
+        $fields = array(
             'action' => 'wpWizardComplete',
-            // User registration data
             'email' => $wizard_data['email'] ?? '',
             'password' => $wizard_data['password'] ?? '',
             'language' => $wizard_data['language'] ?? 'en',
-            // Verification data
             'verification_token' => $verification_token,
             'verification_url' => $verification_url,
             'site_url' => get_site_url(),
-            // Widget configuration
             'widgetId' => $wizard_data['widget_id'] ?? 1,
             'widgetColor' => $wizard_data['widget_color'] ?? '#007bff',
             'widgetIconColor' => $wizard_data['icon_color'] ?? '#ffffff',
@@ -464,55 +477,63 @@ class Synaplan_WP_API {
             'inlineBorderRadius' => '8'
         );
         
+        foreach ($fields as $name => $value) {
+            $body .= "--{$boundary}\r\n";
+            $body .= "Content-Disposition: form-data; name=\"{$name}\"\r\n\r\n";
+            $body .= "{$value}\r\n";
+        }
+        
         // Add files if any (max 5 for wizard)
         if (!empty($uploaded_files)) {
             $file_count = 0;
             foreach ($uploaded_files as $index => $file_data) {
                 if ($file_count >= 5) break; // Rate limit: max 5 files
                 if (isset($file_data['file_path']) && file_exists($file_data['file_path'])) {
-                    $post_data['files[' . $index . ']'] = new CURLFile(
-                        $file_data['file_path'],
-                        $file_data['type'],
-                        $file_data['name']
-                    );
+                    $file_content = file_get_contents($file_data['file_path']);
+                    $body .= "--{$boundary}\r\n";
+                    $body .= "Content-Disposition: form-data; name=\"files[]\"; filename=\"{$file_data['name']}\"\r\n";
+                    $body .= "Content-Type: {$file_data['type']}\r\n\r\n";
+                    $body .= $file_content . "\r\n";
                     $file_count++;
                 }
             }
         }
         
-        curl_setopt($ch, CURLOPT_URL, $this->api_base_url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 180); // 3 minutes for complete setup + file processing
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        $body .= "--{$boundary}--\r\n";
         
         Synaplan_WP_Core::log("Completing wizard setup with verification for: " . $wizard_data['email']);
         Synaplan_WP_Core::log("Files to upload: " . count($uploaded_files));
         
-        $response = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
+        $response = wp_remote_post($this->api_base_url, array(
+            'headers' => array(
+                'Content-Type' => 'multipart/form-data; boundary=' . $boundary
+            ),
+            'body' => $body,
+            'timeout' => 180,
+            'sslverify' => true
+        ));
         
-        if ($error) {
-            Synaplan_WP_Core::log("Wizard completion cURL error: " . $error);
+        if (is_wp_error($response)) {
+            Synaplan_WP_Core::log("Wizard completion error: " . $response->get_error_message());
             return array(
                 'success' => false,
-                'error' => $error
+                'error' => $response->get_error_message()
             );
         }
         
-        Synaplan_WP_Core::log("Wizard completion response code: " . $http_code);
-        Synaplan_WP_Core::log("Wizard completion response: " . $response);
+        $http_code = wp_remote_retrieve_response_code($response);
+        $body_response = wp_remote_retrieve_body($response);
         
-        $decoded_body = json_decode($response, true);
+        Synaplan_WP_Core::log("Wizard completion response code: " . $http_code);
+        Synaplan_WP_Core::log("Wizard completion response: " . $body_response);
+        
+        $decoded_body = json_decode($body_response, true);
         
         return array(
             'success' => $http_code >= 200 && $http_code < 300 && isset($decoded_body['success']) && $decoded_body['success'],
             'status_code' => $http_code,
             'data' => $decoded_body,
-            'raw_body' => $response
+            'raw_body' => $body_response
         );
     }
 }

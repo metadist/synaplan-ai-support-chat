@@ -207,7 +207,7 @@ class Synaplan_WP_Admin {
         check_ajax_referer('synaplan_wp_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions.', 'synaplan-ai-support-chat'));
+            wp_die(esc_html__('Insufficient permissions.', 'synaplan-ai-support-chat'));
         }
         
         $step = intval($_POST['step']);
@@ -226,7 +226,7 @@ class Synaplan_WP_Admin {
         check_ajax_referer('synaplan_wp_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions.', 'synaplan-ai-support-chat'));
+            wp_die(esc_html__('Insufficient permissions.', 'synaplan-ai-support-chat'));
         }
         
         $config = $_POST['config'];
@@ -244,7 +244,7 @@ class Synaplan_WP_Admin {
         
         Synaplan_WP_Core::update_widget_config($sanitized_config);
         
-        wp_send_json_success(__('Configuration saved successfully!', 'synaplan-ai-support-chat'));
+        wp_send_json_success(esc_html__('Configuration saved successfully!', 'synaplan-ai-support-chat'));
     }
     
     /**
@@ -254,7 +254,7 @@ class Synaplan_WP_Admin {
         check_ajax_referer('synaplan_wp_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
-            wp_die(__('Insufficient permissions.', 'synaplan-ai-support-chat'));
+            wp_die(esc_html__('Insufficient permissions.', 'synaplan-ai-support-chat'));
         }
         
         $api = new Synaplan_WP_API();

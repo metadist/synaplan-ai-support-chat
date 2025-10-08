@@ -466,7 +466,14 @@ class Synaplan_WP_Wizard {
                     $temp_filename = 'temp_' . time() . '_' . sanitize_file_name($file['name']);
                     $temp_path = $temp_dir . $temp_filename;
                     
-                    // phpcs:ignore WordPress.PHP.ForbiddenFunctions.Found,WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- Required for external API file upload, not WordPress file handling
+                    /*
+                     * Note: move_uploaded_file() is required here because these files are being
+                     * temporarily stored before being sent to an external API (app.synaplan.com).
+                     * This is not WordPress media library handling - it's external API integration.
+                     * Files are validated, stored in wp-content/uploads/synaplan-temp/, then
+                     * sent to external API and immediately deleted. This is a false positive.
+                     */
+                    // phpcs:ignore WordPress.PHP.ForbiddenFunctions.Found,WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
                     if (move_uploaded_file($file['tmp_name'], $temp_path)) {
                         $uploaded_files[] = array(
                             'name' => $file['name'],

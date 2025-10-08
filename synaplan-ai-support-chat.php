@@ -10,7 +10,7 @@
  * License URI: https://www.apache.org/licenses/LICENSE-2.0
  * Text Domain: synaplan-ai-support-chat
  * Requires at least: 5.0
- * Tested up to: 6.4
+ * Tested up to: 6.8
  * Requires PHP: 8.0
  */
 

@@ -2,7 +2,7 @@
 Contributors: synaplan
 Tags: ai, chat, chatbot, support, customer-service
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.8
 Requires PHP: 8.0
 Stable tag: 1.0.3
 License: Apache-2.0

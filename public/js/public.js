@@ -77,7 +77,8 @@
 
         onWidgetLoaded: function() {
             // Widget loaded successfully
-            $(document).trigger('synaplan-widget-success');
+            // Note: No need to show a visible success message for widget load
+            // $(document).trigger('synaplan-widget-success'); // Removed to prevent "undefined" message
             
             // Add loaded class to body
             $('body').addClass('synaplan-widget-loaded');

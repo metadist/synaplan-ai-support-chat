@@ -180,14 +180,12 @@ This plugin is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for
 
 ## Screenshots
 
-### Setup Wizard
-![Setup Wizard](assets/images/screenshots/wizard-step-1.png)
-
 ### Admin Dashboard
-![Admin Dashboard](assets/images/screenshots/dashboard.png)
+![Admin Dashboard](https://cdn.prod.website-files.com/68c965a57724e7f0a00435b9/68e805e0e81acbac724386a0_wordpress-screen.png)
 
 ### Widget Preview
-![Widget Preview](assets/images/screenshots/widget-preview.png)
+Multi-lingual chat widget with your data:
+![Widget Preview](https://cdn.prod.website-files.com/68c965a57724e7f0a00435b9/68e8106973141c9e57b5fd5f_chat-support.png)
 
 ---
 

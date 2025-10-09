@@ -3,8 +3,8 @@ Contributors: synaplan
 Tags: ai, chat, chatbot, support, customer-service
 Requires at least: 5.0
 Tested up to: 6.8
-Requires PHP: 8.0
-Stable tag: 1.0.3
+Requires PHP: 7.3
+Stable tag: 1.0.4
 License: Apache-2.0
 License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -131,6 +131,12 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Changelog ==
 
+= 1.0.4 =
+* **PHP Compatibility**: Now supports PHP 7.3, 7.4, and 8.x
+* **Graceful Degradation**: Added runtime PHP version check with clear error messages
+* **Broader Compatibility**: Enables installation on more hosting environments
+* Improved version detection and plugin activation handling
+
 = 1.0.3 =
 * Complete wizard flow with site verification
 * Automatic user creation with instant activation
@@ -158,6 +164,9 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Upgrade Notice ==
 
+= 1.0.4 =
+Compatibility update: Now supports PHP 7.3+ in addition to PHP 8.x. No breaking changes - all settings preserved.
+
 = 1.0.3 =
 Major update with complete wizard flow, instant activation, and WordPress.org compliance. All existing settings are preserved.
 
@@ -166,7 +175,7 @@ Major update with complete wizard flow, instant activation, and WordPress.org co
 = Requirements =
 
 * WordPress 5.0 or higher
-* PHP 8.0 or higher
+* PHP 7.3 or higher (compatible with PHP 7.3, 7.4, 8.0, 8.1, 8.2, 8.3+)
 * HTTPS enabled (recommended)
 
 = Support =

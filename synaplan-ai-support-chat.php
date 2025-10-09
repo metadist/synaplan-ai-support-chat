@@ -3,7 +3,7 @@
  * Plugin Name: Synaplan AI Support Chat
  * Plugin URI: https://github.com/synaplan/synaplan-ai-support-chat
  * Description: Integrate Synaplan AI support chat widget into your WordPress site with a wizard-style setup procedure. Provide instant AI-powered customer support with knowledge base integration.
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: Synaplan
  * Author URI: https://synaplan.com
  * License: Apache-2.0
@@ -11,7 +11,7 @@
  * Text Domain: synaplan-ai-support-chat
  * Requires at least: 5.0
  * Tested up to: 6.8
- * Requires PHP: 8.0
+ * Requires PHP: 7.3
  */
 
 // Prevent direct access
@@ -19,8 +19,33 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// PHP version check - Require 7.3 or higher
+if (version_compare(PHP_VERSION, '7.3.0', '<')) {
+    // Deactivate the plugin
+    add_action('admin_init', 'synaplan_wp_deactivate_self');
+    add_action('admin_notices', 'synaplan_wp_php_version_notice');
+    
+    function synaplan_wp_deactivate_self() {
+        deactivate_plugins(plugin_basename(__FILE__));
+    }
+    
+    function synaplan_wp_php_version_notice() {
+        echo '<div class="error"><p>';
+        printf(
+            // translators: %1$s: Current PHP version, %2$s: Required PHP version
+            esc_html__('Synaplan AI Support Chat requires PHP version %2$s or higher. You are currently running PHP version %1$s. Please upgrade your PHP version or contact your hosting provider.', 'synaplan-ai-support-chat'),
+            esc_html(PHP_VERSION),
+            '7.3.0'
+        );
+        echo '</p></div>';
+    }
+    
+    // Prevent further execution
+    return;
+}
+
 // Define plugin constants
-define('SYNAPLAN_WP_VERSION', '1.0.3');
+define('SYNAPLAN_WP_VERSION', '1.0.4');
 define('SYNAPLAN_WP_PLUGIN_FILE', __FILE__);
 define('SYNAPLAN_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SYNAPLAN_WP_PLUGIN_URL', plugin_dir_url(__FILE__));

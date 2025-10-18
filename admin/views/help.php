@@ -79,7 +79,7 @@ if (!defined('ABSPATH')) {
                     </li>
                     <li>
                         <span class="dashicons dashicons-admin-site"></span>
-                        <a href="https://synaplan.com" target="_blank">synaplan.com</a>
+                        <a href="https://www.synaplan.com" target="_blank">www.synaplan.com</a>
                     </li>
                     <li>
                         <span class="dashicons dashicons-admin-home"></span>

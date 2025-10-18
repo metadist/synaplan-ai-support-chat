@@ -276,7 +276,7 @@ if (!$is_cli) {
     echo '<hr>';
     echo '<p style="text-align: center; color: #666; font-size: 14px;">';
     echo 'For detailed PHP configuration, <a href="?phpinfo=1">view phpinfo()</a> | ';
-    echo '<a href="https://synaplan.com/support">Get Support</a>';
+    echo '<a href="https://www.synaplan.com/support">Get Support</a>';
     echo '</p>';
     
     echo '</div></body></html>';

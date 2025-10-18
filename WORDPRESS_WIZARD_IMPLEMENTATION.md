@@ -358,11 +358,11 @@ If the API key needs to be regenerated:
 
 For issues or questions:
 - Email: support@synaplan.com
-- Website: https://synaplan.com
+- Website: https://www.synaplan.com
 - Dashboard: https://app.synaplan.com/
 
 ---
 
 **Version:** 1.0.3
 **Last Updated:** 2025-10-08
-**Author:** Synaplan Development Team
+**Author:** metadist GmbH

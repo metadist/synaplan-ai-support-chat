@@ -202,7 +202,7 @@ None.
 
 - **Email:** support@synaplan.com
 - **Documentation:** https://docs.synaplan.com/wordpress-plugin
-- **GitHub Issues:** https://github.com/synaplan/synaplan-ai-support-chat/issues
+- **GitHub Issues:** https://github.com/metadist/synaplan-ai-support-chat/issues
 - **WordPress Support:** https://wordpress.org/support/plugin/synaplan-ai-support-chat
 
 ### Reporting Bugs
@@ -239,7 +239,7 @@ If you encounter issues with this version:
 ## Download
 
 - **WordPress Plugin Directory:** https://wordpress.org/plugins/synaplan-ai-support-chat/
-- **GitHub Releases:** https://github.com/synaplan/synaplan-ai-support-chat/releases/tag/1.0.4
+- **GitHub Releases:** https://github.com/metadist/synaplan-ai-support-chat/releases/tag/1.0.4
 - **Direct Download:** https://downloads.wordpress.org/plugin/synaplan-ai-support-chat.1.0.4.zip
 
 ## Checksums
@@ -267,6 +267,6 @@ Apache License 2.0 - https://www.apache.org/licenses/LICENSE-2.0
 
 ---
 
-**Synaplan Team**  
+**metadist GmbH**  
 October 9, 2025
 

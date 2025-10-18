@@ -9,7 +9,7 @@ The WordPress plugin has been renamed from **"Synaplan WP AI"** to **"Synaplan A
 - **Deleted:** `synaplan-wp-ai.php`
 - **Created:** `synaplan-ai-support-chat.php`
   - Updated Plugin Name header to "Synaplan AI Support Chat"
-  - Updated Plugin URI to `https://github.com/synaplan/synaplan-ai-support-chat`
+  - Updated Plugin URI to `https://github.com/metadist/synaplan-ai-support-chat`
   - Updated Text Domain to `synaplan-ai-support-chat`
   - Updated description to emphasize customer support features
 

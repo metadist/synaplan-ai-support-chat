@@ -181,9 +181,8 @@ class Synaplan_WP_Wizard {
                 <label for="language"><?php esc_html_e('Website Language', 'synaplan-ai-support-chat'); ?></label>
                 <select id="language" name="language">
                     <?php
-                    $api = new Synaplan_WP_API();
-                    $languages = $api->get_supported_languages();
-                    $detected_language = $api->detect_website_language();
+                    $languages = Synaplan_WP_API::get_supported_languages();
+                    $detected_language = Synaplan_WP_API::detect_website_language();
                     
                     foreach ($languages as $code => $name) {
                         $selected = ($code === $language) || ($code === $detected_language && empty($language)) ? 'selected' : '';
@@ -226,8 +225,7 @@ class Synaplan_WP_Wizard {
                 <label for="prompt"><?php esc_html_e('AI Assistant Type', 'synaplan-ai-support-chat'); ?></label>
                 <select id="prompt" name="prompt">
                     <?php
-                    $api = new Synaplan_WP_API();
-                    $prompts = $api->get_default_prompts();
+                    $prompts = Synaplan_WP_API::get_default_prompts();
                     
                     foreach ($prompts as $key => $name) {
                         $selected = $key === $prompt ? 'selected' : '';
@@ -454,14 +452,20 @@ class Synaplan_WP_Wizard {
                 
                 // Create a temporary $_FILES array for this single file (wp_handle_upload expects single file format)
                 $file = array(
-                    'name' => isset($_FILES['files']['name'][$i]) ? $_FILES['files']['name'][$i] : '',
-                    'type' => isset($_FILES['files']['type'][$i]) ? $_FILES['files']['type'][$i] : '',
-                    'tmp_name' => isset($_FILES['files']['tmp_name'][$i]) ? $_FILES['files']['tmp_name'][$i] : '',
-                    'error' => isset($_FILES['files']['error'][$i]) ? $_FILES['files']['error'][$i] : UPLOAD_ERR_NO_FILE,
-                    'size' => isset($_FILES['files']['size'][$i]) ? intval($_FILES['files']['size'][$i]) : 0
+                    'name' => isset($_FILES['files']['name'][$i]) ? sanitize_file_name(wp_unslash($_FILES['files']['name'][$i])) : '',
+                    'type' => isset($_FILES['files']['type'][$i]) ? sanitize_text_field(wp_unslash($_FILES['files']['type'][$i])) : '',
+                    'tmp_name' => isset($_FILES['files']['tmp_name'][$i]) ? sanitize_text_field(wp_unslash($_FILES['files']['tmp_name'][$i])) : '',
+                    'error' => isset($_FILES['files']['error'][$i]) ? absint($_FILES['files']['error'][$i]) : UPLOAD_ERR_NO_FILE,
+                    'size' => isset($_FILES['files']['size'][$i]) ? absint($_FILES['files']['size'][$i]) : 0
                 );
                 // phpcs:enable WordPress.Security.ValidatedSanitizedInput
                 // phpcs:enable WordPress.Security.NonceVerification.Missing
+                
+                // Verify file type from file itself, not from client
+                $file_check = wp_check_filetype($file['name']);
+                if ($file_check['type']) {
+                    $file['type'] = $file_check['type'];
+                }
                 
                 // Skip if upload error
                 if ($file['error'] !== UPLOAD_ERR_OK) {
@@ -534,7 +538,6 @@ class Synaplan_WP_Wizard {
      * Process step 4: Complete setup with new unified flow
      */
     private function process_step_4($data) {
-        Synaplan_WP_Core::log("Starting step 4 - Complete setup (NEW unified flow)");
         
         $api = new Synaplan_WP_API();
         
@@ -554,13 +557,10 @@ class Synaplan_WP_Wizard {
         // Get uploaded files if any
         $uploaded_files = $this->wizard_data['uploaded_files'] ?? array();
         
-        Synaplan_WP_Core::log("Calling complete_wizard_setup with email: " . $wizard_data['email']);
-        Synaplan_WP_Core::log("Files to process: " . count($uploaded_files));
         
         // Call the new unified endpoint
         $result = $api->complete_wizard_setup($wizard_data, $uploaded_files);
         
-        Synaplan_WP_Core::log("Complete wizard setup result: " . wp_json_encode($result));
         
         if (!$result['success']) {
             $error_message = 'Setup failed';
@@ -570,7 +570,7 @@ class Synaplan_WP_Wizard {
                 $error_message = $result['error'];
             }
             
-            Synaplan_WP_Core::log("Wizard setup failed: " . $error_message);
+            Synaplan_WP_Core::log("Wizard setup failed: " . $error_message, 'error');
             return array('success' => false, 'error' => $error_message);
         }
         
@@ -581,13 +581,12 @@ class Synaplan_WP_Wizard {
         $user_id = $response_data['user_id'] ?? '';
         
         if (empty($api_key) || empty($user_id)) {
-            Synaplan_WP_Core::log("Missing API key or user ID in response");
+            Synaplan_WP_Core::log("Missing API key or user ID in response", 'error');
             return array('success' => false, 'error' => __('Setup succeeded but missing credentials', 'synaplan-ai-support-chat'));
         }
         
         // Save API credentials
-        Synaplan_WP_Core::log("Saving API key: " . substr($api_key, 0, 15) . "...");
-        Synaplan_WP_Core::log("Saving user ID: " . $user_id);
+        // Save credentials (logging removed for security)
         
         Synaplan_WP_Core::set_api_key($api_key);
         Synaplan_WP_Core::set_user_id($user_id);
@@ -605,18 +604,14 @@ class Synaplan_WP_Wizard {
             'language' => $this->wizard_data['language']
         );
         
-        Synaplan_WP_Core::log("Saving widget config: " . wp_json_encode($widget_config));
         Synaplan_WP_Core::update_widget_config($widget_config);
         
         // Mark setup as completed
-        Synaplan_WP_Core::log("Marking setup as completed");
         Synaplan_WP_Core::mark_setup_completed();
         
         // Clean up wizard data and temp files
-        Synaplan_WP_Core::log("Cleaning up wizard data");
         $this->cleanup_wizard_data();
         
-        Synaplan_WP_Core::log("Step 4 completed successfully - Files processed: " . ($response_data['filesProcessed'] ?? 0));
         return array(
             'success' => true,
             'completed' => true,
@@ -625,48 +620,19 @@ class Synaplan_WP_Wizard {
     }
     
     /**
-     * Process uploaded files for RAG vectorization
-     */
-    private function process_uploaded_files_for_rag($user_id, $api_key) {
-        // Rate limiting: max 5 files per wizard session
-        $file_count = count($this->wizard_data['uploaded_files']);
-        if ($file_count > 5) {
-            Synaplan_WP_Core::log("Rate limit exceeded: Too many files uploaded ($file_count)");
-            return;
-        }
-        
-        $api = new Synaplan_WP_API();
-        
-        foreach ($this->wizard_data['uploaded_files'] as $file_data) {
-            Synaplan_WP_Core::log("Processing file for RAG: " . $file_data['name']);
-            
-            // Upload file to Synaplan for vectorization
-            $upload_result = $api->upload_file_for_rag(
-                $file_data['file_path'],
-                $file_data['name'],
-                $file_data['type'],
-                $user_id,
-                $api_key
-            );
-            
-            if ($upload_result['success']) {
-                Synaplan_WP_Core::log("File uploaded and vectorized successfully: " . $file_data['name']);
-            } else {
-                Synaplan_WP_Core::log("File upload failed: " . ($upload_result['error'] ?? 'Unknown error'));
-            }
-            
-            // Clean up file from media library after successful API upload
-            if (isset($file_data['attachment_id']) && $file_data['attachment_id'] > 0) {
-                wp_delete_attachment($file_data['attachment_id'], true);
-                Synaplan_WP_Core::log("Cleaned up media library attachment: " . $file_data['attachment_id']);
-            }
-        }
-    }
-    
-    /**
-     * Clean up wizard data
+     * Clean up wizard data and uploaded files
      */
     private function cleanup_wizard_data() {
+        // Clean up uploaded files from media library
+        if (!empty($this->wizard_data['uploaded_files'])) {
+            foreach ($this->wizard_data['uploaded_files'] as $file_data) {
+                if (isset($file_data['attachment_id']) && $file_data['attachment_id'] > 0) {
+                    wp_delete_attachment($file_data['attachment_id'], true);
+                }
+            }
+        }
+        
+        // Delete wizard session data
         $user_id = get_current_user_id();
         delete_transient('synaplan_wizard_data_' . $user_id);
     }

@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Synaplan AI Support Chat
- * Plugin URI: https://github.com/synaplan/synaplan-ai-support-chat
+ * Plugin URI: https://github.com/metadist/synaplan-ai-support-chat
  * Description: Integrate Synaplan AI support chat widget into your WordPress site with a wizard-style setup procedure. Provide instant AI-powered customer support with knowledge base integration.
- * Version: 1.0.4
- * Author: Synaplan
- * Author URI: https://synaplan.com
+ * Version: 1.0.5
+ * Author: metadist GmbH
+ * Author URI: https://www.synaplan.com
  * License: Apache-2.0
  * License URI: https://www.apache.org/licenses/LICENSE-2.0
  * Text Domain: synaplan-ai-support-chat
@@ -45,7 +45,7 @@ if (version_compare(PHP_VERSION, '7.3.0', '<')) {
 }
 
 // Define plugin constants
-define('SYNAPLAN_WP_VERSION', '1.0.4');
+define('SYNAPLAN_WP_VERSION', '1.0.5');
 define('SYNAPLAN_WP_PLUGIN_FILE', __FILE__);
 define('SYNAPLAN_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('SYNAPLAN_WP_PLUGIN_URL', plugin_dir_url(__FILE__));

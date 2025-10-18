@@ -19,7 +19,7 @@ class Synaplan_WP_Core {
     /**
      * Plugin version
      */
-    const VERSION = '1.0.4';
+    const VERSION = '1.0.5';
     
     /**
      * Plugin instance
@@ -187,48 +187,28 @@ class Synaplan_WP_Core {
      * Get API key
      */
     public static function get_api_key() {
-        $api_key = self::get_option('api_key', '');
-        Synaplan_WP_Core::log("Retrieved API key: " . ($api_key ? 'FOUND (' . substr($api_key, 0, 10) . '...)' : 'NOT FOUND'));
-        return $api_key;
+        return self::get_option('api_key', '');
     }
     
     /**
      * Set API key
      */
     public static function set_api_key($api_key) {
-        Synaplan_WP_Core::log("Setting API key: " . $api_key);
-        $result = self::update_option('api_key', $api_key);
-        Synaplan_WP_Core::log("API key save result: " . ($result ? 'SUCCESS' : 'FAILED'));
-        
-        // Debug: Check what's actually stored
-        $stored_value = get_option('synaplan_wp_api_key', 'NOT_FOUND');
-        Synaplan_WP_Core::log("Stored value in DB: " . ($stored_value ? 'FOUND (' . substr($stored_value, 0, 10) . '...)' : 'NOT FOUND'));
-        
-        return $result;
+        return self::update_option('api_key', $api_key);
     }
     
     /**
      * Get user ID
      */
     public static function get_user_id() {
-        $user_id = self::get_option('user_id', '');
-        Synaplan_WP_Core::log("Retrieved user ID: " . ($user_id ? 'FOUND (' . $user_id . ')' : 'NOT FOUND'));
-        return $user_id;
+        return self::get_option('user_id', '');
     }
     
     /**
      * Set user ID
      */
     public static function set_user_id($user_id) {
-        Synaplan_WP_Core::log("Setting user ID: " . $user_id);
-        $result = self::update_option('user_id', $user_id);
-        Synaplan_WP_Core::log("User ID save result: " . ($result ? 'SUCCESS' : 'FAILED'));
-        
-        // Debug: Check what's actually stored
-        $stored_value = get_option('synaplan_wp_user_id', 'NOT_FOUND');
-        Synaplan_WP_Core::log("Stored user ID in DB: " . ($stored_value ? 'FOUND (' . $stored_value . ')' : 'NOT FOUND'));
-        
-        return $result;
+        return self::update_option('user_id', $user_id);
     }
     
     /**
@@ -280,17 +260,10 @@ class Synaplan_WP_Core {
     }
     
     /**
-     * Generate verification token for API validation
-     */
-    public static function generate_verification_token() {
-        return wp_generate_password(64, false);
-    }
-    
-    /**
-     * Create verification token for WordPress site validation
+     * Create and store verification token for WordPress site validation
      */
     public static function create_verification_token() {
-        $token = self::generate_verification_token();
+        $token = wp_generate_password(64, false);
         $site_url = get_site_url();
         $expires = time() + (15 * MINUTE_IN_SECONDS); // 15 minutes
         

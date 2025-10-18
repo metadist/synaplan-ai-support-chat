@@ -1,10 +1,10 @@
 === Synaplan AI Support Chat ===
-Contributors: synaplan
+Contributors: metadist
 Tags: ai, chat, chatbot, support, customer-service
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.3
-Stable tag: 1.0.4
+Stable tag: 1.0.6
 License: Apache-2.0
 License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -131,6 +131,12 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Changelog ==
 
+= 1.0.5 =
+* **Metadata Corrections**: Updated author attribution to metadist GmbH
+* **URL Corrections**: Fixed GitHub repository URLs to metadist organization
+* **Documentation Links**: Updated to correct documentation URLs
+* No functional changes - plugin works identically
+
 = 1.0.4 =
 * **PHP Compatibility**: Now supports PHP 7.3, 7.4, and 8.x
 * **Graceful Degradation**: Added runtime PHP version check with clear error messages
@@ -164,6 +170,9 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Upgrade Notice ==
 
+= 1.0.5 =
+Metadata update: Corrected author attribution and documentation links. No functional changes - all settings preserved.
+
 = 1.0.4 =
 Compatibility update: Now supports PHP 7.3+ in addition to PHP 8.x. No breaking changes - all settings preserved.
 
@@ -181,7 +190,7 @@ Major update with complete wizard flow, instant activation, and WordPress.org co
 = Support =
 
 * **Email:** support@synaplan.com
-* **Website:** [https://synaplan.com](https://synaplan.com)
+* **Website:** [https://www.synaplan.com](https://www.synaplan.com)
 * **Dashboard:** [https://app.synaplan.com](https://app.synaplan.com)
 
 = Privacy =
@@ -192,8 +201,8 @@ This plugin connects to Synaplan's external API (app.synaplan.com) to provide AI
 * Uploaded documents are stored and processed on Synaplan servers
 * WordPress site verification tokens are exchanged during setup
 * No personal data is collected without user consent
-* View our privacy policy at [https://synaplan.com/privacy](https://synaplan.com/privacy)
+* View our privacy policy at [https://www.synaplan.com/privacy](https://www.synaplan.com/privacy)
 
 = Credits =
 
-Developed by [Synaplan](https://synaplan.com) - AI-powered business solutions.
+Developed by [metadist GmbH](https://www.metadist.de) for [Synaplan](https://www.synaplan.com) - AI-powered business solutions.

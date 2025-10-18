@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Get widget embed code
+// Get widget embed code (this is shown to users, not executed inline)
 $user_id = Synaplan_WP_Core::get_user_id();
 $widget_url = 'https://app.synaplan.com/widget.php?uid=' . $user_id . '&widgetid=1';
 $embed_code = '<script>
@@ -64,11 +64,14 @@ $embed_code = '<script>
                         <code class="credential-value api-key-revealed" id="api-key-revealed" style="display: none;">
                             <?php echo esc_html($api_key); ?>
                         </code>
-                        <button type="button" class="button button-secondary" id="toggle-api-key">
+                        <button type="button" class="button button-secondary" id="toggle-api-key"
+                            data-show-text="<?php echo esc_attr__('Show API Key', 'synaplan-ai-support-chat'); ?>"
+                            data-hide-text="<?php echo esc_attr__('Hide API Key', 'synaplan-ai-support-chat'); ?>">
                             <span class="dashicons dashicons-visibility"></span>
                             <span id="toggle-text"><?php esc_html_e('Show API Key', 'synaplan-ai-support-chat'); ?></span>
                         </button>
-                        <button type="button" class="button button-secondary" id="copy-api-key" style="display: none;">
+                        <button type="button" class="button button-secondary" id="copy-api-key" style="display: none;"
+                            data-copied-text="<?php echo esc_attr__('Copied!', 'synaplan-ai-support-chat'); ?>">
                             <span class="dashicons dashicons-clipboard"></span>
                             <?php esc_html_e('Copy', 'synaplan-ai-support-chat'); ?>
                         </button>
@@ -91,7 +94,8 @@ $embed_code = '<script>
             <div class="card-body">
                 <p><?php esc_html_e('Your widget is automatically embedded on all pages. Use this code if you need to manually embed it elsewhere:', 'synaplan-ai-support-chat'); ?></p>
                 <textarea readonly class="embed-code" id="embed-code"><?php echo esc_textarea($embed_code); ?></textarea>
-                <button type="button" class="button button-secondary" id="copy-embed-code">
+                <button type="button" class="button button-secondary" id="copy-embed-code"
+                    data-copied-text="<?php echo esc_attr__('Copied!', 'synaplan-ai-support-chat'); ?>">
                     <span class="dashicons dashicons-clipboard"></span>
                     <?php esc_html_e('Copy Code', 'synaplan-ai-support-chat'); ?>
                 </button>
@@ -140,201 +144,3 @@ $embed_code = '<script>
         </div>
     </div>
 </div>
-
-<style>
-.synaplan-dashboard {
-    margin-top: 20px;
-}
-
-.synaplan-dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.dashboard-card {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.dashboard-card .card-header {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-bottom: 1px solid #ddd;
-}
-
-.dashboard-card .card-header h2 {
-    margin: 0;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.dashboard-card .card-body {
-    padding: 20px;
-}
-
-.status-message {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 15px;
-    border-radius: 4px;
-    margin: 0 0 15px 0;
-}
-
-.status-message.success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.credential-row {
-    margin-bottom: 15px;
-}
-
-.credential-row label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #555;
-}
-
-.credential-value {
-    display: inline-block;
-    background: #f5f5f5;
-    padding: 8px 12px;
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 13px;
-    border: 1px solid #ddd;
-}
-
-.api-key-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.api-key-container .credential-value {
-    flex: 1;
-    min-width: 200px;
-}
-
-.embed-code {
-    width: 100%;
-    min-height: 120px;
-    font-family: monospace;
-    font-size: 12px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: #f5f5f5;
-    margin-bottom: 10px;
-}
-
-.help-text {
-    color: #666;
-    font-size: 13px;
-    margin: 10px 0 0 0;
-    display: flex;
-    align-items: flex-start;
-    gap: 5px;
-}
-
-.quick-links {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.quick-links li {
-    margin-bottom: 12px;
-}
-
-.quick-links a {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-decoration: none;
-    color: #333;
-    transition: all 0.2s;
-}
-
-.quick-links a:hover {
-    background: #f8f9fa;
-    border-color: #007cba;
-    color: #007cba;
-}
-
-@media (max-width: 768px) {
-    .synaplan-dashboard-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-
-<script>
-jQuery(document).ready(function($) {
-    var apiKeyHidden = $('#api-key-display');
-    var apiKeyRevealed = $('#api-key-revealed');
-    var toggleBtn = $('#toggle-api-key');
-    var copyBtn = $('#copy-api-key');
-    var toggleText = $('#toggle-text');
-    var isRevealed = false;
-    
-    // Toggle API key visibility
-    toggleBtn.on('click', function() {
-        isRevealed = !isRevealed;
-        
-        if (isRevealed) {
-            apiKeyHidden.hide();
-            apiKeyRevealed.show();
-            copyBtn.show();
-            toggleBtn.find('.dashicons').removeClass('dashicons-visibility').addClass('dashicons-hidden');
-            toggleText.text('<?php echo esc_js(__('Hide API Key', 'synaplan-ai-support-chat')); ?>');
-        } else {
-            apiKeyHidden.show();
-            apiKeyRevealed.hide();
-            copyBtn.hide();
-            toggleBtn.find('.dashicons').removeClass('dashicons-hidden').addClass('dashicons-visibility');
-            toggleText.text('<?php echo esc_js(__('Show API Key', 'synaplan-ai-support-chat')); ?>');
-        }
-    });
-    
-    // Copy API key
-    copyBtn.on('click', function() {
-        var apiKey = apiKeyRevealed.text().trim();
-        navigator.clipboard.writeText(apiKey).then(function() {
-            var originalText = copyBtn.html();
-            copyBtn.html('<span class="dashicons dashicons-yes"></span> <?php echo esc_js(__('Copied!', 'synaplan-ai-support-chat')); ?>');
-            setTimeout(function() {
-                copyBtn.html(originalText);
-            }, 2000);
-        });
-    });
-    
-    // Copy embed code
-    $('#copy-embed-code').on('click', function() {
-        var embedCode = $('#embed-code');
-        embedCode.select();
-        document.execCommand('copy');
-        
-        var btn = $(this);
-        var originalText = btn.html();
-        btn.html('<span class="dashicons dashicons-yes"></span> <?php echo esc_js(__('Copied!', 'synaplan-ai-support-chat')); ?>');
-        setTimeout(function() {
-            btn.html(originalText);
-        }, 2000);
-    });
-});
-</script>

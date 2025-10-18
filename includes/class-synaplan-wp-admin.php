@@ -97,6 +97,12 @@ class Synaplan_WP_Admin {
             true
         );
         
+        // Add page-specific inline styles
+        $this->add_page_inline_styles($hook);
+        
+        // Add page-specific inline scripts
+        $this->add_page_inline_scripts($hook);
+        
         // Localize script
         wp_localize_script('synaplan-wp-admin-js', 'synaplan_wp_admin', array(
             'ajax_url' => admin_url('admin-ajax.php'),
@@ -108,6 +114,43 @@ class Synaplan_WP_Admin {
                 'confirm' => __('Are you sure?', 'synaplan-ai-support-chat')
             )
         ));
+    }
+    
+    /**
+     * Add page-specific inline styles
+     */
+    private function add_page_inline_styles($hook) {
+        $custom_css = '';
+        
+        // Dashboard styles
+        if (strpos($hook, 'toplevel_page_synaplan-ai-support-chat') !== false) {
+            $custom_css = file_get_contents(Synaplan_WP_Core::get_plugin_path('admin/views/dashboard-inline.css'));
+        }
+        // Settings styles
+        elseif (strpos($hook, 'synaplan-ai-support-chat-settings') !== false) {
+            $custom_css = file_get_contents(Synaplan_WP_Core::get_plugin_path('admin/views/settings-inline.css'));
+        }
+        // Help styles
+        elseif (strpos($hook, 'synaplan-ai-support-chat-help') !== false) {
+            $custom_css = file_get_contents(Synaplan_WP_Core::get_plugin_path('admin/views/help-inline.css'));
+        }
+        
+        if (!empty($custom_css)) {
+            wp_add_inline_style('synaplan-wp-admin-css', $custom_css);
+        }
+    }
+    
+    /**
+     * Add page-specific inline scripts
+     */
+    private function add_page_inline_scripts($hook) {
+        // Dashboard scripts
+        if (strpos($hook, 'toplevel_page_synaplan-ai-support-chat') !== false) {
+            $custom_js = file_get_contents(Synaplan_WP_Core::get_plugin_path('admin/views/dashboard-inline.js'));
+            if (!empty($custom_js)) {
+                wp_add_inline_script('synaplan-wp-admin-js', $custom_js);
+            }
+        }
     }
     
     /**
@@ -162,8 +205,7 @@ class Synaplan_WP_Admin {
     private function render_settings() {
         $widget_config = Synaplan_WP_Core::get_widget_config();
         
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce token, sanitized by wp_verify_nonce()
-        if (isset($_POST['submit']) && isset($_POST['_wpnonce']) && wp_verify_nonce(wp_unslash($_POST['_wpnonce']), 'synaplan_wp_settings')) {
+        if (isset($_POST['submit']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'synaplan_wp_settings')) {
             $this->save_settings();
         }
         

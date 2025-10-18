@@ -4,7 +4,7 @@ Tags: ai, chat, chatbot, support, customer-service
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.3
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: Apache-2.0
 License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -131,6 +131,12 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Changelog ==
 
+= 1.0.5 =
+* **Metadata Corrections**: Updated author attribution to metadist GmbH
+* **URL Corrections**: Fixed GitHub repository URLs to metadist organization
+* **Documentation Links**: Updated to correct documentation URLs
+* No functional changes - plugin works identically
+
 = 1.0.4 =
 * **PHP Compatibility**: Now supports PHP 7.3, 7.4, and 8.x
 * **Graceful Degradation**: Added runtime PHP version check with clear error messages
@@ -164,6 +170,9 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Upgrade Notice ==
 
+= 1.0.5 =
+Metadata update: Corrected author attribution and documentation links. No functional changes - all settings preserved.
+
 = 1.0.4 =
 Compatibility update: Now supports PHP 7.3+ in addition to PHP 8.x. No breaking changes - all settings preserved.
 
@@ -196,4 +205,4 @@ This plugin connects to Synaplan's external API (app.synaplan.com) to provide AI
 
 = Credits =
 
-Developed by [metadist GmbH](https://metadist.de) for [Synaplan](https://www.synaplan.com) - AI-powered business solutions.
+Developed by [metadist GmbH](https://www.metadist.de) for [Synaplan](https://www.synaplan.com) - AI-powered business solutions.

@@ -224,7 +224,7 @@ The plugin is compatible with:
 ## Contact & Support
 
 - **Plugin Support:** support@synaplan.com
-- **Documentation:** https://docs.synaplan.com/wordpress-plugin
+- **Documentation:** https://docs.synaplan.com/
 - **GitHub Issues:** https://github.com/metadist/synaplan-ai-support-chat/issues
 
 ---

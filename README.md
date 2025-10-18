@@ -102,9 +102,9 @@ The plugin integrates with the Synaplan API to provide:
 
 ### Documentation
 
-- [Plugin Documentation](https://docs.synaplan.com/wordpress-plugin)
-- [API Reference](https://docs.synaplan.com/api)
-- [Widget Examples](https://docs.synaplan.com/widget-examples)
+- [API Documentation](https://docs.synaplan.com/)
+- [Widget Examples](https://docs.synaplan.com/widget-inline-demo.php)
+- [Synaplan Dashboard](https://app.synaplan.com/)
 
 ### Getting Help
 

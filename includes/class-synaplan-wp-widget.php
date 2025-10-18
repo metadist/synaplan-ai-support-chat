@@ -81,6 +81,8 @@ class Synaplan_WP_Widget {
         // Generate widget script URL
         $widget_url = $this->get_widget_url($user_id, 1);
         
+        // Inline script is intentional: dynamically loads external widget with user-specific URL
+        // This cannot be enqueued as it requires runtime user_id parameter
         ?>
         <script>
         (function() {
@@ -116,6 +118,8 @@ class Synaplan_WP_Widget {
         $widget_url = $this->get_widget_url($user_id, 1, 'inline-box');
         
         ob_start();
+        // Inline script is intentional: dynamically loads external widget with shortcode-specific parameters
+        // This cannot be enqueued as it requires runtime user_id and mode parameters
         ?>
         <div class="synaplan-widget-shortcode" data-type="<?php echo esc_attr($atts['type']); ?>">
             <script>

@@ -338,14 +338,11 @@ class Synaplan_WP_API {
         $verification_token = Synaplan_WP_Core::create_verification_token();
         $verification_url = Synaplan_WP_Core::get_verification_endpoint_url();
         
-        // Build multipart boundary
-        $boundary = wp_generate_password(32, false);
+        // Use cURL for multipart file uploads (WordPress HTTP API doesn't properly populate $_FILES)
+        $ch = curl_init();
         
-        // Start building multipart body
-        $body = '';
-        
-        // Add regular form fields
-        $form_fields = array(
+        // Build form data
+        $post_data = array(
             'action' => 'wpWizardComplete',
             // User registration data
             'email' => $wizard_data['email'] ?? '',
@@ -355,7 +352,7 @@ class Synaplan_WP_API {
             'verification_token' => $verification_token,
             'verification_url' => $verification_url,
             'site_url' => get_site_url(),
-            // Widget configuration
+            // Widget configuration (matching WordPressWizard.php expected fields)
             'widgetId' => $wizard_data['widget_id'] ?? 1,
             'widgetColor' => $wizard_data['widget_color'] ?? '#007bff',
             'widgetIconColor' => $wizard_data['icon_color'] ?? '#ffffff',
@@ -371,66 +368,72 @@ class Synaplan_WP_API {
             'inlineBorderRadius' => '8'
         );
         
-        // Add each field to multipart body
-        foreach ($form_fields as $name => $value) {
-            $body .= "--{$boundary}\r\n";
-            $body .= 'Content-Disposition: form-data; name="' . $name . '"' . "\r\n\r\n";
-            $body .= $value . "\r\n";
+        // Add files using CURLFile
+        // To create $_FILES['files']['name'][0], $_FILES['files']['name'][1] structure,
+        // we must build a custom multipart payload
+        $file_count = 0;
+        $boundary = '----WebKitFormBoundary' . uniqid();
+        $multipart_body = '';
+        
+        // Add form fields
+        foreach ($post_data as $key => $value) {
+            $multipart_body .= "--{$boundary}\r\n";
+            $multipart_body .= "Content-Disposition: form-data; name=\"{$key}\"\r\n\r\n";
+            $multipart_body .= "{$value}\r\n";
         }
         
-        // Add files if any (max 5 for wizard)
-        // Use files[] array format to match PHP's $_FILES['files'] structure
+        // Add files
         if (!empty($uploaded_files)) {
-            $file_count = 0;
             foreach ($uploaded_files as $file_data) {
                 if ($file_count >= 5) break; // Rate limit: max 5 files
                 
                 if (isset($file_data['file_path']) && file_exists($file_data['file_path'])) {
                     $file_contents = file_get_contents($file_data['file_path']);
                     if ($file_contents !== false) {
-                        // Add file using files[] to create $_FILES['files'] array in PHP
-                        $body .= "--{$boundary}\r\n";
-                        $body .= 'Content-Disposition: form-data; name="files[]"; filename="' . $file_data['name'] . '"' . "\r\n";
-                        $body .= 'Content-Type: ' . $file_data['type'] . "\r\n\r\n";
-                        $body .= $file_contents . "\r\n";
+                        // Use same field name 'files[]' for all files to create multidimensional $_FILES array
+                        $multipart_body .= "--{$boundary}\r\n";
+                        $multipart_body .= "Content-Disposition: form-data; name=\"files[]\"; filename=\"{$file_data['name']}\"\r\n";
+                        $multipart_body .= "Content-Type: {$file_data['type']}\r\n\r\n";
+                        $multipart_body .= $file_contents . "\r\n";
                         $file_count++;
                     }
                 }
             }
         }
         
-        // Close multipart body
-        $body .= "--{$boundary}--\r\n";
+        $multipart_body .= "--{$boundary}--\r\n";
         
-        // Make request using WordPress HTTP API
-        $args = array(
-            'method' => 'POST',
-            'headers' => array(
-                'Content-Type' => 'multipart/form-data; boundary=' . $boundary
-            ),
-            'body' => $body,
-            'timeout' => 180 // 3 minutes for complete setup + file processing
-        );
+        curl_setopt($ch, CURLOPT_URL, $this->api_base_url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $multipart_body);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: multipart/form-data; boundary=' . $boundary,
+            'Content-Length: ' . strlen($multipart_body)
+        ));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 180);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         
-        $response = wp_remote_request($this->api_base_url, $args);
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
         
-        if (is_wp_error($response)) {
-            Synaplan_WP_Core::log("Wizard completion error: " . $response->get_error_message(), 'error');
+        if ($error) {
+            Synaplan_WP_Core::log("Wizard completion cURL error: " . $error, 'error');
             return array(
                 'success' => false,
-                'error' => $response->get_error_message()
+                'error' => $error
             );
         }
         
-        $http_code = wp_remote_retrieve_response_code($response);
-        $response_body = wp_remote_retrieve_body($response);
-        $decoded_body = json_decode($response_body, true);
+        $decoded_body = json_decode($response, true);
         
         return array(
             'success' => $http_code >= 200 && $http_code < 300 && isset($decoded_body['success']) && $decoded_body['success'],
             'status_code' => $http_code,
             'data' => $decoded_body,
-            'raw_body' => $response_body
+            'raw_body' => $response
         );
     }
 }

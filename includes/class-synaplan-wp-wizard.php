@@ -181,9 +181,8 @@ class Synaplan_WP_Wizard {
                 <label for="language"><?php esc_html_e('Website Language', 'synaplan-ai-support-chat'); ?></label>
                 <select id="language" name="language">
                     <?php
-                    $api = new Synaplan_WP_API();
-                    $languages = $api->get_supported_languages();
-                    $detected_language = $api->detect_website_language();
+                    $languages = Synaplan_WP_API::get_supported_languages();
+                    $detected_language = Synaplan_WP_API::detect_website_language();
                     
                     foreach ($languages as $code => $name) {
                         $selected = ($code === $language) || ($code === $detected_language && empty($language)) ? 'selected' : '';
@@ -226,8 +225,7 @@ class Synaplan_WP_Wizard {
                 <label for="prompt"><?php esc_html_e('AI Assistant Type', 'synaplan-ai-support-chat'); ?></label>
                 <select id="prompt" name="prompt">
                     <?php
-                    $api = new Synaplan_WP_API();
-                    $prompts = $api->get_default_prompts();
+                    $prompts = Synaplan_WP_API::get_default_prompts();
                     
                     foreach ($prompts as $key => $name) {
                         $selected = $key === $prompt ? 'selected' : '';

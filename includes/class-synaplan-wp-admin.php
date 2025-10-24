@@ -97,11 +97,11 @@ class Synaplan_WP_Admin {
             true
         );
         
-        // Add page-specific inline styles
-        $this->add_page_inline_styles($hook);
+        // Add page-specific styles
+        $this->enqueue_page_specific_styles($hook);
         
-        // Add page-specific inline scripts
-        $this->add_page_inline_scripts($hook);
+        // Add page-specific scripts
+        $this->enqueue_page_specific_scripts($hook);
         
         // Localize script
         wp_localize_script('synaplan-wp-admin-js', 'synaplan_wp_admin', array(
@@ -117,38 +117,62 @@ class Synaplan_WP_Admin {
     }
     
     /**
-     * Add page-specific inline styles
+     * Enqueue page-specific styles as separate files
      */
-    private function add_page_inline_styles($hook) {
-        $custom_css = '';
-        
+    private function enqueue_page_specific_styles($hook) {
         // Dashboard styles
         if (strpos($hook, 'toplevel_page_synaplan-ai-support-chat') !== false) {
-            $custom_css = file_get_contents(Synaplan_WP_Core::get_plugin_path('admin/views/dashboard-inline.css'));
+            $css_file = Synaplan_WP_Core::get_plugin_path('admin/views/dashboard-inline.css');
+            if (file_exists($css_file)) {
+                wp_enqueue_style(
+                    'synaplan-wp-dashboard-css',
+                    Synaplan_WP_Core::get_plugin_url('admin/views/dashboard-inline.css'),
+                    array('synaplan-wp-admin-css'),
+                    SYNAPLAN_WP_VERSION
+                );
+            }
         }
         // Settings styles
         elseif (strpos($hook, 'synaplan-ai-support-chat-settings') !== false) {
-            $custom_css = file_get_contents(Synaplan_WP_Core::get_plugin_path('admin/views/settings-inline.css'));
+            $css_file = Synaplan_WP_Core::get_plugin_path('admin/views/settings-inline.css');
+            if (file_exists($css_file)) {
+                wp_enqueue_style(
+                    'synaplan-wp-settings-css',
+                    Synaplan_WP_Core::get_plugin_url('admin/views/settings-inline.css'),
+                    array('synaplan-wp-admin-css'),
+                    SYNAPLAN_WP_VERSION
+                );
+            }
         }
         // Help styles
         elseif (strpos($hook, 'synaplan-ai-support-chat-help') !== false) {
-            $custom_css = file_get_contents(Synaplan_WP_Core::get_plugin_path('admin/views/help-inline.css'));
-        }
-        
-        if (!empty($custom_css)) {
-            wp_add_inline_style('synaplan-wp-admin-css', $custom_css);
+            $css_file = Synaplan_WP_Core::get_plugin_path('admin/views/help-inline.css');
+            if (file_exists($css_file)) {
+                wp_enqueue_style(
+                    'synaplan-wp-help-css',
+                    Synaplan_WP_Core::get_plugin_url('admin/views/help-inline.css'),
+                    array('synaplan-wp-admin-css'),
+                    SYNAPLAN_WP_VERSION
+                );
+            }
         }
     }
     
     /**
-     * Add page-specific inline scripts
+     * Enqueue page-specific scripts as separate files
      */
-    private function add_page_inline_scripts($hook) {
+    private function enqueue_page_specific_scripts($hook) {
         // Dashboard scripts
         if (strpos($hook, 'toplevel_page_synaplan-ai-support-chat') !== false) {
-            $custom_js = file_get_contents(Synaplan_WP_Core::get_plugin_path('admin/views/dashboard-inline.js'));
-            if (!empty($custom_js)) {
-                wp_add_inline_script('synaplan-wp-admin-js', $custom_js);
+            $js_file = Synaplan_WP_Core::get_plugin_path('admin/views/dashboard-inline.js');
+            if (file_exists($js_file)) {
+                wp_enqueue_script(
+                    'synaplan-wp-dashboard-js',
+                    Synaplan_WP_Core::get_plugin_url('admin/views/dashboard-inline.js'),
+                    array('jquery', 'synaplan-wp-admin-js'),
+                    SYNAPLAN_WP_VERSION,
+                    true
+                );
             }
         }
     }
@@ -256,7 +280,42 @@ class Synaplan_WP_Admin {
         }
         
         $step = isset($_POST['step']) ? intval($_POST['step']) : 1;
-        $data = $_POST; // Get all POST data instead of just $_POST['data']
+        
+        // Sanitize and validate only the specific fields we need based on step
+        $data = array();
+        
+        // Common fields across steps
+        if (isset($_POST['email'])) {
+            $data['email'] = sanitize_email(wp_unslash($_POST['email']));
+        }
+        if (isset($_POST['password'])) {
+            // Password should not be sanitized but validated
+            $data['password'] = wp_unslash($_POST['password']);
+        }
+        if (isset($_POST['language'])) {
+            $data['language'] = sanitize_text_field(wp_unslash($_POST['language']));
+        }
+        if (isset($_POST['terms'])) {
+            $data['terms'] = rest_sanitize_boolean(wp_unslash($_POST['terms']));
+        }
+        if (isset($_POST['intro_message'])) {
+            $data['intro_message'] = sanitize_textarea_field(wp_unslash($_POST['intro_message']));
+        }
+        if (isset($_POST['prompt'])) {
+            $data['prompt'] = sanitize_text_field(wp_unslash($_POST['prompt']));
+        }
+        if (isset($_POST['widget_color'])) {
+            $data['widget_color'] = sanitize_hex_color(wp_unslash($_POST['widget_color']));
+        }
+        if (isset($_POST['widget_position'])) {
+            $data['widget_position'] = sanitize_text_field(wp_unslash($_POST['widget_position']));
+        }
+        if (isset($_POST['skip_files'])) {
+            $data['skip_files'] = rest_sanitize_boolean(wp_unslash($_POST['skip_files']));
+        }
+        if (isset($_POST['debug_mode'])) {
+            $data['debug_mode'] = rest_sanitize_boolean(wp_unslash($_POST['debug_mode']));
+        }
         
         $wizard = new Synaplan_WP_Wizard();
         $result = $wizard->process_step($step, $data);

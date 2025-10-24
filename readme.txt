@@ -1,5 +1,5 @@
 === Synaplan AI Support Chat ===
-Contributors: metadist
+Contributors: metadist_synaplan
 Tags: ai, chat, chatbot, support, customer-service
 Requires at least: 5.0
 Tested up to: 6.8

@@ -13,7 +13,8 @@ if (!defined('ABSPATH')) {
 
 // Get widget embed code (this is shown to users, not executed inline)
 $user_id = Synaplan_WP_Core::get_user_id();
-$widget_url = 'https://app.synaplan.com/widget.php?uid=' . $user_id . '&widgetid=1';
+$widget_url = esc_url('https://app.synaplan.com/widget.php?uid=' . $user_id . '&widgetid=1');
+// Build embed code as a string to display to users (will be escaped with esc_textarea when output)
 $embed_code = '<script>
 (function() {
     var script = document.createElement(\'script\');

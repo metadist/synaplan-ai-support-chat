@@ -199,6 +199,18 @@ class Synaplan_WP_Wizard {
                     <?php esc_html_e('I agree to the', 'synaplan-ai-support-chat'); ?> <a href="#" target="_blank"><?php esc_html_e('Terms of Service', 'synaplan-ai-support-chat'); ?></a> <?php esc_html_e('and', 'synaplan-ai-support-chat'); ?> <a href="#" target="_blank"><?php esc_html_e('Privacy Policy', 'synaplan-ai-support-chat'); ?></a>
                 </label>
             </div>
+            
+            <div class="form-group debug-toggle">
+                <label class="checkbox-label debug-label">
+                    <input type="checkbox" name="debug_mode" id="debug_mode" />
+                    <span class="debug-icon">🔧</span>
+                    <?php esc_html_e('Debug Mode - Developer Console Logging', 'synaplan-ai-support-chat'); ?>
+                </label>
+                <small class="form-help debug-help">
+                    <strong><?php esc_html_e('For Developers:', 'synaplan-ai-support-chat'); ?></strong>
+                    <?php esc_html_e('Enable extensive logging in browser console to track data collection, sanitization, and API transfers for each wizard step.', 'synaplan-ai-support-chat'); ?>
+                </small>
+            </div>
         </div>
         <?php
     }
@@ -391,13 +403,42 @@ class Synaplan_WP_Wizard {
             return array('success' => false, 'error' => __('Password must be at least 6 characters with numbers and special characters.', 'synaplan-ai-support-chat'));
         }
         
+        // Save debug mode setting
+        $debug_mode = isset($data['debug_mode']) ? rest_sanitize_boolean($data['debug_mode']) : false;
+        
         // Save step data
         $this->wizard_data['email'] = $email;
         $this->wizard_data['password'] = $password;
         $this->wizard_data['language'] = $language;
+        $this->wizard_data['debug_mode'] = $debug_mode;
         $this->save_wizard_data();
         
-        return array('success' => true, 'next_step' => 2);
+        $response = array('success' => true, 'next_step' => 2);
+        
+        // Add debug info if enabled
+        if ($debug_mode) {
+            $response['debug'] = array(
+                'step' => 1,
+                'collected_data' => array(
+                    'email' => $email,
+                    'password' => '[REDACTED]',
+                    'language' => $language,
+                    'terms_accepted' => $terms ? 'yes' : 'no'
+                ),
+                'sanitized_data' => array(
+                    'email' => $email,
+                    'language' => $language
+                ),
+                'validation' => array(
+                    'email_valid' => true,
+                    'password_valid' => true,
+                    'terms_accepted' => $terms
+                ),
+                'message' => 'Step 1 validation completed successfully'
+            );
+        }
+        
+        return $response;
     }
     
     /**

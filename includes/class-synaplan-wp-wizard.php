@@ -158,6 +158,7 @@ class Synaplan_WP_Wizard {
         $email = $this->wizard_data['email'] ?? get_option('admin_email');
         $password = $this->wizard_data['password'] ?? '';
         $language = $this->wizard_data['language'] ?? '';
+        $debug_mode = $this->wizard_data['debug_mode'] ?? false;
         
         ?>
         <div class="wizard-step step-1">
@@ -173,7 +174,7 @@ class Synaplan_WP_Wizard {
             <div class="form-group">
                 <label for="password"><?php esc_html_e('Password', 'synaplan-ai-support-chat'); ?> <span class="required">*</span></label>
                 <input type="password" id="password" name="password" value="<?php echo esc_attr($password); ?>" required />
-                <small class="form-help"><?php esc_html_e('Minimum 6 characters with numbers and special characters.', 'synaplan-ai-support-chat'); ?></small>
+                <small class="form-help"><?php esc_html_e('Minimum 6 characters. Must include:', 'synaplan-ai-support-chat'); ?> <strong><?php esc_html_e('numbers', 'synaplan-ai-support-chat'); ?></strong> <?php esc_html_e('and', 'synaplan-ai-support-chat'); ?> <strong><?php esc_html_e('special characters', 'synaplan-ai-support-chat'); ?></strong> <?php esc_html_e('(e.g., !@#$%^&*)', 'synaplan-ai-support-chat'); ?></small>
                 <div class="password-strength" id="password-strength"></div>
             </div>
             
@@ -202,7 +203,7 @@ class Synaplan_WP_Wizard {
             
             <div class="form-group debug-toggle">
                 <label class="checkbox-label debug-label">
-                    <input type="checkbox" name="debug_mode" id="debug_mode" />
+                    <input type="checkbox" name="debug_mode" id="debug_mode" <?php echo $debug_mode ? 'checked' : ''; ?> />
                     <span class="debug-icon">🔧</span>
                     <?php esc_html_e('Debug Mode - Developer Console Logging', 'synaplan-ai-support-chat'); ?>
                 </label>
@@ -592,7 +593,8 @@ class Synaplan_WP_Wizard {
             'icon_color' => '#ffffff',
             'widget_position' => $this->wizard_data['widget_position'],
             'intro_message' => $this->wizard_data['intro_message'],
-            'prompt' => $this->wizard_data['prompt']
+            'prompt' => $this->wizard_data['prompt'],
+            'debug_mode' => $this->wizard_data['debug_mode'] ?? false
         );
         
         // Get uploaded files if any

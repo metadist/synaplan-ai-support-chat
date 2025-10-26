@@ -329,8 +329,8 @@ class Synaplan_WP_API {
         $verification_token = Synaplan_WP_Core::create_verification_token();
         $verification_url = Synaplan_WP_Core::get_verification_endpoint_url();
         
+        // Don't include 'action' here - make_request adds it
         $data = array(
-            'action' => 'wpStep1VerifyAndCreateUser',
             'email' => $wizard_data['email'] ?? '',
             'password' => $wizard_data['password'] ?? '',
             'language' => $wizard_data['language'] ?? 'en',
@@ -349,8 +349,8 @@ class Synaplan_WP_API {
      * @return array Result with api_key
      */
     public function wizard_step2_create_api_key($user_id) {
+        // Don't include 'action' here - make_request adds it
         $data = array(
-            'action' => 'wpStep2CreateApiKey',
             'user_id' => $user_id
         );
         
@@ -438,8 +438,8 @@ class Synaplan_WP_API {
      * @return array Result
      */
     public function wizard_step4_enable_file_search($user_id) {
+        // Don't include 'action' here - make_request adds it
         $data = array(
-            'action' => 'wpStep4EnableFileSearch',
             'user_id' => $user_id
         );
         
@@ -454,8 +454,8 @@ class Synaplan_WP_API {
      * @return array Result
      */
     public function wizard_step5_save_widget($user_id, $wizard_data) {
+        // Don't include 'action' here - make_request adds it
         $data = array(
-            'action' => 'wpStep5SaveWidget',
             'user_id' => $user_id,
             'widgetId' => $wizard_data['widget_id'] ?? 1,
             'widgetColor' => $wizard_data['widget_color'] ?? '#007bff',
@@ -504,34 +504,50 @@ class Synaplan_WP_API {
         
         if ($debug_mode) {
             $debug_log['step_1_response'] = array(
-                'success' => $step1_result['success'],
+                'http_success' => $step1_result['success'],
                 'status_code' => $step1_result['status_code'] ?? null,
-                'data' => $step1_result['data'] ?? null
+                'full_response' => $step1_result['data'] ?? null
             );
         }
         
-        if (!$step1_result['success']) {
-            Synaplan_WP_Core::log("Step 1 failed: " . ($step1_result['error'] ?? 'Unknown error'), 'error');
+        // Extract API response from HTTP wrapper
+        $step1_api_response = $step1_result['data'] ?? array();
+        $step1_api_success = $step1_api_response['success'] ?? false;
+        $step1_api_data = $step1_api_response['data'] ?? array();
+        
+        // Check both HTTP-level and API-level success
+        if (!$step1_result['success'] || !$step1_api_success) {
+            $error_msg = $step1_api_response['error'] ?? $step1_result['error'] ?? 'User creation failed';
+            Synaplan_WP_Core::log("Step 1 failed: " . $error_msg, 'error');
+            
             $result = array(
                 'success' => false,
-                'error' => $step1_result['error'] ?? 'User creation failed',
+                'error' => $error_msg,
                 'step' => 1
             );
             if ($debug_mode) {
                 $result['debug_log'] = $debug_log;
+                $result['debug_info'] = 'HTTP success: ' . ($step1_result['success'] ? 'true' : 'false') . ', API success: ' . ($step1_api_success ? 'true' : 'false');
             }
             return $result;
         }
         
-        $user_id = $step1_result['data']['data']['user_id'] ?? null;
+        // Get user_id from the clean API data structure
+        $user_id = $step1_api_data['user_id'] ?? null;
+        
         if (empty($user_id)) {
+            $error_details = 'User ID not found in API response';
+            Synaplan_WP_Core::log($error_details . ': ' . wp_json_encode($step1_api_response), 'error');
+            
             $result = array(
                 'success' => false,
-                'error' => 'User ID not returned from step 1',
+                'error' => 'User ID not returned from step 1. Please check your API configuration.',
                 'step' => 1
             );
             if ($debug_mode) {
                 $result['debug_log'] = $debug_log;
+                $result['api_response_structure'] = $step1_api_response;
+                $result['api_data_structure'] = $step1_api_data;
             }
             return $result;
         }
@@ -546,19 +562,28 @@ class Synaplan_WP_API {
         
         $step2_result = $this->wizard_step2_create_api_key($user_id);
         
+        // Extract API response from HTTP wrapper
+        $step2_api_response = $step2_result['data'] ?? array();
+        $step2_api_success = $step2_api_response['success'] ?? false;
+        $step2_api_data = $step2_api_response['data'] ?? array();
+        
         if ($debug_mode) {
             $debug_log['step_2_response'] = array(
-                'success' => $step2_result['success'],
+                'http_success' => $step2_result['success'],
+                'api_success' => $step2_api_success,
                 'status_code' => $step2_result['status_code'] ?? null,
-                'api_key' => isset($step2_result['data']['data']['api_key']) ? '[REDACTED - length: ' . strlen($step2_result['data']['data']['api_key']) . ']' : null
+                'api_key' => isset($step2_api_data['api_key']) ? '[REDACTED - length: ' . strlen($step2_api_data['api_key']) . ']' : 'NOT FOUND'
             );
         }
         
-        if (!$step2_result['success']) {
-            Synaplan_WP_Core::log("Step 2 failed: " . ($step2_result['error'] ?? 'Unknown error'), 'error');
+        // Check both HTTP-level and API-level success
+        if (!$step2_result['success'] || !$step2_api_success) {
+            $error_msg = $step2_api_response['error'] ?? $step2_result['error'] ?? 'API key creation failed';
+            Synaplan_WP_Core::log("Step 2 failed: " . $error_msg, 'error');
+            
             $result = array(
                 'success' => false,
-                'error' => $step2_result['error'] ?? 'API key creation failed',
+                'error' => $error_msg,
                 'step' => 2
             );
             if ($debug_mode) {
@@ -567,15 +592,21 @@ class Synaplan_WP_API {
             return $result;
         }
         
-        $api_key = $step2_result['data']['data']['api_key'] ?? null;
+        // Get api_key from the clean API data structure
+        $api_key = $step2_api_data['api_key'] ?? null;
+        
         if (empty($api_key)) {
+            $error_details = 'API key not found in API response';
+            Synaplan_WP_Core::log($error_details . ': ' . wp_json_encode($step2_api_response), 'error');
+            
             $result = array(
                 'success' => false,
-                'error' => 'API key not returned from step 2',
+                'error' => 'API key not returned from step 2. Please check your API configuration.',
                 'step' => 2
             );
             if ($debug_mode) {
                 $result['debug_log'] = $debug_log;
+                $result['api_response_structure'] = $step2_api_response;
             }
             return $result;
         }
@@ -604,20 +635,27 @@ class Synaplan_WP_API {
                 
                 $step3_result = $this->wizard_step3_upload_file($user_id, $file_data);
                 
+                // Extract API response from HTTP wrapper
+                $step3_api_response = $step3_result['data'] ?? array();
+                $step3_api_success = $step3_api_response['success'] ?? false;
+                $step3_api_data = $step3_api_response['data'] ?? array();
+                
                 if ($debug_mode) {
                     $debug_log['step_3_files'][$index]['response'] = array(
-                        'success' => $step3_result['success'],
+                        'http_success' => $step3_result['success'],
+                        'api_success' => $step3_api_success,
                         'status_code' => $step3_result['status_code'] ?? null,
-                        'file_id' => $step3_result['data']['data']['file_id'] ?? null,
-                        'error' => $step3_result['error'] ?? null
+                        'file_id' => $step3_api_data['file_id'] ?? null,
+                        'error' => $step3_api_response['error'] ?? $step3_result['error'] ?? null
                     );
                 }
                 
-                if ($step3_result['success']) {
+                if ($step3_result['success'] && $step3_api_success) {
                     $uploaded_files_count++;
                 } else {
                     // Log error but continue with other files
-                    Synaplan_WP_Core::log("File upload failed: " . ($step3_result['error'] ?? 'Unknown error'), 'warning');
+                    $error_msg = $step3_api_response['error'] ?? $step3_result['error'] ?? 'Unknown error';
+                    Synaplan_WP_Core::log("File upload failed: " . $error_msg, 'warning');
                 }
             }
         }
@@ -633,17 +671,23 @@ class Synaplan_WP_API {
             
             $step4_result = $this->wizard_step4_enable_file_search($user_id);
             
+            // Extract API response from HTTP wrapper
+            $step4_api_response = $step4_result['data'] ?? array();
+            $step4_api_success = $step4_api_response['success'] ?? false;
+            
             if ($debug_mode) {
                 $debug_log['step_4_response'] = array(
-                    'success' => $step4_result['success'],
+                    'http_success' => $step4_result['success'],
+                    'api_success' => $step4_api_success,
                     'status_code' => $step4_result['status_code'] ?? null,
-                    'error' => $step4_result['error'] ?? null
+                    'error' => $step4_api_response['error'] ?? $step4_result['error'] ?? null
                 );
             }
             
-            if (!$step4_result['success']) {
+            if (!$step4_result['success'] || !$step4_api_success) {
                 // Log error but don't fail the entire setup
-                Synaplan_WP_Core::log("Step 4 failed: " . ($step4_result['error'] ?? 'Unknown error'), 'warning');
+                $error_msg = $step4_api_response['error'] ?? $step4_result['error'] ?? 'Unknown error';
+                Synaplan_WP_Core::log("Step 4 failed: " . $error_msg, 'warning');
             }
         } else {
             if ($debug_mode) {
@@ -665,17 +709,23 @@ class Synaplan_WP_API {
         
         $step5_result = $this->wizard_step5_save_widget($user_id, $wizard_data);
         
+        // Extract API response from HTTP wrapper
+        $step5_api_response = $step5_result['data'] ?? array();
+        $step5_api_success = $step5_api_response['success'] ?? false;
+        
         if ($debug_mode) {
             $debug_log['step_5_response'] = array(
-                'success' => $step5_result['success'],
+                'http_success' => $step5_result['success'],
+                'api_success' => $step5_api_success,
                 'status_code' => $step5_result['status_code'] ?? null,
-                'error' => $step5_result['error'] ?? null
+                'error' => $step5_api_response['error'] ?? $step5_result['error'] ?? null
             );
         }
         
-        if (!$step5_result['success']) {
+        if (!$step5_result['success'] || !$step5_api_success) {
             // Log error but don't fail the entire setup
-            Synaplan_WP_Core::log("Step 5 failed: " . ($step5_result['error'] ?? 'Unknown error'), 'warning');
+            $error_msg = $step5_api_response['error'] ?? $step5_result['error'] ?? 'Unknown error';
+            Synaplan_WP_Core::log("Step 5 failed: " . $error_msg, 'warning');
         }
         
         // Return success with all data
@@ -699,9 +749,11 @@ class Synaplan_WP_API {
                 'step_1_create_user' => 'SUCCESS',
                 'step_2_create_api_key' => 'SUCCESS',
                 'step_3_upload_files' => $uploaded_files_count . ' files uploaded',
-                'step_4_enable_file_search' => $uploaded_files_count > 0 ? ($step4_result['success'] ? 'SUCCESS' : 'FAILED') : 'SKIPPED',
-                'step_5_save_widget' => $step5_result['success'] ? 'SUCCESS' : 'FAILED',
-                'overall_status' => 'SUCCESS'
+                'step_4_enable_file_search' => $uploaded_files_count > 0 ? (($step4_result['success'] ?? false) && ($step4_api_success ?? false) ? 'SUCCESS' : 'FAILED') : 'SKIPPED',
+                'step_5_save_widget' => ($step5_result['success'] ?? false) && ($step5_api_success ?? false) ? 'SUCCESS' : 'FAILED',
+                'overall_status' => 'SUCCESS',
+                'user_id' => $user_id,
+                'api_key_length' => strlen($api_key)
             );
             $result['debug_log'] = $debug_log;
         }

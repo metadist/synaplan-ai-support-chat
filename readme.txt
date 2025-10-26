@@ -4,7 +4,7 @@ Tags: ai, chat, chatbot, support, customer-service
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.3
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: Apache-2.0
 License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -131,6 +131,15 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Changelog ==
 
+= 1.0.6 =
+* **WordPress.org Compliance**: Final review compliance updates
+* **Contributors List**: Updated to WordPress.org username format
+* **Code Quality**: Enhanced sanitization and escaping throughout
+* **Enqueue Standards**: All scripts and styles properly enqueued using WordPress standards
+* **HTTP API**: Using WordPress HTTP API instead of cURL
+* **Security**: Improved input validation and output escaping
+* No functional changes - plugin works identically
+
 = 1.0.5 =
 * **Metadata Corrections**: Updated author attribution to metadist GmbH
 * **URL Corrections**: Fixed GitHub repository URLs to metadist organization
@@ -169,6 +178,9 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 * Basic chat widget functionality
 
 == Upgrade Notice ==
+
+= 1.0.6 =
+WordPress.org compliance update: Improved code quality and security. No functional changes - all settings preserved.
 
 = 1.0.5 =
 Metadata update: Corrected author attribution and documentation links. No functional changes - all settings preserved.

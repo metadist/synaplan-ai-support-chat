@@ -5,7 +5,7 @@
 - Requires at least: 5.0
 - Tested up to: 6.8
 - Requires PHP: 7.3
-- Stable tag: 1.0.5
+- Stable tag: 1.0.8
 - License: Apache-2.0
 - License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -16,6 +16,8 @@ A WordPress plugin that integrates Synaplan AI support chat widget into your Wor
 ## Description
 
 Synaplan AI Support Chat provides an easy way to add intelligent chat functionality to your WordPress website. The plugin features a step-by-step wizard that guides you through the setup process, including user registration, configuration, and widget integration.
+
+This wizard automatically creates a free account on www.synaplan.com !
 
 ## Features
 

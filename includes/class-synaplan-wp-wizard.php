@@ -158,6 +158,7 @@ class Synaplan_WP_Wizard {
         $email = $this->wizard_data['email'] ?? get_option('admin_email');
         $password = $this->wizard_data['password'] ?? '';
         $language = $this->wizard_data['language'] ?? '';
+        $debug_mode = $this->wizard_data['debug_mode'] ?? false;
         
         ?>
         <div class="wizard-step step-1">
@@ -173,7 +174,7 @@ class Synaplan_WP_Wizard {
             <div class="form-group">
                 <label for="password"><?php esc_html_e('Password', 'synaplan-ai-support-chat'); ?> <span class="required">*</span></label>
                 <input type="password" id="password" name="password" value="<?php echo esc_attr($password); ?>" required />
-                <small class="form-help"><?php esc_html_e('Minimum 6 characters with numbers and special characters.', 'synaplan-ai-support-chat'); ?></small>
+                <small class="form-help"><?php esc_html_e('Minimum 6 characters. Must include:', 'synaplan-ai-support-chat'); ?> <strong><?php esc_html_e('numbers', 'synaplan-ai-support-chat'); ?></strong> <?php esc_html_e('and', 'synaplan-ai-support-chat'); ?> <strong><?php esc_html_e('special characters', 'synaplan-ai-support-chat'); ?></strong> <?php esc_html_e('(e.g., !@#$%^&*)', 'synaplan-ai-support-chat'); ?></small>
                 <div class="password-strength" id="password-strength"></div>
             </div>
             
@@ -198,6 +199,18 @@ class Synaplan_WP_Wizard {
                     <input type="checkbox" name="terms" required />
                     <?php esc_html_e('I agree to the', 'synaplan-ai-support-chat'); ?> <a href="#" target="_blank"><?php esc_html_e('Terms of Service', 'synaplan-ai-support-chat'); ?></a> <?php esc_html_e('and', 'synaplan-ai-support-chat'); ?> <a href="#" target="_blank"><?php esc_html_e('Privacy Policy', 'synaplan-ai-support-chat'); ?></a>
                 </label>
+            </div>
+            
+            <div class="form-group debug-toggle">
+                <label class="checkbox-label debug-label">
+                    <input type="checkbox" name="debug_mode" id="debug_mode" <?php echo $debug_mode ? 'checked' : ''; ?> />
+                    <span class="debug-icon">🔧</span>
+                    <?php esc_html_e('Debug Mode - Developer Console Logging', 'synaplan-ai-support-chat'); ?>
+                </label>
+                <small class="form-help debug-help">
+                    <strong><?php esc_html_e('For Developers:', 'synaplan-ai-support-chat'); ?></strong>
+                    <?php esc_html_e('Enable extensive logging in browser console to track data collection, sanitization, and API transfers for each wizard step.', 'synaplan-ai-support-chat'); ?>
+                </small>
             </div>
         </div>
         <?php
@@ -391,13 +404,42 @@ class Synaplan_WP_Wizard {
             return array('success' => false, 'error' => __('Password must be at least 6 characters with numbers and special characters.', 'synaplan-ai-support-chat'));
         }
         
+        // Save debug mode setting
+        $debug_mode = isset($data['debug_mode']) ? rest_sanitize_boolean($data['debug_mode']) : false;
+        
         // Save step data
         $this->wizard_data['email'] = $email;
         $this->wizard_data['password'] = $password;
         $this->wizard_data['language'] = $language;
+        $this->wizard_data['debug_mode'] = $debug_mode;
         $this->save_wizard_data();
         
-        return array('success' => true, 'next_step' => 2);
+        $response = array('success' => true, 'next_step' => 2);
+        
+        // Add debug info if enabled
+        if ($debug_mode) {
+            $response['debug'] = array(
+                'step' => 1,
+                'collected_data' => array(
+                    'email' => $email,
+                    'password' => '[REDACTED]',
+                    'language' => $language,
+                    'terms_accepted' => $terms ? 'yes' : 'no'
+                ),
+                'sanitized_data' => array(
+                    'email' => $email,
+                    'language' => $language
+                ),
+                'validation' => array(
+                    'email_valid' => true,
+                    'password_valid' => true,
+                    'terms_accepted' => $terms
+                ),
+                'message' => 'Step 1 validation completed successfully'
+            );
+        }
+        
+        return $response;
     }
     
     /**
@@ -551,7 +593,8 @@ class Synaplan_WP_Wizard {
             'icon_color' => '#ffffff',
             'widget_position' => $this->wizard_data['widget_position'],
             'intro_message' => $this->wizard_data['intro_message'],
-            'prompt' => $this->wizard_data['prompt']
+            'prompt' => $this->wizard_data['prompt'],
+            'debug_mode' => $this->wizard_data['debug_mode'] ?? false
         );
         
         // Get uploaded files if any

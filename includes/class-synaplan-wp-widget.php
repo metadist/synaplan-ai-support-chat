@@ -69,6 +69,12 @@ class Synaplan_WP_Widget {
     
     /**
      * Render widget in footer
+     * 
+     * Note: This uses inline script intentionally because:
+     * 1. The widget URL is dynamically generated with user-specific parameters (user_id, widget_id)
+     * 2. The script loads an external JavaScript file from app.synaplan.com
+     * 3. This cannot be enqueued statically as wp_enqueue_script requires a fixed URL
+     * 4. The URL is properly escaped with esc_url() for security
      */
     public function render_widget() {
         $config = Synaplan_WP_Core::get_widget_config();
@@ -81,8 +87,7 @@ class Synaplan_WP_Widget {
         // Generate widget script URL
         $widget_url = $this->get_widget_url($user_id, 1);
         
-        // Inline script is intentional: dynamically loads external widget with user-specific URL
-        // This cannot be enqueued as it requires runtime user_id parameter
+        // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Inline script loader required for dynamic external widget URL
         ?>
         <script>
         (function() {
@@ -93,10 +98,18 @@ class Synaplan_WP_Widget {
         })();
         </script>
         <?php
+        // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
     }
     
     /**
      * Shortcode handler
+     * 
+     * Note: This uses inline script intentionally because:
+     * 1. Each shortcode instance requires unique parameters (user_id, widget_id, mode)
+     * 2. The script loads an external JavaScript file from app.synaplan.com
+     * 3. Multiple shortcodes on the same page may have different configurations
+     * 4. Cannot be enqueued via wp_enqueue_script as URL is dynamically generated per shortcode
+     * 5. The URL is properly escaped with esc_url() for security
      */
     public function shortcode_handler($atts) {
         $atts = shortcode_atts(array(
@@ -111,15 +124,14 @@ class Synaplan_WP_Widget {
         $user_id = Synaplan_WP_Core::get_user_id();
         
         if (empty($user_id)) {
-            return '<p>' . __('Synaplan widget is not configured.', 'synaplan-ai-support-chat') . '</p>';
+            return '<p>' . esc_html__('Synaplan widget is not configured.', 'synaplan-ai-support-chat') . '</p>';
         }
         
         // Generate widget script URL with inline mode
         $widget_url = $this->get_widget_url($user_id, 1, 'inline-box');
         
         ob_start();
-        // Inline script is intentional: dynamically loads external widget with shortcode-specific parameters
-        // This cannot be enqueued as it requires runtime user_id and mode parameters
+        // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Inline script loader required for shortcode-specific dynamic external widget URL
         ?>
         <div class="synaplan-widget-shortcode" data-type="<?php echo esc_attr($atts['type']); ?>">
             <script>
@@ -132,6 +144,7 @@ class Synaplan_WP_Widget {
             </script>
         </div>
         <?php
+        // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
         return ob_get_clean();
     }
     

@@ -203,6 +203,7 @@ Major update with complete wizard flow, instant activation, and WordPress.org co
 
 * **Email:** support@synaplan.com
 * **Website:** [https://www.synaplan.com](https://www.synaplan.com)
+* **Website:** [https://www.synaplan.com](https://www.synaplan.com)
 * **Dashboard:** [https://app.synaplan.com](https://app.synaplan.com)
 
 = Privacy =
@@ -214,7 +215,9 @@ This plugin connects to Synaplan's external API (app.synaplan.com) to provide AI
 * WordPress site verification tokens are exchanged during setup
 * No personal data is collected without user consent
 * View our privacy policy at [https://www.synaplan.com/privacy](https://www.synaplan.com/privacy)
+* View our privacy policy at [https://www.synaplan.com/privacy](https://www.synaplan.com/privacy)
 
 = Credits =
 
+Developed by [metadist GmbH](https://www.metadist.de) for [Synaplan](https://www.synaplan.com) - AI-powered business solutions.
 Developed by [metadist GmbH](https://www.metadist.de) for [Synaplan](https://www.synaplan.com) - AI-powered business solutions.

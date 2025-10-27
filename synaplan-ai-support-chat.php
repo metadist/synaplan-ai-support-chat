@@ -2,6 +2,7 @@
 /**
  * Plugin Name: Synaplan AI Support Chat
  * Plugin URI: https://github.com/metadist/synaplan-ai-support-chat
+ * Plugin URI: https://github.com/metadist/synaplan-ai-support-chat
  * Description: Integrate Synaplan AI support chat widget into your WordPress site with a wizard-style setup procedure. Provide instant AI-powered customer support with knowledge base integration.
  * Version: 1.0.8
  * Author: metadist GmbH

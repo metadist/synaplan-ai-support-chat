@@ -1,6 +1,7 @@
 # Synaplan AI Support Chat Wordpress Plugin
 
 - Contributors: metadist
+- Contributors: metadist
 - Tags: ai, chat, chatbot, support, customer-service
 - Requires at least: 5.0
 - Tested up to: 6.8
@@ -105,9 +106,13 @@ The plugin integrates with the Synaplan API to provide:
 - [API Documentation](https://docs.synaplan.com/)
 - [Widget Examples](https://docs.synaplan.com/widget-inline-demo.php)
 - [Synaplan Dashboard](https://app.synaplan.com/)
+- [API Documentation](https://docs.synaplan.com/)
+- [Widget Examples](https://docs.synaplan.com/widget-inline-demo.php)
+- [Synaplan Dashboard](https://app.synaplan.com/)
 
 ### Getting Help
 
+- **GitHub Issues**: [Report bugs or request features](https://github.com/metadist/synaplan-ai-support-chat/issues)
 - **GitHub Issues**: [Report bugs or request features](https://github.com/metadist/synaplan-ai-support-chat/issues)
 - **WordPress Support**: [Plugin support forum](https://wordpress.org/support/plugin/synaplan-ai-support-chat)
 - **Email Support**: support@synaplan.com
@@ -122,6 +127,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ```bash
 # Clone the repository
+git clone https://github.com/metadist/synaplan-ai-support-chat.git
 git clone https://github.com/metadist/synaplan-ai-support-chat.git
 
 # Install dependencies
@@ -142,6 +148,12 @@ composer build
 4. Activate the plugin in WordPress admin
 
 ## Changelog
+
+### Version 1.0.5
+- **Metadata Corrections**: Updated author attribution to metadist GmbH
+- **URL Corrections**: Fixed GitHub repository URLs to metadist organization
+- **Documentation Links**: Updated to correct documentation URLs at docs.synaplan.com
+- No functional changes - plugin works identically
 
 ### Version 1.0.5
 - **Metadata Corrections**: Updated author attribution to metadist GmbH
@@ -180,6 +192,8 @@ This plugin is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for
 
 ## Credits
 
+- **metadist GmbH**: Plugin development and maintenance
+- **Synaplan**: AI platform and API
 - **metadist GmbH**: Plugin development and maintenance
 - **Synaplan**: AI platform and API
 - **WordPress Community**: Platform and ecosystem

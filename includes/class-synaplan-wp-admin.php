@@ -230,6 +230,7 @@ class Synaplan_WP_Admin {
         $widget_config = Synaplan_WP_Core::get_widget_config();
         
         if (isset($_POST['submit']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'synaplan_wp_settings')) {
+        if (isset($_POST['submit']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'synaplan_wp_settings')) {
             $this->save_settings();
         }
         

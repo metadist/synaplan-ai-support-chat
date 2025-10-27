@@ -60,6 +60,49 @@ class Synaplan_WP_API {
     const MAX_FILE_SIZE = 10485760;
     
     /**
+     * Supported languages
+     */
+    const SUPPORTED_LANGUAGES = array(
+        'en' => 'English',
+        'de' => 'Deutsch',
+        'fr' => 'Français',
+        'es' => 'Español',
+        'it' => 'Italiano',
+        'pt' => 'Português',
+        'nl' => 'Nederlands',
+        'pl' => 'Polski',
+        'ru' => 'Русский',
+        'ja' => '日本語',
+        'ko' => '한국어',
+        'zh' => '中文'
+    );
+    
+    /**
+     * Default prompts
+     */
+    const DEFAULT_PROMPTS = array(
+        'general' => 'General Support',
+        'sales' => 'Sales Assistant',
+        'technical' => 'Technical Support',
+        'customer_service' => 'Customer Service'
+    );
+    
+    /**
+     * Allowed file types for upload
+     */
+    const ALLOWED_FILE_TYPES = array(
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/msword',
+        'text/plain'
+    );
+    
+    /**
+     * Max file size (10MB)
+     */
+    const MAX_FILE_SIZE = 10485760;
+    
+    /**
      * API base URL
      */
     private $api_base_url;
@@ -114,6 +157,7 @@ class Synaplan_WP_API {
         
         if (is_wp_error($response)) {
             Synaplan_WP_Core::log("API Error ($action): " . $response->get_error_message(), 'error');
+            Synaplan_WP_Core::log("API Error ($action): " . $response->get_error_message(), 'error');
             return array(
                 'success' => false,
                 'error' => $response->get_error_message()
@@ -131,10 +175,19 @@ class Synaplan_WP_API {
      * Build standardized API response
      */
     private function build_response($status_code, $decoded_body = null, $raw_body = '') {
+        return $this->build_response($status_code, $decoded_body, $body);
+    }
+    
+    /**
+     * Build standardized API response
+     */
+    private function build_response($status_code, $decoded_body = null, $raw_body = '') {
         return array(
             'success' => $status_code >= 200 && $status_code < 300,
             'status_code' => $status_code,
             'data' => $decoded_body,
+            'raw_body' => $raw_body
+        );
             'raw_body' => $raw_body
         );
     }
@@ -160,6 +213,8 @@ class Synaplan_WP_API {
     /**
      * Upload file for RAG (note: files should be uploaded via wpWizardComplete for wizard)
      * This method is for standalone file uploads after wizard completion
+     * Upload file for RAG (note: files should be uploaded via wpWizardComplete for wizard)
+     * This method is for standalone file uploads after wizard completion
      */
     public function upload_file($file_path, $file_name, $file_type) {
         // For RAG uploads, we need to use multipart/form-data with $_FILES
@@ -168,7 +223,14 @@ class Synaplan_WP_API {
             'action' => 'ragUpload',
             'file' => '@' . $file_path
         );
+        // For RAG uploads, we need to use multipart/form-data with $_FILES
+        // This cannot be done via wp_remote_request easily, so we use action=ragUpload
+        $data = array(
+            'action' => 'ragUpload',
+            'file' => '@' . $file_path
+        );
         
+        return $this->make_request('ragUpload', 'POST', $data);
         return $this->make_request('ragUpload', 'POST', $data);
     }
     
@@ -247,21 +309,27 @@ class Synaplan_WP_API {
      */
     public static function get_supported_languages() {
         return self::SUPPORTED_LANGUAGES;
+    public static function get_supported_languages() {
+        return self::SUPPORTED_LANGUAGES;
     }
     
     /**
      * Detect website language
      */
     public static function detect_website_language() {
+    public static function detect_website_language() {
         $locale = get_locale();
         $language_code = substr($locale, 0, 2);
         
+        return isset(self::SUPPORTED_LANGUAGES[$language_code]) ? $language_code : 'en';
         return isset(self::SUPPORTED_LANGUAGES[$language_code]) ? $language_code : 'en';
     }
     
     /**
      * Get default prompts (translatable)
+     * Get default prompts (translatable)
      */
+    public static function get_default_prompts() {
     public static function get_default_prompts() {
         return array(
             'general' => __('General Support', 'synaplan-ai-support-chat'),
@@ -276,12 +344,14 @@ class Synaplan_WP_API {
      */
     public function validate_file_upload($file) {
         if (!in_array($file['type'], self::ALLOWED_FILE_TYPES)) {
+        if (!in_array($file['type'], self::ALLOWED_FILE_TYPES)) {
             return array(
                 'valid' => false,
                 'error' => __('Only PDF, DOC, DOCX, and TXT files are allowed', 'synaplan-ai-support-chat')
             );
         }
         
+        if ($file['size'] > self::MAX_FILE_SIZE) {
         if ($file['size'] > self::MAX_FILE_SIZE) {
             return array(
                 'valid' => false,

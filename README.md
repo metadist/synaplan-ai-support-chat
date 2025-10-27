@@ -5,7 +5,7 @@
 - Requires at least: 5.0
 - Tested up to: 6.8
 - Requires PHP: 7.3
-- Stable tag: 1.0.5
+- Stable tag: 1.0.8
 - License: Apache-2.0
 - License URI: https://www.apache.org/licenses/LICENSE-2.0
 

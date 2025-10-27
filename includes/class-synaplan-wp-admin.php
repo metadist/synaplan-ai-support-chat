@@ -289,14 +289,15 @@ class Synaplan_WP_Admin {
             $data['email'] = sanitize_email(wp_unslash($_POST['email']));
         }
         if (isset($_POST['password'])) {
-            // Password should not be sanitized but validated
+            // Password is passed directly to API - only unslash, don't sanitize to preserve special chars
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Password validated by API, not stored
             $data['password'] = wp_unslash($_POST['password']);
         }
         if (isset($_POST['language'])) {
             $data['language'] = sanitize_text_field(wp_unslash($_POST['language']));
         }
         if (isset($_POST['terms'])) {
-            $data['terms'] = rest_sanitize_boolean(wp_unslash($_POST['terms']));
+            $data['terms'] = rest_sanitize_boolean(sanitize_text_field(wp_unslash($_POST['terms'])));
         }
         if (isset($_POST['intro_message'])) {
             $data['intro_message'] = sanitize_textarea_field(wp_unslash($_POST['intro_message']));
@@ -311,10 +312,10 @@ class Synaplan_WP_Admin {
             $data['widget_position'] = sanitize_text_field(wp_unslash($_POST['widget_position']));
         }
         if (isset($_POST['skip_files'])) {
-            $data['skip_files'] = rest_sanitize_boolean(wp_unslash($_POST['skip_files']));
+            $data['skip_files'] = rest_sanitize_boolean(sanitize_text_field(wp_unslash($_POST['skip_files'])));
         }
         if (isset($_POST['debug_mode'])) {
-            $data['debug_mode'] = rest_sanitize_boolean(wp_unslash($_POST['debug_mode']));
+            $data['debug_mode'] = rest_sanitize_boolean(sanitize_text_field(wp_unslash($_POST['debug_mode'])));
         }
         
         $wizard = new Synaplan_WP_Wizard();

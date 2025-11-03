@@ -19,7 +19,7 @@ class Synaplan_WP_Core {
     /**
      * Plugin version
      */
-    const VERSION = '1.0.5';
+    const VERSION = '1.0.10';
     
     /**
      * Plugin instance

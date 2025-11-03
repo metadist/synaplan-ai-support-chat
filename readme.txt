@@ -1,10 +1,10 @@
 === Synaplan AI Support Chat ===
-Contributors: metadist_synaplan
+Contributors: synaplan, synaplan_metadist, metadist
 Tags: ai, chat, chatbot, support, customer-service
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.3
-Stable tag: 1.0.8
+Stable tag: 1.0.10
 License: Apache-2.0
 License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -131,6 +131,11 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Changelog ==
 
+= 1.0.10 =
+* **Contributors Update**: Added all WordPress.org usernames to contributors list
+* **Version Consistency**: Updated version numbers across all files
+* No functional changes - plugin works identically
+
 = 1.0.6 =
 * **WordPress.org Compliance**: Final review compliance updates
 * **Contributors List**: Updated to WordPress.org username format
@@ -178,6 +183,9 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 * Basic chat widget functionality
 
 == Upgrade Notice ==
+
+= 1.0.10 =
+Maintenance update: Contributors list and version consistency improvements. No functional changes - all settings preserved.
 
 = 1.0.6 =
 WordPress.org compliance update: Improved code quality and security. No functional changes - all settings preserved.

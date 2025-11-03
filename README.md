@@ -148,6 +148,7 @@ composer build
 ### Version 1.0.10
 - **Contributors Update**: Added all WordPress.org usernames to contributors list
 - **Version Consistency**: Updated version numbers across all files
+- **Enqueue Compliance**: Converted inline scripts to wp_add_inline_script() for proper WordPress standards
 - No functional changes - plugin works identically
 
 ### Version 1.0.5

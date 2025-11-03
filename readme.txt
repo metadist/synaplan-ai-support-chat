@@ -134,6 +134,7 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 = 1.0.10 =
 * **Contributors Update**: Added all WordPress.org usernames to contributors list
 * **Version Consistency**: Updated version numbers across all files
+* **Enqueue Compliance**: Converted inline scripts to wp_add_inline_script() for proper WordPress standards
 * No functional changes - plugin works identically
 
 = 1.0.6 =
@@ -185,7 +186,7 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 == Upgrade Notice ==
 
 = 1.0.10 =
-Maintenance update: Contributors list and version consistency improvements. No functional changes - all settings preserved.
+Maintenance update: Contributors list, version consistency, and WordPress enqueue standards compliance. No functional changes - all settings preserved.
 
 = 1.0.6 =
 WordPress.org compliance update: Improved code quality and security. No functional changes - all settings preserved.

@@ -70,11 +70,9 @@ class Synaplan_WP_Widget {
     /**
      * Render widget in footer
      * 
-     * Note: This uses inline script intentionally because:
-     * 1. The widget URL is dynamically generated with user-specific parameters (user_id, widget_id)
-     * 2. The script loads an external JavaScript file from app.synaplan.com
-     * 3. This cannot be enqueued statically as wp_enqueue_script requires a fixed URL
-     * 4. The URL is properly escaped with esc_url() for security
+     * Note: This uses wp_add_inline_script() to properly enqueue the widget loader.
+     * The widget URL is dynamically generated with user-specific parameters (user_id, widget_id)
+     * and loads an external JavaScript file from app.synaplan.com.
      */
     public function render_widget() {
         $config = Synaplan_WP_Core::get_widget_config();
@@ -87,31 +85,32 @@ class Synaplan_WP_Widget {
         // Generate widget script URL
         $widget_url = $this->get_widget_url($user_id, 1);
         
-        // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Inline script loader required for dynamic external widget URL
-        ?>
-        <script>
-        (function() {
-            var script = document.createElement('script');
-            script.src = '<?php echo esc_url($widget_url); ?>';
-            script.async = true;
-            document.head.appendChild(script);
-        })();
-        </script>
-        <?php
-        // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+        // Use wp_add_inline_script to properly enqueue the widget loader
+        $inline_script = sprintf(
+            '(function() {
+                var script = document.createElement("script");
+                script.src = %s;
+                script.async = true;
+                document.head.appendChild(script);
+            })();',
+            wp_json_encode($widget_url)
+        );
+        
+        wp_add_inline_script('synaplan-wp-widget-js', $inline_script);
     }
     
     /**
      * Shortcode handler
      * 
-     * Note: This uses inline script intentionally because:
-     * 1. Each shortcode instance requires unique parameters (user_id, widget_id, mode)
-     * 2. The script loads an external JavaScript file from app.synaplan.com
-     * 3. Multiple shortcodes on the same page may have different configurations
-     * 4. Cannot be enqueued via wp_enqueue_script as URL is dynamically generated per shortcode
-     * 5. The URL is properly escaped with esc_url() for security
+     * Note: This uses wp_add_inline_script() to properly enqueue the widget loader.
+     * Each shortcode instance requires unique parameters (user_id, widget_id, mode)
+     * and loads an external JavaScript file from app.synaplan.com.
+     * Multiple shortcodes on the same page may have different configurations.
      */
     public function shortcode_handler($atts) {
+        static $shortcode_count = 0;
+        $shortcode_count++;
+        
         $atts = shortcode_atts(array(
             'type' => 'inline-box',
             'placeholder' => 'Ask me anything...',
@@ -130,22 +129,29 @@ class Synaplan_WP_Widget {
         // Generate widget script URL with inline mode
         $widget_url = $this->get_widget_url($user_id, 1, 'inline-box');
         
-        ob_start();
-        // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Inline script loader required for shortcode-specific dynamic external widget URL
-        ?>
-        <div class="synaplan-widget-shortcode" data-type="<?php echo esc_attr($atts['type']); ?>">
-            <script>
-            (function() {
-                var script = document.createElement('script');
-                script.src = '<?php echo esc_url($widget_url); ?>';
+        // Generate unique handle for this shortcode instance
+        $handle = 'synaplan-shortcode-' . $shortcode_count;
+        
+        // Enqueue a dummy script with unique handle (depends on main widget script)
+        wp_enqueue_script($handle, '', array('synaplan-wp-widget-js'), SYNAPLAN_WP_VERSION, true);
+        
+        // Add inline script using wp_add_inline_script
+        $inline_script = sprintf(
+            '(function() {
+                var script = document.createElement("script");
+                script.src = %s;
                 script.async = true;
                 document.head.appendChild(script);
-            })();
-            </script>
-        </div>
-        <?php
-        // phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-        return ob_get_clean();
+            })();',
+            wp_json_encode($widget_url)
+        );
+        
+        wp_add_inline_script($handle, $inline_script);
+        
+        return sprintf(
+            '<div class="synaplan-widget-shortcode" data-type="%s"></div>',
+            esc_attr($atts['type'])
+        );
     }
     
     /**

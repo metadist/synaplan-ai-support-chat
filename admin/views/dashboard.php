@@ -11,10 +11,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Get widget embed code (this is shown to users, not executed inline)
+// Get widget embed code for display purposes only
+// NOTE: This string is NOT executed. It's displayed to users in a textarea (see line 97 with esc_textarea())
+// Users can copy this code for manual embedding in other contexts.
 $user_id = Synaplan_WP_Core::get_user_id();
 $widget_url = esc_url('https://app.synaplan.com/widget.php?uid=' . $user_id . '&widgetid=1');
-// Build embed code as a string to display to users (will be escaped with esc_textarea when output)
+
+// Build embed code as a string to DISPLAY to users (not to execute)
+// This is properly escaped with esc_textarea() when output on line 97
 $embed_code = '<script>
 (function() {
     var script = document.createElement(\'script\');

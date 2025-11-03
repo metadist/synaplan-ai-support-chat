@@ -1,7 +1,6 @@
 # Synaplan AI Support Chat Wordpress Plugin
 
-- Contributors: metadist
-- Contributors: metadist
+- Contributors: synaplan, metadist_synaplan, metadist
 - Tags: ai, chat, chatbot, support, customer-service
 - Requires at least: 5.0
 - Tested up to: 6.8

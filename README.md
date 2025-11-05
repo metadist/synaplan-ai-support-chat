@@ -5,7 +5,7 @@
 - Requires at least: 5.0
 - Tested up to: 6.8
 - Requires PHP: 7.3
-- Stable tag: 1.0.8
+- Stable tag: 1.0.10
 - License: Apache-2.0
 - License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -144,6 +144,12 @@ composer build
 4. Activate the plugin in WordPress admin
 
 ## Changelog
+
+### Version 1.0.10
+- **Contributors Update**: Added all WordPress.org usernames to contributors list
+- **Version Consistency**: Updated version numbers across all files
+- **Enqueue Compliance**: Converted inline scripts to wp_add_inline_script() for proper WordPress standards
+- No functional changes - plugin works identically
 
 ### Version 1.0.5
 - **Metadata Corrections**: Updated author attribution to metadist GmbH

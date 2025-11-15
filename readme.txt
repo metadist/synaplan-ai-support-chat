@@ -121,13 +121,7 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Screenshots ==
 
-1. Setup wizard - Account creation step
-2. Setup wizard - Widget configuration
-3. Setup wizard - Knowledge base upload
-4. Dashboard with API credentials
-5. Chat widget on website (floating button)
-6. Chat widget on website (inline box)
-7. Admin settings page
+1. Synaplan AI Support Chat widget in action, 6 languages supported!
 
 == Changelog ==
 

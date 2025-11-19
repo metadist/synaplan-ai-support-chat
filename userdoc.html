@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synaplan AI Support Chat - User Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        nav {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        nav h2 {
+            color: #007bff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        nav ul {
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-bottom: 10px;
+        }
+
+        nav ul li a {
+            color: #007bff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        nav ul li a:hover {
+            background: #f0f7ff;
+        }
+
+        nav ul li a::before {
+            content: "▸";
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            color: #007bff;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #007bff;
+        }
+
+        h3 {
+            color: #0056b3;
+            font-size: 1.5em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            color: #333;
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+
+        .feature-box {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .feature-box h4 {
+            color: #007bff;
+            margin-top: 0;
+        }
+
+        .step-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            transition: transform 0.3s;
+        }
+
+        .step-card:hover {
+            transform: translateX(5px);
+            border-color: #007bff;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 1.2em;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .tech-flow {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .tech-flow .arrow {
+            text-align: center;
+            color: #007bff;
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: #007bff;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        footer {
+            background: #2d2d2d;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            border-radius: 10px;
+            margin-top: 50px;
+        }
+
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            section {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Synaplan AI Support Chat</h1>
+            <p>WordPress Plugin - User Documentation</p>
+            <span class="version-badge">Version 1.0.10</span>
+        </header>
+
+        <nav class="no-print">
+            <h2>📑 Table of Contents</h2>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#quick-start">Quick Start</a></li>
+                <li><a href="#wizard">Setup Wizard Guide</a></li>
+                <li><a href="#technical">Technical Details</a></li>
+                <li><a href="#configuration">Configuration Options</a></li>
+                <li><a href="#requirements">Requirements</a></li>
+                <li><a href="#support">Support</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+            </ul>
+        </nav>
+
+        <section id="overview">
+            <h2>📖 Overview</h2>
+            <p>
+                Synaplan AI Support Chat is a powerful WordPress plugin that seamlessly integrates intelligent AI-powered 
+                chat functionality into your WordPress website. The plugin features a comprehensive step-by-step wizard 
+                that guides you through the setup process, including user registration, configuration, and widget integration.
+            </p>
+            
+            <div class="info-box">
+                <strong>🎉 Automatic Account Creation:</strong> This wizard automatically creates a free account on 
+                <a href="https://www.synaplan.com" target="_blank">www.synaplan.com</a> during the setup process!
+            </div>
+
+            <p>
+                The plugin provides instant AI-powered customer support with knowledge base integration, allowing you to 
+                upload documents and train the AI to answer questions specific to your business.
+            </p>
+        </section>
+
+        <section id="features">
+            <h2>✨ Features</h2>
+            
+            <div class="feature-box">
+                <h4>🧙 Wizard-Style Setup</h4>
+                <p>Intuitive 4-step configuration process that makes setup quick and easy, even for non-technical users.</p>
+            </div>
+
+            <div class="feature-box">
+                <h4>👤 User Registration</h4>
+                <p>Automatic account creation with instant email confirmation and activation.</p>
+            </div>
+
+            <div class="feature-box">
+                <h4>📁 File Upload Support</h4>
+                <p>Upload DOCX, PDF, and TXT files (up to 10MB each) to enhance AI knowledge base with your business information.</p>
+            </div>
+
+            <div class="feature-box">
+                <h4>🎨 Widget Customization</h4>
+                <p>Customize colors, position, welcome messages, and behavior to match your brand.</p>
+            </div>
+
+            <div class="feature-box">
+                <h4>📱 Mobile Optimized</h4>
+                <p>Fully responsive design that works beautifully on all devices and screen sizes.</p>
+            </div>
+
+            <div class="feature-box">
+                <h4>🔒 Secure API Integration</h4>
+                <p>Secure HTTPS communication with the Synaplan backend, with encrypted API keys and proper WordPress security measures.</p>
+            </div>
+
+            <div class="feature-box">
+                <h4>🌍 Multi-Language Support</h4>
+                <p>Support for multiple languages with automatic language detection based on your WordPress settings.</p>
+            </div>
+
+            <div class="feature-box">
+                <h4>📊 Open Source</h4>
+                <p>Licensed under Apache 2.0, giving you the freedom to modify and extend the plugin.</p>
+            </div>
+        </section>
+
+        <section id="installation">
+            <h2>💾 Installation</h2>
+
+            <h3>From WordPress Admin (Recommended)</h3>
+            <ol>
+                <li>Log in to your WordPress admin dashboard</li>
+                <li>Navigate to <strong>Plugins → Add New</strong></li>
+                <li>Search for <code>Synaplan WP AI</code></li>
+                <li>Click <strong>Install Now</strong> button</li>
+                <li>After installation completes, click <strong>Activate</strong></li>
+            </ol>
+
+            <h3>Manual Installation</h3>
+            <ol>
+                <li>Download the plugin files from the WordPress plugin repository</li>
+                <li>Upload the <code>synaplan-ai-support-chat</code> folder to <code>/wp-content/plugins/</code></li>
+                <li>Activate the plugin through the <strong>Plugins</strong> menu in WordPress</li>
+            </ol>
+
+            <div class="success-box">
+                <strong>✅ Installation Complete:</strong> Once activated, you'll see "Synaplan AI Support Chat" 
+                in your WordPress admin menu. Click it to begin the setup wizard!
+            </div>
+        </section>
+
+        <section id="quick-start">
+            <h2>🚀 Quick Start</h2>
+            
+            <p>Getting started with Synaplan AI Support Chat is easy. Follow these simple steps:</p>
+
+            <ol>
+                <li><strong>Activate the plugin</strong> through the WordPress Plugins menu</li>
+                <li>Go to <strong>Synaplan AI</strong> in your WordPress admin menu</li>
+                <li>Follow the <strong>Setup Wizard</strong> (4 easy steps)</li>
+                <li>Complete the wizard steps:
+                    <ul>
+                        <li>Enter your email and password</li>
+                        <li>Configure basic settings</li>
+                        <li>Upload knowledge files (optional)</li>
+                        <li>Confirm your setup</li>
+                    </ul>
+                </li>
+                <li>Your chat widget will be <strong>automatically added</strong> to your site!</li>
+            </ol>
+
+            <div class="info-box">
+                <strong>⏱️ Estimated Setup Time:</strong> 5-10 minutes
+            </div>
+        </section>
+
+        <section id="wizard">
+            <h2>🧙 Setup Wizard Guide</h2>
+            
+            <p>
+                The Setup Wizard is the heart of the Synaplan plugin. It's designed to guide you through the entire 
+                configuration process in just 4 simple steps. Here's a detailed walkthrough:
+            </p>
+
+            <div class="step-card">
+                <h3><span class="step-number">1</span>Account Creation</h3>
+                
+                <h4>What Happens in This Step:</h4>
+                <p>
+                    This step creates your Synaplan account and validates your credentials. Your account will be 
+                    instantly activated without requiring email verification.
+                </p>
+
+                <h4>Required Information:</h4>
+                <ul>
+                    <li><strong>Email Address:</strong> A valid email address (pre-filled with your WordPress admin email)</li>
+                    <li><strong>Password:</strong> Minimum 6 characters, must include numbers and special characters (e.g., !@#$%^&*)</li>
+                    <li><strong>Website Language:</strong> Automatically detected from your WordPress settings, but you can change it</li>
+                    <li><strong>Terms Agreement:</strong> You must accept the Terms of Service and Privacy Policy</li>
+                </ul>
+
+                <h4>Optional Settings:</h4>
+                <ul>
+                    <li><strong>Debug Mode:</strong> Enable this if you're a developer and want to see detailed console logs 
+                    of data collection, sanitization, and API transfers</li>
+                </ul>
+
+                <h4>Technical Process:</h4>
+                <div class="tech-flow">
+                    1. User enters credentials<br>
+                    2. Email validation (sanitize_email)<br>
+                    3. Password strength check (6+ chars, numbers, special chars)<br>
+                    4. Data saved to transient (temporary WordPress storage)<br>
+                    5. Wizard advances to Step 2
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Password Requirements:</strong> Your password must be at least 6 characters long and 
+                    include both numbers AND special characters. Example: <code>MyPass123!</code>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <h3><span class="step-number">2</span>Configure Your Chat Widget</h3>
+                
+                <h4>What Happens in This Step:</h4>
+                <p>
+                    Customize how your AI assistant will interact with your website visitors. This is where you 
+                    define the personality and appearance of your chat widget.
+                </p>
+
+                <h4>Configuration Options:</h4>
+                <ul>
+                    <li><strong>Welcome Message:</strong> The first message visitors see when they open the chat 
+                    (default: "Hello! How can I help you today?")</li>
+                    <li><strong>AI Assistant Type:</strong> Choose from predefined prompt templates:
+                        <ul>
+                            <li>General Support Assistant</li>
+                            <li>Technical Support Specialist</li>
+                            <li>Sales Assistant</li>
+                            <li>Customer Service Agent</li>
+                        </ul>
+                    </li>
+                    <li><strong>Widget Color:</strong> Pick a color that matches your website's brand (color picker provided)</li>
+                    <li><strong>Widget Position:</strong> Choose where the chat button appears:
+                        <ul>
+                            <li>Bottom Right (most common)</li>
+                            <li>Bottom Left</li>
+                            <li>Bottom Center</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <h4>Technical Process:</h4>
+                <div class="tech-flow">
+                    1. User selects preferences<br>
+                    2. Intro message sanitized (sanitize_textarea_field)<br>
+                    3. Color validated (sanitize_hex_color)<br>
+                    4. Settings saved to transient<br>
+                    5. Wizard advances to Step 3
+                </div>
+            </div>
+
+            <div class="step-card">
+                <h3><span class="step-number">3</span>Add Knowledge Base (Optional)</h3>
+                
+                <h4>What Happens in This Step:</h4>
+                <p>
+                    Upload documents to train your AI assistant with information specific to your business. This step 
+                    is optional but highly recommended for better, more accurate responses.
+                </p>
+
+                <h4>File Upload Specifications:</h4>
+                <table>
+                    <tr>
+                        <th>Specification</th>
+                        <th>Details</th>
+                    </tr>
+                    <tr>
+                        <td>Supported Formats</td>
+                        <td>PDF, DOC, DOCX, TXT</td>
+                    </tr>
+                    <tr>
+                        <td>Maximum File Size</td>
+                        <td>10MB per file</td>
+                    </tr>
+                    <tr>
+                        <td>Maximum Files</td>
+                        <td>5 files per wizard session</td>
+                    </tr>
+                    <tr>
+                        <td>Total Upload Limit</td>
+                        <td>50MB per session</td>
+                    </tr>
+                </table>
+
+                <h4>Upload Methods:</h4>
+                <ul>
+                    <li><strong>Drag & Drop:</strong> Drag files from your computer directly to the upload area</li>
+                    <li><strong>File Browser:</strong> Click "Select Files" to browse your computer</li>
+                    <li><strong>Skip:</strong> Check "Skip this step" if you want to add files later</li>
+                </ul>
+
+                <h4>Technical Process:</h4>
+                <div class="tech-flow">
+                    1. User selects/drops files<br>
+                    2. File type validation (MIME type check)<br>
+                    3. File size validation (max 10MB per file)<br>
+                    4. WordPress media library upload (wp_handle_upload)<br>
+                    5. Attachment created (wp_insert_attachment)<br>
+                    6. Files stored temporarily in media library<br>
+                    7. File references saved to transient<br>
+                    8. Wizard advances to Step 4
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 Pro Tip:</strong> Upload FAQs, product manuals, policy documents, or any content 
+                    that will help the AI answer customer questions more accurately.
+                </div>
+            </div>
+
+            <div class="step-card">
+                <h3><span class="step-number">4</span>Review & Complete</h3>
+                
+                <h4>What Happens in This Step:</h4>
+                <p>
+                    Review all your settings before finalizing the setup. Once you click "Complete Setup", 
+                    the wizard will create your account, configure your widget, and process your uploaded files.
+                </p>
+
+                <h4>Review Summary Includes:</h4>
+                <ul>
+                    <li>Email address</li>
+                    <li>Website language</li>
+                    <li>Welcome message</li>
+                    <li>AI assistant type</li>
+                    <li>Widget color</li>
+                    <li>Widget position</li>
+                </ul>
+
+                <h4>What Happens When You Click "Complete Setup":</h4>
+                <div class="tech-flow">
+                    1. All wizard data collected from transient<br>
+                    2. API call to Synaplan backend:<br>
+                    &nbsp;&nbsp;&nbsp;- Create user account<br>
+                    &nbsp;&nbsp;&nbsp;- Verify website URL<br>
+                    &nbsp;&nbsp;&nbsp;- Generate API key<br>
+                    &nbsp;&nbsp;&nbsp;- Create widget configuration<br>
+                    &nbsp;&nbsp;&nbsp;- Process uploaded files (vectorization)<br>
+                    &nbsp;&nbsp;&nbsp;- Configure AI prompt with file search<br>
+                    <div class="arrow">⬇</div>
+                    3. API key and user ID saved to WordPress options<br>
+                    4. Widget configuration saved to database<br>
+                    5. Setup marked as completed<br>
+                    6. Temporary files cleaned up from media library<br>
+                    7. Wizard data deleted from transient<br>
+                    8. Redirect to dashboard
+                </div>
+
+                <div class="success-box">
+                    <strong>🎉 Setup Complete!</strong> Your chat widget is now active on your website. You can 
+                    customize it further from the Settings page.
+                </div>
+            </div>
+
+            <h3>Wizard Data Flow & Security</h3>
+            <p>
+                The wizard uses WordPress transients (temporary storage) to store your data between steps. 
+                This ensures:
+            </p>
+            <ul>
+                <li><strong>Security:</strong> Data is tied to your user session</li>
+                <li><strong>Privacy:</strong> Data expires after 1 hour if wizard is abandoned</li>
+                <li><strong>Reliability:</strong> You can go back and change previous steps</li>
+                <li><strong>Clean Storage:</strong> All temporary data is deleted after completion</li>
+            </ul>
+
+            <h3>Error Handling</h3>
+            <p>
+                The wizard includes comprehensive error handling at each step:
+            </p>
+            <ul>
+                <li>Email validation errors</li>
+                <li>Password strength warnings</li>
+                <li>File upload errors (size, type, server issues)</li>
+                <li>API connection failures</li>
+                <li>Network timeouts</li>
+            </ul>
+            <p>
+                All errors are displayed clearly with suggestions on how to fix them.
+            </p>
+        </section>
+
+        <section id="technical">
+            <h2>⚙️ Technical Details</h2>
+
+            <h3>Architecture Overview</h3>
+            <p>The plugin follows WordPress best practices and is built with the following architecture:</p>
+
+            <h4>Core Classes:</h4>
+            <ul>
+                <li><code>Synaplan_WP_Core</code> - Main plugin initialization and core functionality</li>
+                <li><code>Synaplan_WP_Admin</code> - Admin interface and menu management</li>
+                <li><code>Synaplan_WP_Wizard</code> - Setup wizard logic and step processing</li>
+                <li><code>Synaplan_WP_API</code> - API communication with Synaplan backend</li>
+                <li><code>Synaplan_WP_Widget</code> - Frontend widget rendering</li>
+                <li><code>Synaplan_WP_REST_API</code> - REST API endpoints for widget</li>
+            </ul>
+
+            <h3>Wizard State Management</h3>
+            <p>
+                The wizard uses WordPress transients with a 1-hour expiration for storing step data:
+            </p>
+            <pre><code>// Step data storage
+set_transient('synaplan_wizard_data_' . $user_id, $data, HOUR_IN_SECONDS);
+
+// Step data retrieval
+$wizard_data = get_transient('synaplan_wizard_data_' . $user_id);</code></pre>
+
+            <h3>Data Sanitization</h3>
+            <p>All user inputs are sanitized using WordPress functions:</p>
+            <ul>
+                <li><code>sanitize_email()</code> - Email addresses</li>
+                <li><code>sanitize_text_field()</code> - Single-line text</li>
+                <li><code>sanitize_textarea_field()</code> - Multi-line text</li>
+                <li><code>sanitize_hex_color()</code> - Color values</li>
+                <li><code>sanitize_file_name()</code> - File names</li>
+                <li><code>rest_sanitize_boolean()</code> - Boolean values</li>
+            </ul>
+
+            <h3>File Upload Security</h3>
+            <p>File uploads are handled securely:</p>
+            <ul>
+                <li>MIME type validation using <code>wp_check_filetype()</code></li>
+                <li>File size limits enforced (10MB per file)</li>
+                <li>Rate limiting (5 files per session)</li>
+                <li>WordPress media library integration</li>
+                <li>Automatic cleanup after wizard completion</li>
+            </ul>
+
+            <h3>API Communication</h3>
+            <p>
+                The plugin communicates with the Synaplan backend API using WordPress HTTP API (<code>wp_remote_post()</code>):
+            </p>
+            <ul>
+                <li>All requests use HTTPS</li>
+                <li>Timeout set to 30 seconds</li>
+                <li>API key authentication</li>
+                <li>JSON request/response format</li>
+                <li>Error handling with fallback messages</li>
+            </ul>
+
+            <h3>Database Schema</h3>
+            <p>The plugin stores configuration in WordPress options table:</p>
+            <table>
+                <tr>
+                    <th>Option Name</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>synaplan_wp_version</td>
+                    <td>Plugin version number</td>
+                </tr>
+                <tr>
+                    <td>synaplan_wp_setup_completed</td>
+                    <td>Boolean flag for setup completion</td>
+                </tr>
+                <tr>
+                    <td>synaplan_wp_api_key</td>
+                    <td>Encrypted API key</td>
+                </tr>
+                <tr>
+                    <td>synaplan_wp_user_id</td>
+                    <td>Synaplan user ID</td>
+                </tr>
+                <tr>
+                    <td>synaplan_wp_widget_config</td>
+                    <td>Widget configuration (JSON)</td>
+                </tr>
+            </table>
+
+            <h3>Hooks & Filters</h3>
+            <p>The plugin provides hooks for developers to extend functionality:</p>
+            <ul>
+                <li><code>synaplan_wp_before_widget_render</code> - Before widget HTML is rendered</li>
+                <li><code>synaplan_wp_after_wizard_complete</code> - After wizard completion</li>
+                <li><code>synaplan_wp_api_request_args</code> - Modify API request arguments</li>
+                <li><code>synaplan_wp_widget_config</code> - Filter widget configuration</li>
+            </ul>
+        </section>
+
+        <section id="configuration">
+            <h2>🎛️ Configuration Options</h2>
+
+            <h3>Basic Settings</h3>
+            <table>
+                <tr>
+                    <th>Setting</th>
+                    <th>Description</th>
+                    <th>Default</th>
+                </tr>
+                <tr>
+                    <td>Language</td>
+                    <td>Primary language for AI responses</td>
+                    <td>Auto-detected from WordPress</td>
+                </tr>
+                <tr>
+                    <td>Intro Message</td>
+                    <td>Welcome message shown to visitors</td>
+                    <td>"Hello! How can I help you today?"</td>
+                </tr>
+                <tr>
+                    <td>Support Prompt</td>
+                    <td>Defines AI response behavior</td>
+                    <td>General Support Assistant</td>
+                </tr>
+            </table>
+
+            <h3>Widget Appearance</h3>
+            <table>
+                <tr>
+                    <th>Setting</th>
+                    <th>Description</th>
+                    <th>Options</th>
+                </tr>
+                <tr>
+                    <td>Integration Type</td>
+                    <td>How widget is displayed</td>
+                    <td>Floating Button / Inline Box</td>
+                </tr>
+                <tr>
+                    <td>Primary Color</td>
+                    <td>Widget theme color</td>
+                    <td>Any hex color (#007bff default)</td>
+                </tr>
+                <tr>
+                    <td>Icon Color</td>
+                    <td>Chat icon color</td>
+                    <td>Any hex color (#ffffff default)</td>
+                </tr>
+                <tr>
+                    <td>Position</td>
+                    <td>Widget placement on page</td>
+                    <td>Bottom-right / Bottom-left / Bottom-center</td>
+                </tr>
+                <tr>
+                    <td>Auto-open</td>
+                    <td>Automatically open after delay</td>
+                    <td>Enabled / Disabled</td>
+                </tr>
+            </table>
+
+            <h3>Advanced Options</h3>
+            <ul>
+                <li><strong>File Upload:</strong> Add DOCX and PDF files to enhance AI knowledge</li>
+                <li><strong>Custom Prompts:</strong> Create specialized AI response behaviors</li>
+                <li><strong>Analytics:</strong> Monitor chat usage and performance (via Synaplan dashboard)</li>
+                <li><strong>Debug Mode:</strong> Enable detailed console logging for troubleshooting</li>
+            </ul>
+        </section>
+
+        <section id="requirements">
+            <h2>📋 Requirements</h2>
+
+            <h3>System Requirements</h3>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Minimum Version</th>
+                    <th>Recommended</th>
+                </tr>
+                <tr>
+                    <td>WordPress</td>
+                    <td>5.0</td>
+                    <td>6.8 or higher</td>
+                </tr>
+                <tr>
+                    <td>PHP</td>
+                    <td>7.3</td>
+                    <td>8.1 or higher</td>
+                </tr>
+                <tr>
+                    <td>Memory</td>
+                    <td>128MB</td>
+                    <td>256MB or higher</td>
+                </tr>
+                <tr>
+                    <td>Storage</td>
+                    <td>10MB</td>
+                    <td>50MB (for plugin + cache)</td>
+                </tr>
+            </table>
+
+            <h3>PHP Version Compatibility</h3>
+            <p>The plugin is fully compatible with:</p>
+            <ul>
+                <li>PHP 7.3</li>
+                <li>PHP 7.4</li>
+                <li>PHP 8.0</li>
+                <li>PHP 8.1</li>
+                <li>PHP 8.2</li>
+                <li>PHP 8.3+</li>
+            </ul>
+
+            <div class="warning-box">
+                <strong>⚠️ PHP Version Check:</strong> If your PHP version is below 7.3, the plugin will automatically 
+                deactivate itself and display a warning message with instructions to upgrade.
+            </div>
+
+            <h3>Server Requirements</h3>
+            <ul>
+                <li>HTTPS enabled (required for secure API communication)</li>
+                <li>allow_url_fopen enabled (for API requests)</li>
+                <li>file_uploads enabled (for knowledge base files)</li>
+                <li>max_upload_filesize at least 10MB</li>
+                <li>post_max_size at least 20MB</li>
+            </ul>
+        </section>
+
+        <section id="support">
+            <h2>💬 Support & Resources</h2>
+
+            <h3>Documentation</h3>
+            <ul>
+                <li><a href="https://docs.synaplan.com/" target="_blank">API Documentation</a></li>
+                <li><a href="https://docs.synaplan.com/widget-inline-demo.php" target="_blank">Widget Examples</a></li>
+                <li><a href="https://app.synaplan.com/" target="_blank">Synaplan Dashboard</a></li>
+            </ul>
+
+            <h3>Getting Help</h3>
+            <div class="feature-box">
+                <h4>🐛 GitHub Issues</h4>
+                <p>Report bugs or request features on our GitHub repository:</p>
+                <a href="https://github.com/metadist/synaplan-ai-support-chat/issues" target="_blank" class="btn">
+                    View on GitHub
+                </a>
+            </div>
+
+            <div class="feature-box">
+                <h4>💬 WordPress Support Forum</h4>
+                <p>Get help from the WordPress community:</p>
+                <a href="https://wordpress.org/support/plugin/synaplan-ai-support-chat" target="_blank" class="btn">
+                    Visit Forum
+                </a>
+            </div>
+
+            <div class="feature-box">
+                <h4>📧 Email Support</h4>
+                <p>Contact us directly: <a href="mailto:support@synaplan.com">support@synaplan.com</a></p>
+            </div>
+
+            <h3>Community</h3>
+            <ul>
+                <li>Join our community for tips, best practices, and updates</li>
+                <li>Share your experience and help other users</li>
+                <li>Contribute to the plugin development on GitHub</li>
+            </ul>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>🔧 Troubleshooting</h2>
+
+            <h3>Common Issues & Solutions</h3>
+
+            <div class="step-card">
+                <h4>❌ Problem: Plugin won't activate</h4>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Check your PHP version (must be 7.3 or higher)</li>
+                    <li>Ensure you have sufficient memory (128MB minimum)</li>
+                    <li>Check for conflicting plugins</li>
+                    <li>Try deactivating other plugins temporarily</li>
+                </ul>
+            </div>
+
+            <div class="step-card">
+                <h4>❌ Problem: Wizard setup fails at Step 1</h4>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Verify your password meets requirements (6+ chars, numbers, special characters)</li>
+                    <li>Check that your email address is valid</li>
+                    <li>Ensure you've accepted the Terms of Service</li>
+                    <li>Check your internet connection</li>
+                </ul>
+            </div>
+
+            <div class="step-card">
+                <h4>❌ Problem: File upload fails</h4>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Check file size (max 10MB per file)</li>
+                    <li>Verify file format (PDF, DOC, DOCX, TXT only)</li>
+                    <li>Ensure you're not uploading more than 5 files</li>
+                    <li>Check server upload limits in php.ini</li>
+                    <li>Try uploading files one at a time</li>
+                </ul>
+            </div>
+
+            <div class="step-card">
+                <h4>❌ Problem: Chat widget not showing on website</h4>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Verify setup wizard was completed successfully</li>
+                    <li>Clear your browser cache and WordPress cache</li>
+                    <li>Check that the plugin is activated</li>
+                    <li>Look for JavaScript errors in browser console (F12)</li>
+                    <li>Ensure your theme's footer.php has wp_footer() call</li>
+                </ul>
+            </div>
+
+            <div class="step-card">
+                <h4>❌ Problem: API connection errors</h4>
+                <p><strong>Solution:</strong></p>
+                <ul>
+                    <li>Check your server's firewall settings</li>
+                    <li>Ensure HTTPS is enabled on your site</li>
+                    <li>Verify allow_url_fopen is enabled in PHP</li>
+                    <li>Check for proxy or CDN issues</li>
+                    <li>Contact your hosting provider if issues persist</li>
+                </ul>
+            </div>
+
+            <h3>Debug Mode</h3>
+            <p>
+                Enable Debug Mode in the wizard (Step 1) to see detailed console logs. This helps identify 
+                issues with:
+            </p>
+            <ul>
+                <li>Data collection and sanitization</li>
+                <li>API request/response</li>
+                <li>File upload process</li>
+                <li>Widget initialization</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>💡 Accessing Debug Logs:</strong> Open your browser's Developer Console (F12), 
+                go to the "Console" tab, and look for messages prefixed with <code>[Synaplan]</code>
+            </div>
+
+            <h3>Manual Cleanup</h3>
+            <p>
+                If you need to completely reset the plugin, you can use the manual cleanup function:
+            </p>
+            <pre><code>// In WordPress admin, go to Tools > Site Health > Debug
+// Or add this to your theme's functions.php temporarily:
+add_action('admin_init', 'synaplan_wp_manual_cleanup');</code></pre>
+
+            <div class="warning-box">
+                <strong>⚠️ Warning:</strong> Manual cleanup will delete all plugin data, including your API key 
+                and widget configuration. You'll need to run the setup wizard again.
+            </div>
+        </section>
+
+        <section>
+            <h2>📝 Changelog</h2>
+
+            <h3>Version 1.0.10</h3>
+            <ul>
+                <li><strong>Contributors Update:</strong> Added all WordPress.org usernames to contributors list</li>
+                <li><strong>Version Consistency:</strong> Updated version numbers across all files</li>
+                <li><strong>Enqueue Compliance:</strong> Converted inline scripts to wp_add_inline_script() for proper WordPress standards</li>
+                <li>No functional changes - plugin works identically</li>
+            </ul>
+
+            <h3>Version 1.0.5</h3>
+            <ul>
+                <li><strong>Metadata Corrections:</strong> Updated author attribution to metadist GmbH</li>
+                <li><strong>URL Corrections:</strong> Fixed GitHub repository URLs to metadist organization</li>
+                <li><strong>Documentation Links:</strong> Updated to correct documentation URLs at docs.synaplan.com</li>
+                <li>No functional changes - plugin works identically</li>
+            </ul>
+
+            <h3>Version 1.0.4</h3>
+            <ul>
+                <li><strong>PHP Compatibility:</strong> Now supports PHP 7.3, 7.4, and 8.x</li>
+                <li><strong>Graceful Degradation:</strong> Added runtime PHP version check with clear error messages</li>
+                <li><strong>Broader Compatibility:</strong> Enables installation on more hosting environments</li>
+                <li>Improved version detection and plugin activation handling</li>
+            </ul>
+
+            <h3>Version 1.0.3</h3>
+            <ul>
+                <li>Complete wizard flow with site verification</li>
+                <li>Automatic user creation with instant activation</li>
+                <li>API key generation and management</li>
+                <li>Knowledge base file upload and vectorization</li>
+                <li>Prompt configuration with file search</li>
+                <li>Widget configuration saved to database</li>
+                <li>Click-to-reveal API key in dashboard</li>
+                <li>Full WordPress.org compliance</li>
+                <li>Security improvements and proper escaping</li>
+                <li>Plugin renamed to "Synaplan AI Support Chat"</li>
+            </ul>
+
+            <h3>Version 1.0.0</h3>
+            <ul>
+                <li>Initial release</li>
+                <li>Wizard-style setup procedure</li>
+                <li>Basic widget integration</li>
+                <li>File upload support</li>
+                <li>Admin dashboard</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>📜 License</h2>
+            <p>
+                This plugin is licensed under the <strong>Apache License 2.0</strong>. This open source license 
+                allows you to:
+            </p>
+            <ul>
+                <li>Use the plugin commercially</li>
+                <li>Modify the plugin</li>
+                <li>Distribute the plugin</li>
+                <li>Use patent claims</li>
+                <li>Use the plugin privately</li>
+            </ul>
+            <p>
+                See the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">LICENSE</a> 
+                file for full details.
+            </p>
+        </section>
+
+        <section>
+            <h2>👏 Credits</h2>
+            <ul>
+                <li><strong>metadist GmbH:</strong> Plugin development and maintenance</li>
+                <li><strong>Synaplan:</strong> AI platform and API</li>
+                <li><strong>WordPress Community:</strong> Platform and ecosystem</li>
+                <li><strong>Contributors:</strong> Code contributions and feedback</li>
+            </ul>
+        </section>
+
+        <footer>
+            <h3>Synaplan AI Support Chat</h3>
+            <p>Bringing intelligent chat to your WordPress site.</p>
+            <p style="margin-top: 20px;">
+                <a href="https://www.synaplan.com" target="_blank">Synaplan Website</a> | 
+                <a href="https://docs.synaplan.com" target="_blank">Documentation</a> | 
+                <a href="https://app.synaplan.com" target="_blank">Dashboard</a> | 
+                <a href="https://github.com/metadist/synaplan-ai-support-chat" target="_blank">GitHub</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 0.9em; opacity: 0.8;">
+                &copy; 2025 metadist GmbH. Licensed under Apache 2.0.
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
+

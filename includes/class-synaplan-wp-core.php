@@ -19,7 +19,7 @@ class Synaplan_WP_Core {
     /**
      * Plugin version
      */
-    const VERSION = '1.0.10';
+    const VERSION = '1.0.11';
     
     /**
      * Plugin instance
@@ -211,6 +211,28 @@ class Synaplan_WP_Core {
         return self::update_option('user_id', $user_id);
     }
     
+    /**
+     * Base URL of the Synaplan instance that serves the widget
+     */
+    public static function get_base_url() {
+        /**
+         * Change this for a self-hosted Synaplan instance.
+         *
+         * @param string $base_url
+         */
+        return untrailingslashit((string) apply_filters('synaplan_wp_base_url', 'https://app.synaplan.com'));
+    }
+
+    /**
+     * Widget ID for the loader: the ID from the Synaplan dashboard when it
+     * is set in the settings, otherwise the default widget
+     */
+    public static function get_loader_widget_id() {
+        $widget_id = Synaplan_WP_Visitor::get_widget_id();
+
+        return '' !== $widget_id ? $widget_id : 1;
+    }
+
     /**
      * Get widget configuration
      */

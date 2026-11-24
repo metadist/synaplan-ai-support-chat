@@ -5,7 +5,7 @@
 - Requires at least: 5.0
 - Tested up to: 6.8
 - Requires PHP: 7.3
-- Stable tag: 1.0.10
+- Stable tag: 1.0.11
 - License: Apache-2.0
 - License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -144,6 +144,11 @@ composer build
 4. Activate the plugin in WordPress admin
 
 ## Changelog
+
+### Version 1.0.11
+- **Signed-in visitors**: With the widget ID and signing key from the Synaplan dashboard, the plugin tells the widget which WordPress user is signed in. The user ID is signed on your server; the key is never sent to visitors
+- **Self-hosted Synaplan**: The `synaplan_wp_base_url` filter sets the address of your own Synaplan instance
+- Without the two new settings the plugin works as before
 
 ### Version 1.0.10
 - **Contributors Update**: Added all WordPress.org usernames to contributors list

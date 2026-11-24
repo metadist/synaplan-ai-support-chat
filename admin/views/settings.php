@@ -131,6 +131,51 @@ if (!defined('ABSPATH')) {
             </table>
         </div>
         
+        <div class="settings-card">
+            <h2><?php esc_html_e('Signed-in Visitors', 'synaplan-ai-support-chat'); ?></h2>
+            <p>
+                <?php esc_html_e('If your widget looks up user data ("User Data Integration" in the Synaplan dashboard), the plugin can tell it which WordPress user is signed in. The plugin signs the user ID on this server, so a visitor cannot pretend to be someone else. Copy both values from the widget settings in the Synaplan dashboard. Leave them empty if you do not use this.', 'synaplan-ai-support-chat'); ?>
+            </p>
+
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="synaplan_widget_public_id"><?php esc_html_e('Widget ID', 'synaplan-ai-support-chat'); ?></label>
+                    </th>
+                    <td>
+                        <input type="text" name="synaplan_widget_public_id" id="synaplan_widget_public_id" class="regular-text code" value="<?php echo esc_attr(Synaplan_WP_Visitor::get_widget_id()); ?>" placeholder="wdg_..." autocomplete="off" />
+                        <p class="description">
+                            <?php esc_html_e('Starts with "wdg_". You find it in the embed code of your widget.', 'synaplan-ai-support-chat'); ?>
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row">
+                        <label for="synaplan_visitor_signing_key"><?php esc_html_e('Signing key', 'synaplan-ai-support-chat'); ?></label>
+                    </th>
+                    <td>
+                        <input type="password" name="synaplan_visitor_signing_key" id="synaplan_visitor_signing_key" class="regular-text code" value="" placeholder="<?php echo esc_attr(Synaplan_WP_Visitor::has_signing_key() ? __('A key is saved. Paste a new one to replace it.', 'synaplan-ai-support-chat') : ''); ?>" autocomplete="new-password" />
+                        <p class="description">
+                            <?php
+                            if (Synaplan_WP_Visitor::has_signing_key()) {
+                                esc_html_e('A signing key is saved. It is never shown again and never sent to visitors.', 'synaplan-ai-support-chat');
+                            } else {
+                                esc_html_e('No signing key saved yet. It stays on this server and is never sent to visitors.', 'synaplan-ai-support-chat');
+                            }
+                            ?>
+                        </p>
+                        <?php if (Synaplan_WP_Visitor::has_signing_key()) : ?>
+                            <label for="synaplan_visitor_signing_key_remove">
+                                <input type="checkbox" name="synaplan_visitor_signing_key_remove" id="synaplan_visitor_signing_key_remove" value="1" />
+                                <?php esc_html_e('Remove the saved signing key', 'synaplan-ai-support-chat'); ?>
+                            </label>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
         <p class="submit">
             <input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_html_e('Save Changes', 'synaplan-ai-support-chat'); ?>" />
         </p>

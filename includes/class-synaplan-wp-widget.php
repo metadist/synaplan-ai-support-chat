@@ -57,14 +57,21 @@ class Synaplan_WP_Widget {
         wp_localize_script('synaplan-wp-widget-js', 'synaplan_wp_widget', array(
             'config' => $config,
             'user_id' => $user_id,
-            'widget_id' => 1, // Default widget ID
-            'api_url' => 'https://app.synaplan.com', // Correct API URL
+            'widget_id' => Synaplan_WP_Core::get_loader_widget_id(),
+            'api_url' => Synaplan_WP_Core::get_base_url(),
             'strings' => array(
                 'loading' => __('Loading...', 'synaplan-ai-support-chat'),
                 'error' => __('An error occurred. Please try again.', 'synaplan-ai-support-chat'),
                 'offline' => __('You appear to be offline. Please check your connection.', 'synaplan-ai-support-chat')
             )
         ));
+
+        // Name the signed-in visitor before any loader runs. Only the signed
+        // ID is printed; the signing key stays on the server.
+        $visitor_script = Synaplan_WP_Visitor::inline_script();
+        if ('' !== $visitor_script) {
+            wp_add_inline_script('synaplan-wp-widget-js', $visitor_script, 'before');
+        }
     }
     
     /**
@@ -79,7 +86,7 @@ class Synaplan_WP_Widget {
         }
         
         // Generate widget script URL
-        $widget_url = $this->get_widget_url($user_id, 1);
+        $widget_url = $this->get_widget_url($user_id, Synaplan_WP_Core::get_loader_widget_id());
         
         // Add inline script to load external widget dynamically
         $inline_script = sprintf(
@@ -118,7 +125,7 @@ class Synaplan_WP_Widget {
         }
         
         // Generate widget script URL with inline mode
-        $widget_url = $this->get_widget_url($user_id, 1, 'inline-box');
+        $widget_url = $this->get_widget_url($user_id, Synaplan_WP_Core::get_loader_widget_id(), 'inline-box');
         
         // Add inline script for this shortcode instance
         $inline_script = sprintf(
@@ -151,11 +158,10 @@ class Synaplan_WP_Widget {
      * Get widget URL
      */
     private function get_widget_url($user_id, $widget_id, $mode = '') {
-        $base_url = 'https://app.synaplan.com'; // Correct base URL
-        $url = $base_url . '/widget.php?uid=' . $user_id . '&widgetid=' . $widget_id;
+        $url = Synaplan_WP_Core::get_base_url() . '/widget.php?uid=' . rawurlencode((string) $user_id) . '&widgetid=' . rawurlencode((string) $widget_id);
         
         if (!empty($mode)) {
-            $url .= '&mode=' . $mode;
+            $url .= '&mode=' . rawurlencode($mode);
         }
         
         return $url;

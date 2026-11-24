@@ -244,6 +244,42 @@ class Synaplan_WP_Admin {
     }
     
     /**
+     * Save the widget ID and signing key for signed-in visitors.
+     * Returns false after reporting a value that was not accepted.
+     */
+    private function save_visitor_settings($widget_public_id, $signing_key, $remove_signing_key) {
+        if (!current_user_can('manage_options')) {
+            return true;
+        }
+        
+        $saved = true;
+        
+        if (!Synaplan_WP_Visitor::set_widget_id($widget_public_id)) {
+            add_settings_error(
+                'synaplan_wp_settings',
+                'widget_id_invalid',
+                __('The widget ID was not saved: it must start with "wdg_". Copy it from the embed code in the Synaplan dashboard.', 'synaplan-ai-support-chat'),
+                'error'
+            );
+            $saved = false;
+        }
+        
+        if ($remove_signing_key) {
+            Synaplan_WP_Visitor::delete_signing_key();
+        } elseif ('' !== $signing_key && !Synaplan_WP_Visitor::set_signing_key($signing_key)) {
+            add_settings_error(
+                'synaplan_wp_settings',
+                'signing_key_invalid',
+                __('The signing key was not saved: it must be the 64-character key from the Synaplan dashboard.', 'synaplan-ai-support-chat'),
+                'error'
+            );
+            $saved = false;
+        }
+        
+        return $saved;
+    }
+    
+    /**
      * Save settings
      */
     private function save_settings() {
@@ -257,9 +293,16 @@ class Synaplan_WP_Admin {
             'auto_open' => isset($_POST['auto_open']) ? true : false,
             'prompt' => isset($_POST['prompt']) ? sanitize_text_field(wp_unslash($_POST['prompt'])) : 'general'
         );
+        $widget_public_id = isset($_POST['synaplan_widget_public_id']) ? sanitize_text_field(wp_unslash($_POST['synaplan_widget_public_id'])) : '';
+        $signing_key = isset($_POST['synaplan_visitor_signing_key']) ? sanitize_text_field(wp_unslash($_POST['synaplan_visitor_signing_key'])) : '';
+        $remove_signing_key = isset($_POST['synaplan_visitor_signing_key_remove']);
         // phpcs:enable WordPress.Security.NonceVerification.Missing
         
         Synaplan_WP_Core::update_widget_config($config);
+        
+        if (!$this->save_visitor_settings($widget_public_id, $signing_key, $remove_signing_key)) {
+            return;
+        }
         
         add_settings_error(
             'synaplan_wp_settings',

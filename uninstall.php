@@ -17,6 +17,8 @@ delete_option('synaplan_wp_widget_config');
 delete_option('synaplan_wp_wizard_data');
 delete_option('synaplan_wp_db_version');
 delete_option('synaplan_wp_verification_token');
+delete_option('synaplan_wp_widget_public_id');
+delete_option('synaplan_wp_visitor_signing_key');
 
 // Remove transients
 delete_transient('synaplan_wp_api_status');

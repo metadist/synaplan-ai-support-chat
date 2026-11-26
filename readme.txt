@@ -4,7 +4,7 @@ Tags: ai, chat, chatbot, support, customer-service
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.3
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 License: Apache-2.0
 License URI: https://www.apache.org/licenses/LICENSE-2.0
 
@@ -131,6 +131,11 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 
 == Changelog ==
 
+= 1.0.11 =
+* **Signed-in visitors**: With the widget ID and signing key from the Synaplan dashboard, the plugin tells the widget which WordPress user is signed in. The user ID is signed on your server; the key is never sent to visitors
+* **Self-hosted Synaplan**: The `synaplan_wp_base_url` filter sets the address of your own Synaplan instance
+* Without the two new settings the plugin works as before
+
 = 1.0.10 =
 * **Contributors Update**: Added all WordPress.org usernames to contributors list
 * **Version Consistency**: Updated version numbers across all files
@@ -184,6 +189,9 @@ Yes! Each WordPress site gets its own configuration and can use the same or diff
 * Basic chat widget functionality
 
 == Upgrade Notice ==
+
+= 1.0.11 =
+Optional: signed user IDs for signed-in visitors. Nothing changes until you enter the widget ID and signing key in the settings.
 
 = 1.0.10 =
 Maintenance update: Contributors list, version consistency, and WordPress enqueue standards compliance. No functional changes - all settings preserved.
